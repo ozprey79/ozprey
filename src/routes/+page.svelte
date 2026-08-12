@@ -4,13 +4,43 @@
 
   import Wall from "$lib/wall.svelte";
   import Wallp from "$lib/wallp.svelte";
-  import { innerWidth, innerHeight } from "svelte/reactivity/window";
 
-  let isPortrait = $derived(
-    (innerHeight.current ?? 0) > (innerWidth.current ?? 0),
-  );
+    let CurrentWall = $state(null);
+    
+    	onMount(() => {
+		const media = window.matchMedia('(orientation: portrait)');
+
+		let disposed = false;
+
+		async function loadWall() {
+			const module = media.matches
+				? await import('$lib/wallp.svelte')
+				: await import('$lib/wall.svelte');
+
+			if (disposed) return;
+
+			CurrentWall = module.default;
+		}
+
+		loadWall();
+
+		function handleOrientationChange() {
+			loadWall();
+		}
+
+		media.addEventListener('change', handleOrientationChange);
+
+		return () => {
+			disposed = true;
+
+			media.removeEventListener(
+				'change',
+				handleOrientationChange
+			);
+		};
+	});
 </script>
-
+<!-- <svelte:window bind:innerWidth bind:innerHeight /> -->
 <!-- <div class="loaderbg" bind:this={el}>
   <Loader />
 </div> -->
@@ -42,11 +72,10 @@
 
   <div class="cells">
     <div class="midpanel">
-			{#if isPortrait}
-				<Wallp></Wallp>
-			{:else}
-				<Wall></Wall >
-			{/if}
+		  {#if CurrentWall}
+		<CurrentWall />
+	{/if}
+			
 		</div>
   </div>
 

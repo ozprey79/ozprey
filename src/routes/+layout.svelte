@@ -2,10 +2,12 @@
 	import './layout.css';
 
 	import { onMount } from 'svelte';
-    import ShaderLoader from '$lib/ShaderLoader.svelte';
+	import ShaderLoader from '$lib/ShaderLoader.svelte';
+
 	import Menu from '$lib/menu.svelte';
 	import favicon from '$lib/assets/favicon.svg';
 	import { cat } from '$lib/svgpaths';
+	import catSound from '$lib/assets/caty.mp3';
 
 	let { children } = $props();
 
@@ -14,7 +16,29 @@
 
 	let gsap;
 	let SplitText;
+	let audio;
 
+	onMount(() => {
+		audio = new Audio(catSound);
+		audio.preload = 'auto';
+		audio.volume = 0.7;
+
+		return () => {
+			audio?.pause();
+			audio = null;
+		};
+	});
+
+	function playCatSound() {
+		if (!audio) return;
+
+		audio.currentTime = 0;
+
+		audio.play().catch((error) => {
+			console.warn('Audio could not play:', error);
+		});
+	}
+    
 	onMount(async () => {
 		const [
 			{ gsap: gsapCore },
@@ -36,6 +60,7 @@
 		status = !status;
 
 		navigator.vibrate?.([60, 120, 40, 300]);
+		playCatSound();
 
 		/*
 			GSAP may still be loading during the very first moment
@@ -104,7 +129,9 @@
 <svelte:head>
 	<link rel="icon" href={favicon} />
 </svelte:head>
+
 <ShaderLoader />
+
 <button
 	class="catmenu"
 	onclick={toggleMenu}
@@ -119,11 +146,5 @@
 	</svg>
 </button>
 
-<div
-	id="portfolio-menu"
-	class={menuClass}
->
-	<Menu onclose={closeMenu} />
-</div>
 
 {@render children()}

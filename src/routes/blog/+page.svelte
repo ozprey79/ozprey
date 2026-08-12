@@ -14,14 +14,14 @@
 
 <main class="blog">
 	<header class="blog-header">
-		<div class="eyebrow">
+		<!-- <div class="eyebrow">
 			<span>Archive / Writing</span>
 			<span>{data.posts.length.toString().padStart(2, '0')} entries</span>
-		</div>
+		</div> -->
 
 		<h1>
-			<span>Journal</span>
-			<span class="outline">of things</span>
+			<span>NoTES</span>
+			<span class="outline">on Worlds</span>
 		</h1>
 
 		<p class="intro">
@@ -382,7 +382,8 @@
 
 
 		.blog-header {
-			min-height: 65dvh;
+			min-height: 5dvh;
+			/* background-color: chartreuse; */
 		}
 
 
@@ -393,7 +394,8 @@
 
 		h1 {
 			font-size:
-				clamp(72px, 25vw, 150px);
+				clamp(72px, 2vw, 150px);
+				/* background-color: aqua; */
 		}
 
 
@@ -401,6 +403,7 @@
 			align-self: flex-start;
 
 			margin-top: 50px;
+			/* background-color: brown; */
 		}
 
 

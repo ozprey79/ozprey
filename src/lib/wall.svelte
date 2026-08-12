@@ -1,6 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
-	import { gsap } from 'gsap';
+	import { gsap } from 'gsap/dist/gsap';
 
 	let svg;
 
@@ -73,7 +73,7 @@
 	
 	</defs>
 </svg>
-<svg id="svg1" viewBox="0 0 264.58334 132.29167" preserveAspectRatio="xMidYMid slice">
+<svg 	bind:this={svg} id="svg1" viewBox="0 0 264.58334 132.29167" preserveAspectRatio="xMidYMid slice">
 	<g id="lklkl" transform="translate(251.03702,204.09036)"  >
 		<path
 			class="filledLetters"

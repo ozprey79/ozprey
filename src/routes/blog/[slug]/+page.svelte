@@ -16,7 +16,7 @@
 
 <article class="essay">
 	<header class="essay-header">
-		<div class="essay-nav">
+		<!-- <div class="essay-nav">
 			<a href="/blog">
 				← Journal
 			</a>
@@ -26,7 +26,7 @@
 				<span>{post.date}</span>
 				<span>{post.readTime}</span>
 			</div>
-		</div>
+		</div> -->
 
 
 		<div class="number">
@@ -104,9 +104,11 @@
 			min(1500px, calc(100% - 40px));
 
 		margin-inline: auto;
+		margin: auto;
+		justify-self: center;
 
 		padding:
-			clamp(110px, 13vw, 180px)
+			clamp(11px, 1vw, 180px)
 			0
 			70px;
 
@@ -438,7 +440,7 @@
 			width:
 				calc(100% - 28px);
 
-			padding-top: 110px;
+			
 		}
 
 

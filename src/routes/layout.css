@@ -2,8 +2,8 @@
 
 :root{
 	--fill:rgb(255, 192, 236);
-	--bg:rgb(24, 24, 24);
-	--bgd:rgb(255, 38, 0);
+	--bg:#181818;
+	--bgd:#ff2600;
   --bgdot: rgba(49, 49, 49, 0.788);
   --mfont:"Tanker-Regular";
 }
