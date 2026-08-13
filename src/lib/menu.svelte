@@ -19,6 +19,14 @@
 		Blog
 	</a>
 
+	<a
+		class="pagebutton"
+		href="/movies"
+		onclick={onclose}
+	>
+		Movies
+	</a>
+
 	<button
 		type="button"
 		class="pagebutton"
