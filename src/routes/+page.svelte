@@ -82,7 +82,7 @@
   <div class="cells">
     <div class="bottomicons">
       <p>Designer</p>
-      <a href="/blog"><p class="wt">BLOG &#x2913</p></a>
+      <a href="/movies"><p class="wt">FILMS</p></a>
 
       <p>Touch</p>
       <p>Dark clouds</p>
@@ -95,7 +95,7 @@
 
     <div class="bottomicons">
       <p class="wt">Designer</p>
-      <p class="wt">Engineer</p>
+      <a href="/music"><p class="wt">MUSIC</p></a>
       <p>Calligrapher</p>
       <p>Archivist</p>
       <p>Nobody</p>
