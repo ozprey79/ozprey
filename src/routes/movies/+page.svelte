@@ -1,19 +1,10 @@
 <script>
+	import OrbitChart from './OrbitChart.svelte';
+
 	let { data } = $props();
 
 	let sort = $state('list');
 	let selectedGenre = $state('All');
-
-	const decades = $derived.by(() => {
-		const counts = new Map();
-		for (const movie of data.movies) {
-			const year = Number(movie.releaseDate.slice(0, 4));
-			if (!year) continue;
-			const decade = Math.floor(year / 10) * 10;
-			counts.set(decade, (counts.get(decade) ?? 0) + 1);
-		}
-		return [...counts].sort((a, b) => a[0] - b[0]);
-	});
 
 	const genres = $derived.by(() => {
 		const counts = new Map();
@@ -25,12 +16,12 @@
 		return [...counts].sort((a, b) => b[1] - a[1]);
 	});
 
-	const maxDecade = $derived(Math.max(1, ...decades.map(([, count]) => count)));
 	const maxGenre = $derived(Math.max(1, ...genres.map(([, count]) => count)));
-	const averageRating = $derived(
-		data.movies.length
-			? data.movies.reduce((sum, movie) => sum + movie.rating, 0) / data.movies.length
-			: 0
+	const ratedMovies = $derived(data.movies.filter((movie) => movie.personalRating !== null));
+	const averagePersonalRating = $derived(
+		ratedMovies.length
+			? ratedMovies.reduce((sum, movie) => sum + movie.personalRating, 0) / ratedMovies.length
+			: null
 	);
 
 	const visibleMovies = $derived.by(() => {
@@ -38,7 +29,9 @@
 			? [...data.movies]
 			: data.movies.filter((movie) => movie.genres.includes(selectedGenre));
 
-		if (sort === 'rating') return filtered.sort((a, b) => b.rating - a.rating);
+		if (sort === 'my-rating') {
+			return filtered.sort((a, b) => (b.personalRating ?? -1) - (a.personalRating ?? -1));
+		}
 		if (sort === 'year') return filtered.sort((a, b) => b.releaseDate.localeCompare(a.releaseDate));
 		return filtered;
 	});
@@ -51,29 +44,21 @@
 
 <main class="movies-page">
 	<header>
-		<a class="back" href="/">← Home</a>
-		<p class="eyebrow">TMDB LIST / VISUAL STUDY</p>
+		<!-- <a class="back" href="/">← Home</a>
+		<p class="eyebrow">TMDB LIST / VISUAL STUDY</p> -->
 		<h1>{data.list.name}</h1>
 		{#if data.list.description}<p class="description">{data.list.description}</p>{/if}
 	</header>
 
 	<section class="summary" aria-label="List summary">
 		<div><strong>{data.list.itemCount}</strong><span>movies</span></div>
-		<div><strong>{averageRating.toFixed(1)}</strong><span>average rating</span></div>
-		<div><strong>{genres.length}</strong><span>genres</span></div>
+		<!-- <div><strong>{averagePersonalRating?.toFixed(1) ?? '—'}</strong><span>my average rating</span></div> -->
+		<!-- <div><strong>{genres.length}</strong><span>genres</span></div> -->
 	</section>
 
-	<section class="chart-section" aria-labelledby="decade-title">
-		<div class="section-heading"><h2 id="decade-title">Across decades</h2><span>release year</span></div>
-		<div class="decade-chart" role="img" aria-label="Number of movies released in each decade">
-			{#each decades as [decade, count]}
-				<div class="bar-column">
-					<span class="bar-value">{count}</span>
-					<div class="bar" style={`height:${Math.max(8, (count / maxDecade) * 100)}%`}></div>
-					<span>{decade}s</span>
-				</div>
-			{/each}
-		</div>
+	<section class="chart-section" aria-labelledby="orbit-heading">
+		<div class="section-heading"><h2 id="orbit-heading">Films</h2><span>orbit = month · size = runtime</span></div>
+		<OrbitChart movies={data.movies} />
 	</section>
 
 	<section class="chart-section" aria-labelledby="genre-title">
@@ -92,7 +77,7 @@
 	<section class="collection" aria-labelledby="collection-title">
 		<div class="section-heading collection-heading">
 			<h2 id="collection-title">{selectedGenre === 'All' ? 'The collection' : selectedGenre}</h2>
-			<label>Sort <select bind:value={sort}><option value="list">List order</option><option value="rating">Rating</option><option value="year">Newest</option></select></label>
+			<label>Sort <select bind:value={sort}><option value="list">List order</option><option value="my-rating">My rating</option><option value="year">Newest</option></select></label>
 		</div>
 
 		<div class="poster-grid">
@@ -103,17 +88,20 @@
 					{:else}
 						<div class="poster-fallback">{movie.title}</div>
 					{/if}
-					<div class="movie-meta"><h3>{movie.title}</h3><span>{movie.releaseDate.slice(0, 4) || '—'} · {movie.rating.toFixed(1)}</span></div>
+					<div class="movie-meta">
+						<h3>{movie.title}</h3>
+						<span>{movie.releaseDate.slice(0, 4) || '—'}{movie.personalRating !== null ? ` · ★ ${movie.personalRating}` : ''}</span>
+					</div>
 				</a>
 			{/each}
 		</div>
 	</section>
 
-	<footer>Data supplied by TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB.</footer>
+	<!-- <footer>Data supplied by TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB.</footer> -->
 </main>
 
 <style>
-	.movies-page { width:min(1400px, calc(100% - 40px)); margin:auto; padding:clamp(100px, 12vw, 170px) 0 60px; color:var(--fill); font-family:'PlusJakartaSans-SemiBold', sans-serif; }
+	.movies-page { width:min(1400px, calc(100% - 40px)); margin:auto; padding:clamp(40px, 1vw, 170px) 0 60px; color:var(--fill); font-family:'PlusJakartaSans-SemiBold', sans-serif; }
 	header { max-width:1000px; }
 	.back, .eyebrow, .section-heading span, footer { font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; }
 	.back { color:inherit; text-decoration:none; }
@@ -127,10 +115,6 @@
 	.chart-section, .collection { margin-top:clamp(80px, 12vw, 150px); }
 	.section-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; padding-bottom:15px; border-bottom:1px solid currentColor; }
 	h2 { font-family:var(--mfont); font-size:clamp(2.5rem, 6vw, 6rem); font-weight:400; line-height:.9; text-transform:uppercase; }
-	.decade-chart { height:clamp(250px, 40vw, 500px); display:flex; align-items:flex-end; gap:clamp(6px, 1.5vw, 24px); padding-top:40px; overflow-x:auto; }
-	.bar-column { height:100%; min-width:48px; flex:1; display:grid; grid-template-rows:20px 1fr 30px; align-items:end; text-align:center; font-size:.72rem; }
-	.bar { width:100%; min-height:8px; background:var(--fill); }
-	.bar-value { align-self:end; }
 	.genre-chart { display:grid; grid-template-columns:repeat(2, 1fr); column-gap:clamp(25px, 6vw, 90px); }
 	.genre-chart button { display:grid; grid-template-columns:minmax(90px, 1fr) 2fr 30px; align-items:center; gap:14px; width:100%; margin:0; padding:15px 0; color:inherit; background:transparent; border-bottom:1px solid color-mix(in srgb, currentColor 35%, transparent); cursor:pointer; text-align:left; }
 	.genre-chart button.active { color:var(--bg); background:var(--fill); padding-inline:10px; }
