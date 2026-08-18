@@ -49,7 +49,7 @@
 </div> -->
 <div class="grid">
   <div class="cells">
-    <button
+    <!-- <button
       class="topicons"
       id="swn"
       onclick={() => {
@@ -57,13 +57,13 @@
       }}
       aria-label="color menu"
     >
-      <!-- <img class="tytl" src="swan.svg" alt="person" /> -->
+      <img class="tytl" src="swan.svg" alt="person" />
       <svg class="tytl" viewBox="0 0 33 33">
         <g transform="translate(3 3)" filter="url(#goohjhey)">
           <path id="swaan" d={swan} />
         </g>
       </svg>
-    </button>
+    </button> -->
 
     <div class="topicons" id="titl"></div>
 
@@ -187,7 +187,9 @@
     /* filter: invert(50%); */
     /* fill: rgb(25, 0, 255); */
     /* filter: hue-rotate(90deg) ; */
-    stroke: var(--bg);
+    stroke: var(--fill);
+    stroke-width: 0;
+    filter: invert(50%);
   }
   .midpanel {
     width: 80%;

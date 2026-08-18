@@ -71,6 +71,26 @@
 
 <div class="orbit-stage">
 	<svg viewBox="0 0 800 800" role="img" aria-labelledby="music-orbit-title music-orbit-description">
+	    <defs>
+	    <linearGradient id="grad1" x1="0%" x2="100%" y1="0%" y2="0%">
+            <stop offset="0%" stop-color="rgb(255, 192, 236)" />
+            <stop offset="40%" stop-color="rgb(255, 192, 236)" />
+            <stop offset="100%" stop-color="black" />
+          </linearGradient>
+
+		  <filter id="noise">
+            <feTurbulence
+               type="fractalNoise"
+               baseFrequency="19.5"
+               numOctaves="10"
+               result="turbulence"
+            />
+            <feComposite operator="in" in="turbulence" in2="SourceAlpha" result="composite"/>
+            <feColorMatrix in="composite" type="luminanceToAlpha" />
+            <feBlend in="SourceGraphic" in2="composite" mode="color-burn" />
+         </filter>
+	
+	</defs>
 		<title id="music-orbit-title">Recent {view === 'albums' ? 'albums' : 'individual tracks'} in orbit</title>
 		<desc id="music-orbit-description">Each ring represents a listening day. Larger planets were played more often. Focus or hover on a planet to read its collectible card.</desc>
 
@@ -87,6 +107,7 @@
 			<g
 				class="orbit-motion"
 				style={`--orbit-duration:${plotted.duration}s;--orbit-delay:${plotted.delay}s`}
+				filter="url('#noise')"
 			>
 				<a
 					class="planet-link"
@@ -146,7 +167,9 @@
 				<p>{hoveredItem.artist}</p>
 			</div>
 
-			<p class="card-link">Select planet to view on Last.fm ↗</p>
+			<p class="card-link">Select planet to view on Last.fm ↗
+				
+			</p>
 			<p class="card-number">LFM / {hoveredItem.id.replace(/\D/g, '').slice(-4).padStart(4, '0')}</p>
 		</article>
 	{/if}
