@@ -130,7 +130,7 @@
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-<ShaderLoader />
+<!-- <ShaderLoader /> -->
 
 <button
 	class="swanmenu"
@@ -142,7 +142,7 @@
 <a href="/" aria-label="Blog">
 	<svg viewBox="0 0 30 30" aria-hidden="true">
 		<g transform="translate(0 3)">
-			<path id="caty" d={swan} />
+			<path id="swan" d={swan} />
 		</g>
 	</svg></a>
 </button>

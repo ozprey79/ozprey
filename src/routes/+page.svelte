@@ -5,41 +5,39 @@
   import Wall from "$lib/wall.svelte";
   import Wallp from "$lib/wallp.svelte";
 
-    let CurrentWall = $state(null);
-    
-    	onMount(() => {
-		const media = window.matchMedia('(orientation: portrait)');
+  let CurrentWall = $state(null);
 
-		let disposed = false;
+  onMount(() => {
+    const media = window.matchMedia("(orientation: portrait)");
 
-		async function loadWall() {
-			const module = media.matches
-				? await import('$lib/wallp.svelte')
-				: await import('$lib/wall.svelte');
+    let disposed = false;
 
-			if (disposed) return;
+    async function loadWall() {
+      const module = media.matches
+        ? await import("$lib/wallp.svelte")
+        : await import("$lib/wall.svelte");
 
-			CurrentWall = module.default;
-		}
+      if (disposed) return;
 
-		loadWall();
+      CurrentWall = module.default;
+    }
 
-		function handleOrientationChange() {
-			loadWall();
-		}
+    loadWall();
 
-		media.addEventListener('change', handleOrientationChange);
+    function handleOrientationChange() {
+      loadWall();
+    }
 
-		return () => {
-			disposed = true;
+    media.addEventListener("change", handleOrientationChange);
 
-			media.removeEventListener(
-				'change',
-				handleOrientationChange
-			);
-		};
-	});
+    return () => {
+      disposed = true;
+
+      media.removeEventListener("change", handleOrientationChange);
+    };
+  });
 </script>
+
 <!-- <svelte:window bind:innerWidth bind:innerHeight /> -->
 <!-- <div class="loaderbg" bind:this={el}>
   <Loader />
@@ -72,11 +70,10 @@
 
   <div class="cells">
     <div class="midpanel">
-		  {#if CurrentWall}
-		<CurrentWall />
-	{/if}
-			
-		</div>
+      {#if CurrentWall}
+        <CurrentWall />
+      {/if}
+    </div>
   </div>
 
   <div class="cells">
@@ -131,7 +128,7 @@
   .cells:nth-child(3) {
     margin: 0 5vmin;
   }
-
+  /* .cells:nth-child(1){background-color: rgb(37, 52, 52);} */
   .topicons:nth-child(1) {
     display: block;
     position: absolute;

@@ -331,8 +331,8 @@
 	.abacus-controls { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:15px 0; font-size:.75rem; text-transform:uppercase; }
 	.abacus-controls p { letter-spacing:.08em; }
 	.abacus-controls label { display:flex; align-items:center; gap:10px; }
-	.abacus-controls select { margin:0; padding:6px 25px 6px 7px; color:var(--bg); background:var(--fill); }
-	.abacus-stage { --heart:#80ff00; position:relative; width:min(100%, 960px); margin:auto; }
+	.abacus-controls select { margin:0; padding:6px 25px 6px 7px; color:var(--bg); background:var(--fill); border-radius: 1rem; }
+	.abacus-stage {  position:relative; width:min(100%, 960px); margin:auto; }
 	svg { display:block; width:100%; height:auto; overflow:visible; }
 
 	/* rods: thin dashed stroke, small bar at each end */
