@@ -1,85 +1,111 @@
 <script>
 	let { movies } = $props();
 
+	// ── Calendar & layout constants (SVG user units) ──────────────────────────
+	const DEFAULT_YEAR = 2027;
 	const monthNames = [
-		'August', 'September', 'October', 'November', 'December', 'January',
-		'February', 'March', 'April', 'May', 'June', 'July'
+		'January', 'February', 'March', 'April', 'May', 'June',
+		'July', 'August', 'September', 'October', 'November', 'December'
 	];
-	const now = new Date();
-	const currentPeriod = now.getMonth() >= 7 ? now.getFullYear() : now.getFullYear() - 1;
 
+	const VIEW_W = 1000;
+	const TOP = 62; // y of the first rod
+	const ROW_GAP = 58; // distance between rods
+	const BEAM_X = 118; // reckoning beam: beads rest against it
+	const ROD_END = 968;
+	const BEAD_START = BEAM_X + 8;
+	const BEAD_H = 34; // bead height
+	const BEAD_GAP = 2;
+	const RAIL = ROD_END - 8 - BEAD_START; // usable bead length per rod
+	const VIEW_H = TOP + ROW_GAP * 11 + 52;
+
+	// ── Date helpers ──────────────────────────────────────────────────────────
 	function dateParts(value) {
 		const match = value?.match(/^(\d{4})-(\d{2})-(\d{2})$/);
 		return match ? { year: Number(match[1]), month: Number(match[2]), day: Number(match[3]) } : null;
 	}
 
-	function periodFor(value) {
-		const parts = dateParts(value);
-		if (!parts) return null;
-		return parts.month >= 8 ? parts.year : parts.year - 1;
+	function yearFor(value) {
+		return dateParts(value)?.year ?? null;
 	}
 
-	function monthIndex(value, period) {
+	function monthIndex(value, year) {
 		const parts = dateParts(value);
-		if (!parts) return -1;
-		if (parts.year === period && parts.month >= 8) return parts.month - 8;
-		if (parts.year === period + 1 && parts.month <= 7) return parts.month + 4;
-		return -1;
-	}
-
-	function nodeRadius(runtime) {
-		const minutes = Math.min(240, Math.max(60, runtime || 105));
-		return 6 + Math.sqrt((minutes - 60) / 180) * 9;
+		return parts && parts.year === year ? parts.month - 1 : -1;
 	}
 
 	function formatDate(value) {
 		const parts = dateParts(value);
 		if (!parts) return 'Date not recorded';
-		return `${String(parts.day).padStart(2, '0')} ${monthNames[(parts.month + 4) % 12]} ${parts.year}`;
+		return `${String(parts.day).padStart(2, '0')} ${monthNames[parts.month - 1]} ${parts.year}`;
 	}
 
-	const periods = $derived.by(() => {
-		const found = new Set(movies.map((movie) => periodFor(movie.watchedDate)).filter(Number.isInteger));
-		found.add(currentPeriod);
+	// Bead length encodes runtime (60–240 min → 20–46 units)
+	function beadWidth(runtime) {
+		const minutes = Math.min(240, Math.max(60, runtime || 105));
+		return 20 + ((minutes - 60) / 180) * 26;
+	}
+
+	// ── State ─────────────────────────────────────────────────────────────────
+	const years = $derived.by(() => {
+		const found = new Set(movies.map((movie) => yearFor(movie.watchedDate)).filter(Number.isInteger));
+		found.add(DEFAULT_YEAR);
 		return [...found].sort((a, b) => a - b);
 	});
 
-	let selectedPeriod = $state(currentPeriod);
+	let selectedYear = $state(DEFAULT_YEAR);
 	let hoveredMovie = $state(null);
 
-	const periodLabel = $derived(`${selectedPeriod}–${String(selectedPeriod + 1).slice(-2)}`);
-	const monthRings = $derived(
-		monthNames.map((name, index) => ({
-			name,
-			index,
-			year: index < 5 ? selectedPeriod : selectedPeriod + 1,
-			radius: 58 + index * 24
-		}))
+	const rods = $derived(
+		monthNames.map((name, index) => ({ name, index, y: TOP + index * ROW_GAP }))
 	);
-	const plottedMovies = $derived.by(() => {
-		const grouped = Array.from({ length: 12 }, () => []);
-		for (const movie of movies) {
-			const ring = monthIndex(movie.watchedDate, selectedPeriod);
-			if (ring >= 0) grouped[ring].push(movie);
-		}
 
-		return grouped.flatMap((group, ring) =>
-			group.map((movie, index) => {
-				const duration = 70 + ring * 5 + (index % 5) * 7;
-				const phase = group.length ? index / group.length : 0;
+	const grouped = $derived.by(() => {
+		const groups = Array.from({ length: 12 }, () => []);
+		for (const movie of movies) {
+			const ring = monthIndex(movie.watchedDate, selectedYear);
+			if (ring >= 0) groups[ring].push(movie);
+		}
+		for (const group of groups) {
+			group.sort((a, b) => a.watchedDate.localeCompare(b.watchedDate) || a.title.localeCompare(b.title));
+		}
+		return groups;
+	});
+
+	// One shared scale keeps bead lengths comparable across every rod.
+	// It only shrinks when the busiest month would overflow its rod.
+	const beadScale = $derived.by(() => {
+		let scale = 1;
+		for (const group of grouped) {
+			if (!group.length) continue;
+			const sum = group.reduce((total, movie) => total + beadWidth(movie.runtime), 0);
+			scale = Math.min(scale, (RAIL - BEAD_GAP * group.length) / sum);
+		}
+		return Math.max(scale, 0.3);
+	});
+
+	const beads = $derived.by(() =>
+		grouped.flatMap((group, row) => {
+			let cursor = BEAD_START;
+			return group.map((movie, index) => {
+				const width = beadWidth(movie.runtime) * beadScale;
+				const cx = cursor + width / 2;
+				cursor += width + BEAD_GAP;
 				return {
 					movie,
-					ring,
-					orbitRadius: monthRings[ring].radius,
-					nodeRadius: nodeRadius(movie.runtime),
-					duration,
-					delay: -(duration * phase)
+					row,
+					cx,
+					cy: rods[row].y,
+					width,
+					from: ROD_END - cx,
+					delay: row * 45 + index * 40
 				};
-			})
-		);
-	});
+			});
+		})
+	);
+
 	const undatedMovies = $derived(movies.filter((movie) => !movie.watchedDate));
-	const totalMinutes = $derived(plottedMovies.reduce((sum, item) => sum + item.movie.runtime, 0));
+	const totalMinutes = $derived(beads.reduce((sum, item) => sum + (item.movie.runtime || 0), 0));
 
 	function showCard(movie) {
 		hoveredMovie = movie;
@@ -90,39 +116,43 @@
 	}
 </script>
 
-<div class="orbit-controls">
-	<p><strong>{plottedMovies.length}</strong> watched · <strong>{Math.round(totalMinutes / 60)}</strong> hours</p>
-	{#if periods.length > 1}
+<div class="abacus-controls">
+	<p><strong>{beads.length}</strong> watched · <strong>{Math.round(totalMinutes / 60)}</strong> hours</p>
+	{#if years.length > 1}
 		<label>
 			Viewing year
-			<select bind:value={selectedPeriod}>
-				{#each periods as period}<option value={period}>{period}–{String(period + 1).slice(-2)}</option>{/each}
+			<select bind:value={selectedYear}>
+				{#each years as year}<option value={year}>{year}</option>{/each}
 			</select>
 		</label>
 	{/if}
 </div>
 
-<div class="orbit-stage">
-	<svg viewBox="0 0 800 800" role="img" aria-labelledby="orbit-title orbit-description">
-		<title id="orbit-title">Movies watched from August {selectedPeriod} to July {selectedPeriod + 1}</title>
-		<desc id="orbit-description">Each ring represents a month. Larger planets represent longer films. Select a planet to read its details.</desc>
+<div class="abacus-stage">
+	<svg viewBox="0 0 {VIEW_W} {VIEW_H}" role="img" aria-labelledby="abacus-title abacus-description">
+		<title id="abacus-title">Movies watched in {selectedYear}</title>
+		<desc id="abacus-description">Each rod is a month, January at the top. Each bead is a film, ordered by watched date. Longer beads are longer films. Select a bead to read its details.</desc>
 
-		{#each [...monthRings].reverse() as ring}
-			<circle class="orbit-ring" cx="400" cy="400" r={ring.radius} />
-			<text class="month-label" x="408" y={404 - ring.radius}>{ring.name.slice(0, 3).toUpperCase()} {String(ring.year).slice(-2)}</text>
+		<!-- frame -->
+		<rect class="frame" x="6" y="6" width={VIEW_W - 12} height={VIEW_H - 12} rx="16" />
+		<line class="beam" x1={BEAM_X} y1="14" x2={BEAM_X} y2={VIEW_H - 14} />
+
+		<!-- rods -->
+		{#each rods as rod}
+			<line class="rod" x1={BEAM_X} y1={rod.y} x2={ROD_END} y2={rod.y} />
+			<circle class="rod-cap" cx={ROD_END} cy={rod.y} r="4" />
+			<text class="month-label" x="26" y={rod.y + 4}>{rod.name.slice(0, 3)}</text>
+			<text class="month-count" x={BEAM_X - 12} y={rod.y + 4}>{grouped[rod.index].length || ''}</text>
 		{/each}
 
-		<circle class="sun" cx="400" cy="400" r="31" />
-		<text class="sun-label" x="400" y="397">WATCHED</text>
-		<text class="sun-period" x="400" y="411">{periodLabel}</text>
-
-		{#each plottedMovies as item (item.movie.id)}
+		<!-- beads -->
+		{#each beads as item (item.movie.id)}
 			<g
-				class="orbit-motion"
-				style={`--orbit-duration:${item.duration}s;--orbit-delay:${item.delay}s`}
+				class="bead-motion"
+				style={`--from:${item.from}px;--delay:${item.delay}ms`}
 			>
 				<a
-					class="planet-link"
+					class="bead-link"
 					href={item.movie.url}
 					aria-label={`${item.movie.title}, ${item.movie.runtime || 'unknown'} minutes, watched ${formatDate(item.movie.watchedDate)}`}
 					onmouseenter={() => showCard(item.movie)}
@@ -130,13 +160,27 @@
 					onfocus={() => showCard(item.movie)}
 					onblur={() => hideCard(item.movie)}
 				>
-					<circle class="planet-hit" cx={400 + item.orbitRadius} cy="400" r="22" />
-					<circle
+					<rect
+						class="bead-hit"
+						x={item.cx - item.width / 2 - 1}
+						y={item.cy - 24}
+						width={item.width + 2}
+						height="48"
+					/>
+					<ellipse
 						class:selected={hoveredMovie?.id === item.movie.id}
-						class="planet-node"
-						cx={400 + item.orbitRadius}
-						cy="400"
-						r={item.nodeRadius}
+						class="bead"
+						cx={item.cx}
+						cy={item.cy}
+						rx={item.width / 2}
+						ry={BEAD_H / 2}
+					/>
+					<ellipse
+						class="bead-shine"
+						cx={item.cx - item.width * 0.12}
+						cy={item.cy - 6}
+						rx={Math.max(item.width * 0.26, 2)}
+						ry="3.5"
 					/>
 				</a>
 			</g>
@@ -164,31 +208,31 @@
 			</div>
 
 			<p class="card-spec">
-				<span>{hoveredMovie.releaseDate.slice(0, 4) || 'Year unknown'}</span>
+				<span>{hoveredMovie.releaseDate?.slice(0, 4) || 'Year unknown'}</span>
 				<span>{hoveredMovie.language || 'Language unknown'}</span>
 				<span>{hoveredMovie.runtime ? `${hoveredMovie.runtime} min` : 'Runtime unknown'}</span>
 			</p>
 
 			<div class="card-info">
 				<strong>Type</strong>
-				<p>{hoveredMovie.genres.join(' · ') || 'Genre unavailable'}</p>
+				<p>{hoveredMovie.genres?.join(' · ') || 'Genre unavailable'}</p>
 			</div>
 
-			<p class="card-link">Select planet to view on TMDB ↗</p>
+			<p class="card-link">Select bead to view on TMDB ↗</p>
 			<p class="card-number">TMDB #{hoveredMovie.id}</p>
 		</article>
 	{/if}
 
-	<div class="runtime-legend" aria-label="Planet size represents runtime">
+	<div class="runtime-legend" aria-label="Bead length represents runtime">
 		<span>Runtime</span>
 		{#each [75, 120, 180] as runtime}
-			<span class="runtime-key"><i style={`width:${nodeRadius(runtime) * 2}px;height:${nodeRadius(runtime) * 2}px`}></i>{runtime} min</span>
+			<span class="runtime-key"><i style={`width:${beadWidth(runtime)}px;height:${BEAD_H / 2}px`}></i>{runtime} min</span>
 		{/each}
 	</div>
 </div>
 
-{#if plottedMovies.length === 0}
-	<p class="empty-state">No dated movies fall inside {periodLabel}. Add <code>watched: YYYY-MM-DD</code> to each TMDB list-item comment.</p>
+{#if beads.length === 0}
+	<p class="empty-state">No dated movies fall inside {selectedYear}. Add <code>watched: YYYY-MM-DD</code> to each TMDB list-item comment.</p>
 {/if}
 
 {#if undatedMovies.length}
@@ -196,24 +240,32 @@
 {/if}
 
 <style>
-	.orbit-controls { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:15px 0; font-size:.75rem; text-transform:uppercase; }
-	.orbit-controls p { letter-spacing:.08em; }
-	.orbit-controls label { display:flex; align-items:center; gap:10px; }
-	.orbit-controls select { margin:0; padding:6px 25px 6px 7px; color:var(--bg); background:var(--fill); }
-	.orbit-stage { position:relative; width:min(100%, 900px); margin:auto; }
+	.abacus-controls { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:15px 0; font-size:.75rem; text-transform:uppercase; }
+	.abacus-controls p { letter-spacing:.08em; }
+	.abacus-controls label { display:flex; align-items:center; gap:10px; }
+	.abacus-controls select { margin:0; padding:6px 25px 6px 7px; color:var(--bg); background:var(--fill); }
+	.abacus-stage { position:relative; width:min(100%, 960px); margin:auto; }
 	svg { display:block; width:100%; height:auto; overflow:visible; }
-	.orbit-ring { fill:none; stroke:color-mix(in srgb, var(--fill) 28%, transparent); stroke-width:1; vector-effect:non-scaling-stroke; }
-	.month-label { fill:var(--fill); font-family:'PlusJakartaSans-SemiBold', sans-serif; font-size:9px; letter-spacing:.08em; opacity:.72; }
-	.sun { fill:var(--fill); }
-	.sun-label, .sun-period { fill:var(--bg); font-family:'PlusJakartaSans-SemiBold', sans-serif; text-anchor:middle; }
-	.sun-label { font-size:8px; letter-spacing:.12em; }
-	.sun-period { font-size:7px; }
-	.orbit-motion { transform-box:view-box; transform-origin:center; animation:orbit var(--orbit-duration) linear var(--orbit-delay) infinite; }
-	.planet-link { cursor:pointer; }
-	.planet-hit { fill:transparent; }
-	.planet-node { fill:var(--fill); stroke:var(--bg); stroke-width:1.5; vector-effect:non-scaling-stroke; transition:stroke-width 150ms ease, filter 150ms ease; }
-	.planet-node.selected, .planet-link:hover .planet-node, .planet-link:focus .planet-node { stroke-width:4; filter:drop-shadow(0 0 7px var(--fill)); }
-	.movie-card { position:absolute; z-index:5; left:clamp(8px, 3vw, 32px); top:50%; width:min(280px, 36%); min-width:230px; aspect-ratio:5/7; padding:14px; overflow:hidden; pointer-events:none; color:var(--bg); background:linear-gradient(145deg, color-mix(in srgb, var(--fill) 94%, white), color-mix(in srgb, var(--fill) 72%, #f3bd36)); border:7px solid color-mix(in srgb, var(--fill) 55%, #d6a52a); border-radius:16px; box-shadow:0 16px 35px rgba(0,0,0,.42), inset 0 0 0 2px color-mix(in srgb, var(--bg) 35%, transparent); transform:translateY(-50%) rotate(-1.25deg); }
+
+	/* frame, beam, rods */
+	.frame { fill:none; stroke:var(--fill); stroke-width:3; vector-effect:non-scaling-stroke; }
+	.beam { stroke:var(--fill); stroke-width:4; vector-effect:non-scaling-stroke; }
+	.rod { stroke:color-mix(in srgb, var(--fill) 45%, transparent); stroke-width:2; vector-effect:non-scaling-stroke; }
+	.rod-cap { fill:color-mix(in srgb, var(--fill) 45%, transparent); }
+	.month-label { fill:var(--fill); font-family:'PlusJakartaSans-SemiBold', sans-serif; font-size:13px; letter-spacing:.06em; }
+	.month-count { fill:var(--fill); font-family:'PlusJakartaSans-SemiBold', sans-serif; font-size:12px; text-anchor:end; opacity:.6; }
+
+	/* beads */
+	.bead-motion { animation:slide-in 720ms cubic-bezier(.2,.8,.2,1) var(--delay) backwards; }
+	.bead-link { cursor:pointer; }
+	.bead-hit { fill:transparent; }
+	.bead { fill:var(--fill); stroke:var(--bg); stroke-width:1.5; vector-effect:non-scaling-stroke; transition:stroke-width 150ms ease, filter 150ms ease; }
+	.bead-shine { fill:var(--bg); opacity:.28; pointer-events:none; }
+	.bead.selected, .bead-link:hover .bead, .bead-link:focus .bead { stroke-width:4; filter:drop-shadow(0 0 7px var(--fill)); }
+	.bead-link:focus-visible { outline:none; }
+
+	/* hover card (unchanged in spirit; parked on the empty right side of the rods) */
+	.movie-card { position:absolute; z-index:5; right:clamp(8px, 3vw, 32px); top:50%; width:min(280px, 34%); min-width:230px; aspect-ratio:5/7; padding:14px; overflow:hidden; pointer-events:none; color:var(--bg); background:linear-gradient(145deg, color-mix(in srgb, var(--fill) 94%, white), color-mix(in srgb, var(--fill) 72%, #f3bd36)); border:7px solid color-mix(in srgb, var(--fill) 55%, #d6a52a); border-radius:16px; box-shadow:0 16px 35px rgba(0,0,0,.42), inset 0 0 0 2px color-mix(in srgb, var(--bg) 35%, transparent); transform:translateY(-50%) rotate(1.25deg); }
 	.card-foil { position:absolute; inset:0; pointer-events:none; opacity:.16; background:linear-gradient(115deg, transparent 16%, white 33%, transparent 48%, white 64%, transparent 81%); transform:translateX(-45%); animation:foil 3.6s ease-in-out infinite alternate; }
 	.card-header { position:relative; display:flex; justify-content:space-between; align-items:center; gap:8px; }
 	.card-header p, .card-header span, .card-spec, .card-info, .card-link, .card-number { font-family:'PlusJakartaSans-SemiBold', sans-serif; }
@@ -229,23 +281,29 @@
 	.card-info p { line-height:1.3; }
 	.card-link { position:relative; color:inherit; font-size:.62rem; text-transform:uppercase; }
 	.card-number { position:absolute; right:12px; bottom:7px; font-size:.48rem; opacity:.62; }
-	.runtime-legend { position:absolute; right:0; bottom:3%; display:flex; align-items:center; gap:12px; font-size:.66rem; text-transform:uppercase; }
+
+	/* legend sits below the frame so it never covers a rod */
+	.runtime-legend { display:flex; align-items:center; justify-content:flex-end; gap:12px; margin-top:12px; font-size:.66rem; text-transform:uppercase; }
 	.runtime-key { display:flex; align-items:center; gap:5px; }
 	.runtime-key i { display:block; flex:none; border-radius:50%; background:var(--fill); }
+
 	.empty-state, .undated { font-size:.72rem; }
 	.empty-state { padding:18px 0; border-block:1px solid color-mix(in srgb, var(--fill) 45%, transparent); }
 	.undated { margin-top:12px; opacity:.65; text-transform:uppercase; }
-	@keyframes orbit { to { transform:rotate(360deg); } }
+
+	@keyframes slide-in { from { transform:translateX(var(--from)); } to { transform:translateX(0); } }
 	@keyframes foil { to { transform:translateX(45%); } }
+
 	@media (max-width:650px) {
-		.orbit-controls { align-items:flex-start; flex-direction:column; }
-		.runtime-legend { position:static; justify-content:center; flex-wrap:wrap; margin-top:8px; }
-		.month-label { font-size:11px; }
-		.movie-card { position:absolute; left:50%; top:50%; width:min(245px, 76%); min-width:0; transform:translate(-50%, -50%); }
+		.abacus-controls { align-items:flex-start; flex-direction:column; }
+		.runtime-legend { justify-content:center; flex-wrap:wrap; }
+		.month-label { font-size:17px; }
+		.month-count { font-size:15px; }
+		.movie-card { position:absolute; right:auto; left:50%; top:50%; width:min(245px, 76%); min-width:0; transform:translate(-50%, -50%); }
 	}
 	@media (prefers-reduced-motion:reduce) {
-		.orbit-motion { animation-play-state:paused; }
-		.planet-node { transition:none; }
+		.bead-motion { animation:none; }
+		.bead { transition:none; }
 		.card-foil { animation:none; }
 	}
 </style>
