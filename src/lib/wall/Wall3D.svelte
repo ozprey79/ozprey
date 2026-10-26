@@ -1,16 +1,16 @@
 <script>
-	import { onMount } from 'svelte';
-	import { gsap } from 'gsap/dist/gsap';
-	import * as THREE from 'three';
-	import { WALL_SVG } from './wallSvg.js';
-	import { buildWallParts, parseViewBox } from './wallGeometry.js';
+	import { onMount } from "svelte";
+	import { gsap } from "gsap/dist/gsap";
+	import * as THREE from "three";
+	import { WALL_SVG } from "./wallSvg.js";
+	import { buildWallParts, parseViewBox } from "./wallGeometry.js";
 	import {
 		letterVertex,
 		fillFragment,
 		strokeFragment,
 		postVertex,
-		postFragment
-	} from './wallShaders.js';
+		postFragment,
+	} from "./wallShaders.js";
 
 	/**
 	 * fill      Used when the CSS custom property --fill is not set on / above this component.
@@ -23,13 +23,13 @@
 	 *            tween ends (what GSAP actually did). true = fade it in with the same eased value.
 	 */
 	let {
-		fill = '#ffc0ec',
+		fill = "#ffc0ec",
 		maxDpr = 2,
 		samples = 4,
 		distortion = 1,
 		smoothFill = false,
 		svg = WALL_SVG,
-		radius = '0'
+		radius = "0",
 	} = $props();
 
 	let container = $state(null);
@@ -38,8 +38,10 @@
 
 	/** Any CSS colour string -> [r,g,b] in 0..1 (sRGB, no colour-management). */
 	function cssToRgb01(css) {
-		const c = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
-		c.fillStyle = '#000';
+		const c = document
+			.createElement("canvas")
+			.getContext("2d", { willReadFrequently: true });
+		c.fillStyle = "#000";
 		c.fillStyle = css; // invalid strings are ignored -> stays black
 		c.fillRect(0, 0, 1, 1);
 		const d = c.getImageData(0, 0, 1, 1).data;
@@ -52,11 +54,11 @@
 			antialias: false, // MSAA happens in the render target below
 			alpha: true,
 			premultipliedAlpha: true,
-			powerPreference: 'high-performance'
+			powerPreference: "high-performance",
 		});
 		renderer.setClearColor(0x000000, 0);
 		const canvas = renderer.domElement;
-		canvas.style.cssText = 'display:block;width:100%;height:100%';
+		canvas.style.cssText = "display:block;width:100%;height:100%";
 		container.appendChild(canvas);
 
 		const rt = new THREE.WebGLRenderTarget(1, 1, {
@@ -65,14 +67,16 @@
 			depthBuffer: true,
 			minFilter: THREE.LinearFilter,
 			magFilter: THREE.LinearFilter,
-			type: THREE.UnsignedByteType
+			type: THREE.UnsignedByteType,
 		});
 
 		const scene = new THREE.Scene();
 		const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, -10, 10);
 
 		/* ------------------------------------------------------------ colours (--fill) */
-		const cssFill = getComputedStyle(container).getPropertyValue('--fill').trim() || fill;
+		const cssFill =
+			getComputedStyle(container).getPropertyValue("--fill").trim() ||
+			fill;
 		const strokeRgb = cssToRgb01(cssFill);
 
 		/* ------------------------------------------------------------ shared uniforms
@@ -83,7 +87,7 @@
 			uPointerW: { value: new THREE.Vector2(1e5, 1e5) },
 			uVelocityW: { value: new THREE.Vector2() },
 			uEnergy: { value: 0 },
-			uInfluence: { value: 0 }
+			uInfluence: { value: 0 },
 		};
 
 		/* ------------------------------------------------------------ letters */
@@ -99,8 +103,8 @@
 				fragmentShader: strokeFragment,
 				uniforms: {
 					uColor: { value: new THREE.Vector3(...strokeRgb) },
-					uP: { value: p.kind === 'empty' ? 1 : 0 },
-					...shared
+					uP: { value: p.kind === "empty" ? 1 : 0 },
+					...shared,
 				},
 				transparent: true,
 				depthTest: false,
@@ -112,14 +116,14 @@
 				stencilRef: (i % 254) + 1,
 				stencilFail: THREE.KeepStencilOp,
 				stencilZFail: THREE.KeepStencilOp,
-				stencilZPass: THREE.ReplaceStencilOp
+				stencilZPass: THREE.ReplaceStencilOp,
 			});
 			const strokeMesh = new THREE.Mesh(p.stroke, strokeMat);
 			strokeMesh.renderOrder = i * 2 + 1; // DOM order == SVG paint order (fill, then stroke)
 			strokeMesh.frustumCulled = false;
 			disposables.push(p.stroke, strokeMat);
 
-			if (p.kind === 'empty') {
+			if (p.kind === "empty") {
 				scene.add(strokeMesh);
 				empties.push({ state: { x: 0 }, strokeMesh });
 				return;
@@ -129,15 +133,17 @@
 				vertexShader: letterVertex,
 				fragmentShader: fillFragment,
 				uniforms: {
-					uBBoxX: { value: new THREE.Vector2(p.bboxX[0], p.bboxX[1]) },
+					uBBoxX: {
+						value: new THREE.Vector2(p.bboxX[0], p.bboxX[1]),
+					},
 					uPink: { value: new THREE.Vector3(...PINK) },
 					uAlpha: { value: 1 },
-					...shared
+					...shared,
 				},
 				transparent: true,
 				depthTest: false,
 				depthWrite: false,
-				side: THREE.DoubleSide
+				side: THREE.DoubleSide,
 			});
 			const fillMesh = new THREE.Mesh(p.fill, fillMat);
 			fillMesh.renderOrder = i * 2;
@@ -146,7 +152,13 @@
 			strokeMesh.visible = false;
 			scene.add(fillMesh, strokeMesh);
 			disposables.push(p.fill, fillMat);
-			filled.push({ state: { n: 0 }, fillMesh, strokeMesh, fillMat, strokeMat });
+			filled.push({
+				state: { n: 0 },
+				fillMesh,
+				strokeMesh,
+				fillMat,
+				strokeMat,
+			});
 		});
 
 		/* ------------------------------------------------------------ post pass */
@@ -161,11 +173,11 @@
 				uEnergy: shared.uEnergy,
 				uAspect: { value: 1 },
 				uTime: shared.uTime,
-				uStrength: { value: distortion }
+				uStrength: { value: distortion },
 			},
 			depthTest: false,
 			depthWrite: false,
-			blending: THREE.NoBlending // writes premultiplied RGBA straight to the canvas
+			blending: THREE.NoBlending, // writes premultiplied RGBA straight to the canvas
 		});
 		const quadGeo = new THREE.PlaneGeometry(2, 2);
 		const quad = new THREE.Mesh(quadGeo, post);
@@ -183,9 +195,9 @@
 				{
 					x: () => gsap.utils.random(20, 55),
 					duration: 1.4,
-					stagger: { amount: 1.1, from: 'start' },
-					ease: 'power3.inOut'
-				}
+					stagger: { amount: 1.1, from: "start" },
+					ease: "power3.inOut",
+				},
 			);
 
 			tl.fromTo(
@@ -194,10 +206,10 @@
 				{
 					n: 1,
 					duration: 2.2,
-					stagger: { amount: 1.9, from: 'start' },
-					ease: 'elastic.inOut(1, 0.35)'
+					stagger: { amount: 1.9, from: "start" },
+					ease: "elastic.inOut(1, 0.35)",
 				},
-				'-=0.5'
+				"-=0.5",
 			);
 		}, container);
 
@@ -206,7 +218,9 @@
 		function layout() {
 			const w = Math.max(1, container.clientWidth);
 			const h = Math.max(1, container.clientHeight);
-			renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxDpr));
+			renderer.setPixelRatio(
+				Math.min(window.devicePixelRatio || 1, maxDpr),
+			);
 			renderer.setSize(w, h, false);
 			renderer.getDrawingBufferSize(drawSize);
 			rt.setSize(drawSize.x, drawSize.y);
@@ -236,24 +250,85 @@
 		let hover = false;
 		let seen = false;
 
-		function onPointerMove(e) {
+		// function onPointerMove(e) {
+		// 	const r = container.getBoundingClientRect();
+		// 	const u = (e.clientX - r.left) / r.width;
+		// 	const v = 1 - (e.clientY - r.top) / r.height;
+		// 	hover = u >= 0 && u <= 1 && v >= 0 && v <= 1;
+		// 	if (!hover) return;
+		// 	target.set(u, v);
+		// 	if (!seen) {
+		// 		smooth.copy(target); // first contact: no sweep from the centre
+		// 		prev.copy(target);
+		// 		seen = true;
+		// 	}
+		// }
+		// function onPointerOut(e) {
+		// 	if (!e.relatedTarget) hover = false; // left the window
+		// }
+
+		function updatePointer(clientX, clientY) {
 			const r = container.getBoundingClientRect();
-			const u = (e.clientX - r.left) / r.width;
-			const v = 1 - (e.clientY - r.top) / r.height;
+
+			const u = (clientX - r.left) / r.width;
+			const v = 1 - (clientY - r.top) / r.height;
+
 			hover = u >= 0 && u <= 1 && v >= 0 && v <= 1;
+
 			if (!hover) return;
+
 			target.set(u, v);
+
 			if (!seen) {
-				smooth.copy(target); // first contact: no sweep from the centre
+				smooth.copy(target);
 				prev.copy(target);
 				seen = true;
 			}
 		}
-		function onPointerOut(e) {
-			if (!e.relatedTarget) hover = false; // left the window
+
+		function onPointerMove(e) {
+			// Mouse, stylus, and supported touch pointer movement
+			updatePointer(e.clientX, e.clientY);
 		}
-		window.addEventListener('pointermove', onPointerMove, { passive: true });
-		window.addEventListener('pointerout', onPointerOut, { passive: true });
+
+		function onTouchMove(e) {
+			// Explicit touch support, including movement during page scrolling
+			if (e.touches.length > 0) {
+				const touch = e.touches[0];
+				updatePointer(touch.clientX, touch.clientY);
+			}
+		}
+
+		function onTouchEnd() {
+			hover = false;
+		}
+
+		function onPointerOut(e) {
+			// Only use pointer-out to detect mouse leaving the window
+			if (e.pointerType === "mouse" && !e.relatedTarget) {
+				hover = false;
+			}
+		}
+
+		window.addEventListener("pointermove", onPointerMove, {
+			passive: true,
+		});
+
+		window.addEventListener("pointerout", onPointerOut, {
+			passive: true,
+		});
+
+		window.addEventListener("touchmove", onTouchMove, {
+			passive: true,
+		});
+
+		window.addEventListener("touchend", onTouchEnd, {
+			passive: true,
+		});
+
+		window.addEventListener("touchcancel", onTouchEnd, {
+			passive: true,
+		});
 
 		/* ------------------------------------------------------------ frame */
 		let last = performance.now();
@@ -272,7 +347,10 @@
 				f.strokeMat.uniforms.uP.value = n;
 				f.strokeMesh.visible = n > 0;
 				if (smoothFill) {
-					f.fillMat.uniforms.uAlpha.value = Math.min(1, Math.max(0, n));
+					f.fillMat.uniforms.uAlpha.value = Math.min(
+						1,
+						Math.max(0, n),
+					);
 					f.fillMesh.visible = n > 0;
 				} else {
 					// GSAP animated  fill: url(#grad<n>)  -> the reference only resolves when n === 1,
@@ -284,13 +362,20 @@
 			/* 2. pointer smoothing -> uniforms */
 			const k = 1 - Math.exp(-dt * 14);
 			smooth.lerp(target, k);
-			const raw = prev.clone().sub(smooth).multiplyScalar(-1 / dt); // uv / s
+			const raw = prev
+				.clone()
+				.sub(smooth)
+				.multiplyScalar(-1 / dt); // uv / s
 			prev.copy(smooth);
 			vel.lerp(raw, 1 - Math.exp(-dt * 10));
 			if (vel.length() > 4) vel.setLength(4);
 
-			shared.uInfluence.value += ((hover ? 1 : 0) - shared.uInfluence.value) * (1 - Math.exp(-dt * 6));
-			shared.uEnergy.value += (Math.min(1, vel.length() * 0.8) - shared.uEnergy.value) * (1 - Math.exp(-dt * 8));
+			shared.uInfluence.value +=
+				((hover ? 1 : 0) - shared.uInfluence.value) *
+				(1 - Math.exp(-dt * 6));
+			shared.uEnergy.value +=
+				(Math.min(1, vel.length() * 0.8) - shared.uEnergy.value) *
+				(1 - Math.exp(-dt * 8));
 
 			post.uniforms.uPointer.value.copy(smooth);
 			post.uniforms.uVelocity.value.copy(vel);
@@ -299,11 +384,11 @@
 			// the same pointer in scene units for effects inside the letter shaders
 			shared.uPointerW.value.set(
 				camera.left + smooth.x * (camera.right - camera.left),
-				camera.bottom + smooth.y * (camera.top - camera.bottom)
+				camera.bottom + smooth.y * (camera.top - camera.bottom),
 			);
 			shared.uVelocityW.value.set(
 				vel.x * (camera.right - camera.left),
-				vel.y * (camera.top - camera.bottom)
+				vel.y * (camera.top - camera.bottom),
 			);
 
 			/* 3. artwork -> MSAA texture -> screen */
@@ -317,8 +402,13 @@
 		/* ------------------------------------------------------------ teardown */
 		return () => {
 			renderer.setAnimationLoop(null);
-			window.removeEventListener('pointermove', onPointerMove);
-			window.removeEventListener('pointerout', onPointerOut);
+			window.removeEventListener("pointermove", onPointerMove);
+			window.removeEventListener("pointerout", onPointerOut);
+
+			window.removeEventListener("touchmove", onTouchMove);
+			window.removeEventListener("touchend", onTouchEnd);
+			window.removeEventListener("touchcancel", onTouchEnd);
+
 			ro.disconnect();
 			ctx.revert();
 			disposables.forEach((d) => d.dispose());
