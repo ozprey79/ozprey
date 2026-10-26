@@ -101,33 +101,33 @@
 </main>
 
 <style>
-<<<<<<< HEAD
+
 	.movies-page { width:min(1400px, calc(100% - 40px)); margin:auto; padding:clamp(40px, 1vw, 170px) 0 60px; color:var(--fill); font-family:'PlusJakartaSans-SemiBold', sans-serif; }
 	header { max-width:1000px; }
-=======
+
 	.movies-page { width:min(1400px, calc(100% - 40px)); margin:auto; padding:clamp(12vmin, 1vw, 170px) 0px 60px; color:var(--fill); font-family:'PlusJakartaSans-SemiBold', sans-serif; }
 	header { max-width:1000px; text-align: center;}
->>>>>>> 3e7f56cab7604cecfad6a55a59f6aa2ab126053d
+
 	.back, .eyebrow, .section-heading span, footer { font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; }
 	.back { color:inherit; text-decoration:none; }
 	.eyebrow { margin-top:clamp(40px, 8vw, 90px); opacity:.65; }
 	h1 { margin:.08em 0; font-family:var(--mfont); font-size:clamp(4rem, 13vw, 12rem); font-weight:400; line-height:.78; text-transform:uppercase; overflow-wrap:anywhere; }
 	.description { max-width:650px; font-family:Gambarino, serif; font-size:clamp(1rem, 2vw, 1.45rem); }
-<<<<<<< HEAD
+
 	.summary { display:grid; grid-template-columns:repeat(3, 1fr); gap:1px; margin:clamp(55px, 10vw, 120px) 0; border-block:1px solid currentColor; }
-=======
+
 	.summary {text-align: center; display:grid; grid-template-columns:repeat(3, 1fr); gap:1px; margin:clamp(55px, 10vw, 120px) 0; border-block:1px solid currentColor; }
->>>>>>> 3e7f56cab7604cecfad6a55a59f6aa2ab126053d
+
 	.summary div { display:flex; flex-direction:column; padding:24px 0; }
 	.summary strong { font-family:var(--mfont); font-size:clamp(2.8rem, 7vw, 6rem); font-weight:400; line-height:1; }
 	.summary span { font-size:.75rem; text-transform:uppercase; }
 	.chart-section, .collection { margin-top:clamp(80px, 12vw, 150px); }
 	.section-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; padding-bottom:15px; border-bottom:1px solid currentColor; }
-<<<<<<< HEAD
+
 	h2 { font-family:var(--mfont); font-size:clamp(2.5rem, 6vw, 6rem); font-weight:400; line-height:.9; text-transform:uppercase; }
-=======
+
 	h2 { text-align: center;font-family:var(--mfont); font-size:clamp(2.5rem, 6vw, 6rem); font-weight:400; line-height:.9; text-transform:uppercase; }
->>>>>>> 3e7f56cab7604cecfad6a55a59f6aa2ab126053d
+
 	.genre-chart { display:grid; grid-template-columns:repeat(2, 1fr); column-gap:clamp(25px, 6vw, 90px); }
 	.genre-chart button { display:grid; grid-template-columns:minmax(90px, 1fr) 2fr 30px; align-items:center; gap:14px; width:100%; margin:0; padding:15px 0; color:inherit; background:transparent; border-bottom:1px solid color-mix(in srgb, currentColor 35%, transparent); cursor:pointer; text-align:left; }
 	.genre-chart button.active { color:var(--bg); background:var(--fill); padding-inline:10px; }
