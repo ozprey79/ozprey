@@ -3,7 +3,7 @@
 	import { gsap } from 'gsap/dist/gsap';
 	import * as THREE from 'three';
 	import { WALL_SVG } from './wallSvg.js';
-	import { buildWallParts, VIEWBOX } from './wallGeometry.js';
+	import { buildWallParts, parseViewBox } from './wallGeometry.js';
 	import {
 		letterVertex,
 		fillFragment,
@@ -17,6 +17,8 @@
 	 * maxDpr    Cap on devicePixelRatio (2 is visually lossless on phones, 3+ mostly wasted fill-rate).
 	 * samples   MSAA samples for the artwork (clamped to what the GPU supports).
 	 * distortion Global multiplier for the pointer effect. 0 = off, 1 = default.
+	 * svg       The artwork markup (default: landscape wall). See WallPortrait3D.svelte.
+	 * radius    CSS border-radius applied to the wall (the portrait SVG used 10% 10%).
 	 * smoothFill false (default) = exact replica: the gradient fill pops in when each letter's
 	 *            tween ends (what GSAP actually did). true = fade it in with the same eased value.
 	 */
@@ -25,7 +27,9 @@
 		maxDpr = 2,
 		samples = 4,
 		distortion = 1,
-		smoothFill = false
+		smoothFill = false,
+		svg = WALL_SVG,
+		radius = '0'
 	} = $props();
 
 	let container = $state(null);
@@ -83,7 +87,8 @@
 		};
 
 		/* ------------------------------------------------------------ letters */
-		const parts = buildWallParts(WALL_SVG);
+		const VIEWBOX = parseViewBox(svg);
+		const parts = buildWallParts(svg);
 		const empties = []; // .emptyletters  (stroke only, slides in)
 		const filled = []; // .filledLetters (stroke fades in, then gradient fill)
 		const disposables = [];
@@ -326,12 +331,13 @@
 	});
 </script>
 
-<div class="wall" bind:this={container}></div>
+<div class="wall" bind:this={container} style:border-radius={radius}></div>
 
 <style>
 	.wall {
 		width: 100%;
 		height: 100%;
 		position: relative;
+		overflow: hidden;
 	}
 </style>

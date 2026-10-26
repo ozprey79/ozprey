@@ -2,44 +2,35 @@
   import { onMount } from "svelte";
   import { swan, colors } from "$lib/svgpaths";
 
-  import Wall from "$lib/wall/Wall3D.svelte";
-  import Wallp from "$lib/wallp/Wall3D.svelte";
+  let CurrentWall = $state(null);
 
-    let CurrentWall = $state(null);
-    
-    	onMount(() => {
-		const media = window.matchMedia('(orientation: portrait)');
+  onMount(() => {
+    const media = window.matchMedia("(orientation: portrait)");
+    let disposed = false;
 
-		let disposed = false;
+    async function loadWall() {
+      const module = media.matches
+        ? await import("$lib/wall/WallPortrait3D.svelte")
+        : await import("$lib/wall/Wall3D.svelte");
 
-		async function loadWall() {
-			const module = media.matches
-				? await import('$lib/wallp/Wall3D.svelte')
-				: await import('$lib/wall/Wall3D.svelte');
+      if (disposed) return;
 
-			if (disposed) return;
+      CurrentWall = module.default;
+    }
 
-			CurrentWall = module.default;
-		}
+    loadWall();
 
-		loadWall();
+    media.addEventListener("change", loadWall);
 
-		function handleOrientationChange() {
-			loadWall();
-		}
-
-		media.addEventListener('change', handleOrientationChange);
-
-		return () => {
-			disposed = true;
-
-			media.removeEventListener(
-				'change',
-				handleOrientationChange
-			);
-		};
-	});
+    return () => {
+      disposed = true;
+      media.removeEventListener("change", loadWall);
+    };
+  });
 </script>
+
+
+
 <!-- <svelte:window bind:innerWidth bind:innerHeight /> -->
 <!-- <div class="loaderbg" bind:this={el}>
   <Loader />
@@ -49,7 +40,7 @@
 </div> -->
 <div class="grid">
   <div class="cells">
-    <button
+    <!-- <button
       class="topicons"
       id="swn"
       onclick={() => {
@@ -57,13 +48,13 @@
       }}
       aria-label="color menu"
     >
-      <!-- <img class="tytl" src="swan.svg" alt="person" /> -->
+      <img class="tytl" src="swan.svg" alt="person" />
       <svg class="tytl" viewBox="0 0 33 33">
         <g transform="translate(3 3)" filter="url(#goohjhey)">
           <path id="swaan" d={swan} />
         </g>
       </svg>
-    </button>
+    </button> -->
 
     <div class="topicons" id="titl"></div>
 
@@ -72,11 +63,10 @@
 
   <div class="cells">
     <div class="midpanel">
-		  {#if CurrentWall}
-		<CurrentWall />
-	{/if}
-			
-		</div>
+      {#if CurrentWall}
+        <CurrentWall />
+      {/if}
+    </div>
   </div>
 
   <div class="cells">
@@ -131,7 +121,7 @@
   .cells:nth-child(3) {
     margin: 0 5vmin;
   }
-
+  /* .cells:nth-child(1){background-color: rgb(37, 52, 52);} */
   .topicons:nth-child(1) {
     display: block;
     position: absolute;
@@ -187,7 +177,9 @@
     /* filter: invert(50%); */
     /* fill: rgb(25, 0, 255); */
     /* filter: hue-rotate(90deg) ; */
-    stroke: var(--bg);
+    stroke: var(--fill);
+    stroke-width: 0;
+    filter: invert(50%);
   }
   .midpanel {
     width: 80%;

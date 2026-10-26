@@ -1,8 +1,12 @@
 import { ShapeGeometry, BufferGeometry, Float32BufferAttribute, REVISION } from 'three';
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js';
 
-/** Same numbers as the original <svg viewBox="0 0 264.58334 132.29167"> */
-export const VIEWBOX = { x: 0, y: 0, w: 264.58334, h: 132.29167 };
+/** Reads  viewBox="x y w h"  from the SVG markup (landscape and portrait walls differ). */
+export function parseViewBox(svgText) {
+	const m = /viewBox\s*=\s*"([^"]+)"/.exec(svgText);
+	const [x, y, w, h] = m[1].trim().split(/[\s,]+/).map(Number);
+	return { x, y, w, h };
+}
 
 /** Same numbers as the original CSS: stroke-width .3, and SVG's defaults for join / cap / miterlimit */
 const STROKE_WIDTH = 0.3;

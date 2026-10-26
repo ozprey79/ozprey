@@ -6,7 +6,7 @@
 
 	import Menu from '$lib/menu.svelte';
 	import favicon from '$lib/assets/favicon.svg';
-	import { cat } from '$lib/svgpaths';
+	import { cat,swan } from '$lib/svgpaths';
 	import catSound from '$lib/assets/caty.mp3';
 
 	let { children } = $props();
@@ -130,8 +130,22 @@
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-<ShaderLoader />
+<!-- <ShaderLoader /> -->
 
+<button
+	class="swanmenu"
+	
+	aria-label={status ? 'Close menu' : 'Open menu'}
+	aria-expanded={status}
+	aria-controls="portfolio-menu"
+>
+<a href="/" aria-label="Blog">
+	<svg viewBox="0 0 30 30" aria-hidden="true">
+		<g transform="translate(0 3)">
+			<path id="swan" d={swan} />
+		</g>
+	</svg></a>
+</button>
 <button
 	class="catmenu"
 	onclick={toggleMenu}

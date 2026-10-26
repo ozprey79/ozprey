@@ -1,86 +1,171 @@
 <script>
 	let { movies } = $props();
 
+	// ── Calendar & layout constants (SVG user units) ──────────────────────────
+	const DEFAULT_YEAR = 2027;
 	const monthNames = [
-		'August', 'September', 'October', 'November', 'December', 'January',
-		'February', 'March', 'April', 'May', 'June', 'July'
+		'January', 'February', 'March', 'April', 'May', 'June',
+		'July', 'August', 'September', 'October', 'November', 'December'
 	];
-	const now = new Date();
-	const currentPeriod = now.getMonth() >= 7 ? now.getFullYear() : now.getFullYear() - 1;
 
+	// Wide screens: 12 vertical rods, day runs top → bottom.
+	// Phones: the same abacus turned on its side, 12 horizontal rods, day runs left → right.
+	const WIDE = { w: 1000, h: 700, vertical: true, crossStart: 70, crossEnd: 930, alongStart: 48, alongEnd: 652, cap: 9 };
+	const NARROW = { w: 400, h: 760, vertical: false, crossStart: 36, crossEnd: 724, alongStart: 22, alongEnd: 378, cap: 7 };
+	const NARROW_BELOW = 600; // px width of the chart container
+	const BEAD_GAP = 2;
+
+	// Favourite hearts: coffee brown, Material heart drawn on a 24-unit grid
+	const HEART_PATH =
+		'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z';
+
+	// ── Data helpers ──────────────────────────────────────────────────────────
+	// Returns null for anything that isn't a real calendar date (e.g. 2027-02-31),
+	// so bad data counts as "undated" instead of misplacing a bead.
 	function dateParts(value) {
 		const match = value?.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-		return match ? { year: Number(match[1]), month: Number(match[2]), day: Number(match[3]) } : null;
+		if (!match) return null;
+		const year = Number(match[1]);
+		const month = Number(match[2]);
+		const day = Number(match[3]);
+		if (month < 1 || month > 12) return null;
+		if (day < 1 || day > new Date(year, month, 0).getDate()) return null;
+		return { year, month, day };
 	}
 
-	function periodFor(value) {
+	function yearFor(value) {
+		return dateParts(value)?.year ?? null;
+	}
+
+	function monthIndex(value, year) {
 		const parts = dateParts(value);
-		if (!parts) return null;
-		return parts.month >= 8 ? parts.year : parts.year - 1;
-	}
-
-	function monthIndex(value, period) {
-		const parts = dateParts(value);
-		if (!parts) return -1;
-		if (parts.year === period && parts.month >= 8) return parts.month - 8;
-		if (parts.year === period + 1 && parts.month <= 7) return parts.month + 4;
-		return -1;
-	}
-
-	function nodeRadius(runtime) {
-		const minutes = Math.min(240, Math.max(60, runtime || 105));
-		return 6 + Math.sqrt((minutes - 60) / 180) * 9;
+		return parts && parts.year === year ? parts.month - 1 : -1;
 	}
 
 	function formatDate(value) {
 		const parts = dateParts(value);
 		if (!parts) return 'Date not recorded';
-		return `${String(parts.day).padStart(2, '0')} ${monthNames[(parts.month + 4) % 12]} ${parts.year}`;
+		return `${String(parts.day).padStart(2, '0')} ${monthNames[parts.month - 1]} ${parts.year}`;
 	}
 
-	const periods = $derived.by(() => {
-		const found = new Set(movies.map((movie) => periodFor(movie.watchedDate)).filter(Number.isInteger));
-		found.add(currentPeriod);
+	// Bead radius encodes runtime (60–240 min → 6–15 units)
+	function nodeRadius(runtime) {
+		const minutes = Math.min(240, Math.max(60, runtime || 105));
+		// return 6 + Math.sqrt((minutes - 60) / 180) * 7;
+		return 6 + Math.sqrt((100 - 60) / 180) * 5;
+	}
+
+	// Favourite flag: set `favorite: true` on each movie in your loader
+	// (`favourite` and `isFavorite` are also accepted).
+	function isFavorite(movie) {
+		return Boolean(movie.favorite ?? movie.favourite ?? movie.isFavorite);
+	}
+
+	// Rating → bead opacity. Unrated films sit in the middle; favourites never go too faint
+	// so the heart stays readable.
+	function toneFor(movie) {
+		const rating = movie.personalRating;
+		let tone = typeof rating === 'number' ? 0.35 + 0.65 * Math.min(10, Math.max(0, rating)) / 10 : 0.7;
+		if (isFavorite(movie)) tone = Math.max(tone, 0.85);
+		return tone;
+	}
+
+	// ── State ─────────────────────────────────────────────────────────────────
+	let stageWidth = $state(0);
+	let selectedYear = $state(DEFAULT_YEAR);
+	let hoveredMovie = $state(null);
+	let touchMode = false; // true after the last pointer was a finger or pen
+
+	const narrow = $derived(stageWidth > 0 && stageWidth < NARROW_BELOW);
+	const layout = $derived(narrow ? NARROW : WIDE);
+
+	const years = $derived.by(() => {
+		const found = new Set(movies.map((movie) => yearFor(movie.watchedDate)).filter(Number.isInteger));
+		found.add(DEFAULT_YEAR);
 		return [...found].sort((a, b) => a - b);
 	});
 
-	let selectedPeriod = $state(currentPeriod);
-	let hoveredMovie = $state(null);
+	const crossPos = (index) => layout.crossStart + (index * (layout.crossEnd - layout.crossStart)) / 11;
 
-	const periodLabel = $derived(`${selectedPeriod}–${String(selectedPeriod + 1).slice(-2)}`);
-	const monthRings = $derived(
-		monthNames.map((name, index) => ({
-			name,
-			index,
-			year: index < 5 ? selectedPeriod : selectedPeriod + 1,
-			radius: 58 + index * 24
-		}))
+	const rods = $derived(
+		Array.from({ length: 12 }, (_, index) => {
+			const c = crossPos(index);
+			const { alongStart: a0, alongEnd: a1, cap, vertical } = layout;
+			return vertical
+				? { line: [c, a0, c, a1], caps: [[c - cap, a0, c + cap, a0], [c - cap, a1, c + cap, a1]] }
+				: { line: [a0, c, a1, c], caps: [[a0, c - cap, a0, c + cap], [a1, c - cap, a1, c + cap]] };
+		})
 	);
-	const plottedMovies = $derived.by(() => {
-		const grouped = Array.from({ length: 12 }, () => []);
-		for (const movie of movies) {
-			const ring = monthIndex(movie.watchedDate, selectedPeriod);
-			if (ring >= 0) grouped[ring].push(movie);
+
+	// Each bead sits at its watched day along its month's rod (1st at the start, last day at the end).
+	// If two films are close enough to overlap, the later bead slides along the rod until it clears,
+	// the way a bead would on a real abacus. Beads never leave their rod.
+	const beads = $derived.by(() => {
+		const L = layout;
+		const minT = L.alongStart + 20;
+		const maxT = L.alongEnd - 20;
+		const edge = L.alongEnd - 12; // beads never touch the end bar
+		const out = [];
+
+		for (let row = 0; row < 12; row++) {
+			const daysInMonth = new Date(selectedYear, row + 1, 0).getDate();
+			const c = crossPos(row);
+			const items = movies
+				.filter((movie) => monthIndex(movie.watchedDate, selectedYear) === row)
+				.sort(
+					(a, b) =>
+						a.watchedDate.localeCompare(b.watchedDate) ||
+						(a.title || '').localeCompare(b.title || '')
+				)
+				.map((movie) => {
+					const { day } = dateParts(movie.watchedDate);
+					return {
+						movie,
+						r: nodeRadius(movie.runtime),
+						t: minT + ((day - 1) / (daysInMonth - 1)) * (maxT - minT)
+					};
+				});
+
+			// push later beads along the rod to clear overlaps
+			for (let i = 1; i < items.length; i++) {
+				items[i].t = Math.max(items[i].t, items[i - 1].t + items[i - 1].r + items[i].r + BEAD_GAP);
+			}
+			// pull back if the pile ran past the end of the rod
+			for (let i = items.length - 1; i >= 0; i--) {
+				const limit =
+					i === items.length - 1
+						? edge - items[i].r
+						: items[i + 1].t - items[i + 1].r - items[i].r - BEAD_GAP;
+				items[i].t = Math.min(items[i].t, limit);
+			}
+
+			items.forEach((item, index) => {
+				const slide = L.alongStart - item.t;
+				out.push({
+					movie: item.movie,
+					r: item.r,
+					x: L.vertical ? c : item.t,
+					y: L.vertical ? item.t : c,
+					fx: L.vertical ? 0 : slide,
+					fy: L.vertical ? slide : 0,
+					tone: toneFor(item.movie),
+					fav: isFavorite(item.movie),
+					delay: row * 45 + index * 40
+				});
+			});
 		}
-
-		return grouped.flatMap((group, ring) =>
-			group.map((movie, index) => {
-				const duration = 70 + ring * 5 + (index % 5) * 7;
-				const phase = group.length ? index / group.length : 0;
-				return {
-					movie,
-					ring,
-					orbitRadius: monthRings[ring].radius,
-					nodeRadius: nodeRadius(movie.runtime),
-					duration,
-					delay: -(duration * phase)
-				};
-			})
-		);
+		return out;
 	});
-	const undatedMovies = $derived(movies.filter((movie) => !movie.watchedDate));
-	const totalMinutes = $derived(plottedMovies.reduce((sum, item) => sum + item.movie.runtime, 0));
 
+	const undatedMovies = $derived(movies.filter((movie) => !dateParts(movie.watchedDate)));
+	const totalMinutes = $derived(beads.reduce((sum, item) => sum + (item.movie.runtime || 0), 0));
+
+	// Card opens on the side away from the hovered bead so it never covers it
+	const cardSide = $derived(
+		hoveredMovie && monthIndex(hoveredMovie.watchedDate, selectedYear) >= 6 ? 'left' : 'right'
+	);
+
+	// ── Interaction ───────────────────────────────────────────────────────────
 	function showCard(movie) {
 		hoveredMovie = movie;
 	}
@@ -88,69 +173,105 @@
 	function hideCard(movie) {
 		if (hoveredMovie?.id === movie.id) hoveredMovie = null;
 	}
+
+	// Touch: first tap shows the card, second tap on the same bead opens TMDB.
+	// Tapping anywhere else closes the card.
+	function onPointerDown(event) {
+		touchMode = event.pointerType !== 'mouse';
+		if (touchMode && !(event.target instanceof Element && event.target.closest('.bead-link'))) {
+			hoveredMovie = null;
+		}
+	}
+
+	function onBeadClick(event, movie) {
+		if (touchMode && hoveredMovie?.id !== movie.id) {
+			event.preventDefault();
+			showCard(movie);
+		}
+	}
 </script>
 
-<div class="orbit-controls">
-	<p><strong>{plottedMovies.length}</strong> watched · <strong>{Math.round(totalMinutes / 60)}</strong> hours</p>
-	{#if periods.length > 1}
+<svelte:window onpointerdown={onPointerDown} onkeydown={() => (touchMode = false)} />
+
+<div class="abacus-controls">
+	<p><strong>{beads.length}</strong> watched · <strong>{Math.round(totalMinutes / 60)}</strong> hours</p>
+	{#if years.length > 1}
 		<label>
 			Viewing year
-			<select bind:value={selectedPeriod}>
-				{#each periods as period}<option value={period}>{period}–{String(period + 1).slice(-2)}</option>{/each}
+			<select bind:value={selectedYear}>
+				{#each years as year}<option value={year}>{year}</option>{/each}
 			</select>
 		</label>
 	{/if}
 </div>
 
-<div class="orbit-stage">
-	<svg viewBox="0 0 800 800" role="img" aria-labelledby="orbit-title orbit-description">
-		<title id="orbit-title">Movies watched from August {selectedPeriod} to July {selectedPeriod + 1}</title>
-		<desc id="orbit-description">Each ring represents a month. Larger planets represent longer films. Select a planet to read its details.</desc>
+<div class="abacus-stage" bind:clientWidth={stageWidth}>
+	<svg viewBox="0 0 {layout.w} {layout.h}" role="img" aria-labelledby="abacus-title abacus-description">
+		<title id="abacus-title">Movies watched in {selectedYear}</title>
+		<desc id="abacus-description">Twelve rods, one per month, January first. Each bead is a film, placed along its rod by the day of the month it was watched. Larger beads are longer films, and fainter beads are rated lower. A heart marks a favourite. Select a bead to read its details.</desc>
 
-		{#each [...monthRings].reverse() as ring}
-			<circle class="orbit-ring" cx="400" cy="400" r={ring.radius} />
-			<text class="month-label" x="408" y={404 - ring.radius}>{ring.name.slice(0, 3).toUpperCase()} {String(ring.year).slice(-2)}</text>
-		{/each}
+		<g aria-hidden="true">
+			{#each rods as rod}
+				<line class="rod" x1={rod.line[0]} y1={rod.line[1]} x2={rod.line[2]} y2={rod.line[3]} />
+				{#each rod.caps as cap}
+					<line class="rod-cap" x1={cap[0]} y1={cap[1]} x2={cap[2]} y2={cap[3]} />
+				{/each}
+			{/each}
+		</g>
 
-		<circle class="sun" cx="400" cy="400" r="31" />
-		<text class="sun-label" x="400" y="397">WATCHED</text>
-		<text class="sun-period" x="400" y="411">{periodLabel}</text>
-
-		{#each plottedMovies as item (item.movie.id)}
+		{#each beads as item (item.movie.id)}
 			<g
-				class="orbit-motion"
-				style={`--orbit-duration:${item.duration}s;--orbit-delay:${item.delay}s`}
+				class="bead-motion"
+				style={`--fx:${item.fx}px;--fy:${item.fy}px;--delay:${item.delay}ms`}
 			>
 				<a
-					class="planet-link"
+					class="bead-link"
 					href={item.movie.url}
-					aria-label={`${item.movie.title}, ${item.movie.runtime || 'unknown'} minutes, watched ${formatDate(item.movie.watchedDate)}`}
-					onmouseenter={() => showCard(item.movie)}
-					onmouseleave={() => hideCard(item.movie)}
-					onfocus={() => showCard(item.movie)}
-					onblur={() => hideCard(item.movie)}
+					aria-label={`${item.movie.title}, ${item.movie.runtime || 'unknown'} minutes, watched ${formatDate(item.movie.watchedDate)}${item.fav ? ', favourite' : ''}`}
+					onclick={(event) => onBeadClick(event, item.movie)}
+					onmouseenter={() => !touchMode && showCard(item.movie)}
+					onmouseleave={() => !touchMode && hideCard(item.movie)}
+					onfocus={() => !touchMode && showCard(item.movie)}
+					onblur={() => !touchMode && hideCard(item.movie)}
 				>
-					<circle class="planet-hit" cx={400 + item.orbitRadius} cy="400" r="22" />
+					{#if !item.fav}
+					<circle class="bead-hit" cx={item.x} cy={item.y} r={narrow ? Math.max(item.r + 4, 14) : Math.max(item.r + 5, 18)} />
 					<circle
 						class:selected={hoveredMovie?.id === item.movie.id}
-						class="planet-node"
-						cx={400 + item.orbitRadius}
-						cy="400"
-						r={item.nodeRadius}
+						class="bead"
+						style={`--tone:${item.tone}`}
+						cx={item.x}
+						cy={item.y}
+						r={item.r}
 					/>
+					{/if}
+					{#if item.fav}
+						<path
+						    class:selected={hoveredMovie?.id === item.movie.id}
+							class="beadheart"
+							d={HEART_PATH}
+							transform={`translate(${item.x} ${item.y}) scale(${item.r * 0.095}) translate(-12 -12.2)`}
+							
+						/>
+					{/if}
 				</a>
 			</g>
 		{/each}
 	</svg>
 
 	{#if hoveredMovie}
-		<article class="movie-card" aria-live="polite">
+		<article class="movie-card {cardSide}" aria-live="polite">
 			<div class="card-foil" aria-hidden="true"></div>
 			<header class="card-header">
 				<p>{formatDate(hoveredMovie.watchedDate)}</p>
-				{#if hoveredMovie.personalRating !== null}
-					<span><strong>{hoveredMovie.personalRating}</strong>/10 ★</span>
-				{/if}
+				<span class="card-badges">
+					{#if isFavorite(hoveredMovie)}
+						<svg class="card-heart" viewBox="0 0 24 24" aria-label="Favourite" role="img"><path d={HEART_PATH} /></svg>
+					{/if}
+					{#if hoveredMovie.personalRating !== null && hoveredMovie.personalRating !== undefined}
+						<span><strong>{hoveredMovie.personalRating}</strong>/10 ★</span>
+					{/if}
+				</span>
 			</header>
 
 			<h3>{hoveredMovie.title}</h3>
@@ -164,31 +285,42 @@
 			</div>
 
 			<p class="card-spec">
-				<span>{hoveredMovie.releaseDate.slice(0, 4) || 'Year unknown'}</span>
+				<span>{hoveredMovie.releaseDate?.slice(0, 4) || 'Year unknown'}</span>
 				<span>{hoveredMovie.language || 'Language unknown'}</span>
 				<span>{hoveredMovie.runtime ? `${hoveredMovie.runtime} min` : 'Runtime unknown'}</span>
 			</p>
 
 			<div class="card-info">
 				<strong>Type</strong>
-				<p>{hoveredMovie.genres.join(' · ') || 'Genre unavailable'}</p>
+				<p>{hoveredMovie.genres?.join(' · ') || 'Genre unavailable'}</p>
 			</div>
 
-			<p class="card-link">Select planet to view on TMDB ↗</p>
+			<p class="card-link">{touchMode ? 'Tap again to view on TMDB ↗' : 'Select bead to view on TMDB ↗'}</p>
 			<p class="card-number">TMDB #{hoveredMovie.id}</p>
 		</article>
 	{/if}
 
-	<div class="runtime-legend" aria-label="Planet size represents runtime">
-		<span>Runtime</span>
+	<div class="runtime-legend" aria-label="Legend: bead size is runtime, bead brightness is your rating">
+		<!-- <span>Runtime</span>
 		{#each [75, 120, 180] as runtime}
 			<span class="runtime-key"><i style={`width:${nodeRadius(runtime) * 2}px;height:${nodeRadius(runtime) * 2}px`}></i>{runtime} min</span>
-		{/each}
+		{/each} -->
+		<span>Rating</span>
+		<span class="runtime-key">
+			<i class="tone" style="width:14px;height:14px;opacity:.4"></i>
+			<i class="tone" style="width:14px;height:14px;opacity:.7"></i>
+			<i class="tone" style="width:14px;height:14px"></i>
+			low → high
+		</span>
+		<span class="runtime-key">
+			<i class="fav-key"><svg viewBox="0 0 24 24" aria-hidden="true"><path d={HEART_PATH} /></svg></i>
+			Favourite
+		</span>
 	</div>
 </div>
 
-{#if plottedMovies.length === 0}
-	<p class="empty-state">No dated movies fall inside {periodLabel}. Add <code>watched: YYYY-MM-DD</code> to each TMDB list-item comment.</p>
+{#if beads.length === 0}
+	<p class="empty-state">No dated movies fall inside {selectedYear}. Add <code>watched: YYYY-MM-DD</code> to each TMDB list-item comment.</p>
 {/if}
 
 {#if undatedMovies.length}
@@ -196,29 +328,38 @@
 {/if}
 
 <style>
-	.orbit-controls { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:15px 0; font-size:.75rem; text-transform:uppercase; }
-	.orbit-controls p { letter-spacing:.08em; }
-	.orbit-controls label { display:flex; align-items:center; gap:10px; }
-	.orbit-controls select { margin:0; padding:6px 25px 6px 7px; color:var(--bg); background:var(--fill); }
-	.orbit-stage { position:relative; width:min(100%, 900px); margin:auto; }
+	.abacus-controls { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:15px 0; font-size:.75rem; text-transform:uppercase; }
+	.abacus-controls p { letter-spacing:.08em; }
+	.abacus-controls label { display:flex; align-items:center; gap:10px; }
+	.abacus-controls select { margin:0; padding:6px 25px 6px 7px; color:var(--bg); background:var(--fill); border-radius: 1rem; }
+	.abacus-stage {  position:relative; width:min(100%, 960px); margin:auto; }
 	svg { display:block; width:100%; height:auto; overflow:visible; }
-	.orbit-ring { fill:none; stroke:color-mix(in srgb, var(--fill) 28%, transparent); stroke-width:1; vector-effect:non-scaling-stroke; }
-	.month-label { fill:var(--fill); font-family:'PlusJakartaSans-SemiBold', sans-serif; font-size:9px; letter-spacing:.08em; opacity:.72; }
-	.sun { fill:var(--fill); }
-	.sun-label, .sun-period { fill:var(--bg); font-family:'PlusJakartaSans-SemiBold', sans-serif; text-anchor:middle; }
-	.sun-label { font-size:8px; letter-spacing:.12em; }
-	.sun-period { font-size:7px; }
-	.orbit-motion { transform-box:view-box; transform-origin:center; animation:orbit var(--orbit-duration) linear var(--orbit-delay) infinite; }
-	.planet-link { cursor:pointer; }
-	.planet-hit { fill:transparent; }
-	.planet-node { fill:var(--fill); stroke:var(--bg); stroke-width:1.5; vector-effect:non-scaling-stroke; transition:stroke-width 150ms ease, filter 150ms ease; }
-	.planet-node.selected, .planet-link:hover .planet-node, .planet-link:focus .planet-node { stroke-width:4; filter:drop-shadow(0 0 7px var(--fill)); }
-	.movie-card { position:absolute; z-index:5; left:clamp(8px, 3vw, 32px); top:50%; width:min(280px, 36%); min-width:230px; aspect-ratio:5/7; padding:14px; overflow:hidden; pointer-events:none; color:var(--bg); background:linear-gradient(145deg, color-mix(in srgb, var(--fill) 94%, white), color-mix(in srgb, var(--fill) 72%, #f3bd36)); border:7px solid color-mix(in srgb, var(--fill) 55%, #d6a52a); border-radius:16px; box-shadow:0 16px 35px rgba(0,0,0,.42), inset 0 0 0 2px color-mix(in srgb, var(--bg) 35%, transparent); transform:translateY(-50%) rotate(-1.25deg); }
+
+	/* rods: thin dashed stroke, small bar at each end */
+	.rod { stroke:color-mix(in srgb, var(--fill) 55%, transparent); stroke-width:1.5; stroke-dasharray:2 6; vector-effect:non-scaling-stroke; }
+	.rod-cap { stroke:color-mix(in srgb, var(--fill) 55%, transparent); stroke-width:2; vector-effect:non-scaling-stroke; }
+
+	/* beads: flat circles, no outline; brightness follows your rating */
+	.bead-motion { animation:slide-in 760ms cubic-bezier(.2,.8,.2,1) var(--delay) backwards; }
+	.bead-link { cursor:pointer; }
+	.bead-link:focus { outline:none; }
+	.bead-hit { fill:transparent; }
+	.bead { fill:var(--fill); opacity:var(--tone, 1); transition:filter 150ms ease, opacity 150ms ease; }
+	.bead.selected, .bead-link:hover .bead, .bead-link:focus .bead { opacity:1; filter:drop-shadow(0 0 8px var(--fill)); }
+	.beadheart { fill:var(--heart); pointer-events:none; }
+	.beadheart.selected, .beadheart-link:hover .beadheart, .beadheart-link:focus .bead { opacity:1; filter:drop-shadow(0 0 8px var(--fill)); }
+     
+	/* hover card sits on the side opposite the hovered bead */
+	.movie-card { position:absolute; z-index:5; top:50%; width:min(280px, 34%); min-width:230px; aspect-ratio:5/7; padding:14px; overflow:hidden; pointer-events:none; color:var(--bg); background:linear-gradient(145deg, color-mix(in srgb, var(--fill) 94%, white), color-mix(in srgb, var(--fill) 72%, #f3bd36)); border:7px solid color-mix(in srgb, var(--fill) 55%, #d6a52a); border-radius:16px; box-shadow:0 16px 35px rgba(0,0,0,.42), inset 0 0 0 2px color-mix(in srgb, var(--bg) 35%, transparent); }
+	.movie-card.right { right:clamp(8px, 3vw, 32px); transform:translateY(-50%) rotate(1.25deg); }
+	.movie-card.left { left:clamp(8px, 3vw, 32px); transform:translateY(-50%) rotate(-1.25deg); }
 	.card-foil { position:absolute; inset:0; pointer-events:none; opacity:.16; background:linear-gradient(115deg, transparent 16%, white 33%, transparent 48%, white 64%, transparent 81%); transform:translateX(-45%); animation:foil 3.6s ease-in-out infinite alternate; }
 	.card-header { position:relative; display:flex; justify-content:space-between; align-items:center; gap:8px; }
 	.card-header p, .card-header span, .card-spec, .card-info, .card-link, .card-number { font-family:'PlusJakartaSans-SemiBold', sans-serif; }
 	.card-header p { font-size:.61rem; letter-spacing:.08em; text-transform:uppercase; }
 	.card-header span { font-size:.66rem; white-space:nowrap; }
+	.card-badges { display:inline-flex; align-items:center; gap:7px; }
+	.card-heart { width:15px; height:15px; fill:var(--heart); }
 	.movie-card h3 { position:relative; margin:5px 0 7px; min-height:1.9em; font-family:var(--mfont); font-size:clamp(1.45rem, 2.4vw, 2.15rem); font-weight:400; line-height:.85; text-transform:uppercase; }
 	.card-art { position:relative; aspect-ratio:1.43/1; overflow:hidden; border:4px ridge color-mix(in srgb, var(--bg) 45%, #d2a732); background:color-mix(in srgb, var(--bg) 82%, transparent); box-shadow:inset 0 0 18px rgba(0,0,0,.35); }
 	.card-art img, .card-art-fallback { width:100%; height:100%; object-fit:cover; object-position:center 25%; }
@@ -229,23 +370,28 @@
 	.card-info p { line-height:1.3; }
 	.card-link { position:relative; color:inherit; font-size:.62rem; text-transform:uppercase; }
 	.card-number { position:absolute; right:12px; bottom:7px; font-size:.48rem; opacity:.62; }
-	.runtime-legend { position:absolute; right:0; bottom:3%; display:flex; align-items:center; gap:12px; font-size:.66rem; text-transform:uppercase; }
+
+	.runtime-legend { display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:8px 12px; margin-top:12px; font-size:.66rem; text-transform:uppercase; }
 	.runtime-key { display:flex; align-items:center; gap:5px; }
 	.runtime-key i { display:block; flex:none; border-radius:50%; background:var(--fill); }
+	.fav-key { display:grid !important; place-items:center; width:16px; height:16px; }
+	.fav-key svg { width:10px; height:10px; fill:var(--heart); }
+
 	.empty-state, .undated { font-size:.72rem; }
-	.empty-state { padding:18px 0; border-block:1px solid color-mix(in srgb, var(--fill) 45%, transparent); }
+	.empty-state { padding:18px 0; }
 	.undated { margin-top:12px; opacity:.65; text-transform:uppercase; }
-	@keyframes orbit { to { transform:rotate(360deg); } }
+
+	@keyframes slide-in { from { transform:translate(var(--fx), var(--fy)); } to { transform:translate(0, 0); } }
 	@keyframes foil { to { transform:translateX(45%); } }
+
 	@media (max-width:650px) {
-		.orbit-controls { align-items:flex-start; flex-direction:column; }
-		.runtime-legend { position:static; justify-content:center; flex-wrap:wrap; margin-top:8px; }
-		.month-label { font-size:11px; }
-		.movie-card { position:absolute; left:50%; top:50%; width:min(245px, 76%); min-width:0; transform:translate(-50%, -50%); }
+		.abacus-controls { align-items:flex-start; flex-direction:column; }
+		.runtime-legend { justify-content:center; }
+		.movie-card, .movie-card.left, .movie-card.right { left:50%; right:auto; width:min(245px, 76%); min-width:0; transform:translate(-50%, -50%); }
 	}
 	@media (prefers-reduced-motion:reduce) {
-		.orbit-motion { animation-play-state:paused; }
-		.planet-node { transition:none; }
+		.bead-motion { animation:none; }
+		.bead { transition:none; }
 		.card-foil { animation:none; }
 	}
 </style>

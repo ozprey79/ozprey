@@ -116,6 +116,11 @@
 		{#if visibleItems.length === 0}
 			<p class="empty-collection">No {view} by this artist appear in the current window.</p>
 		{/if}
+
+		      {#if data.summary.totalDurationSeconds}
+    <p>🕐 {formatDuration(data.summary.totalDurationSeconds)} listened this week</p>
+{/if}
+		
 	</section>
 
 	<footer>

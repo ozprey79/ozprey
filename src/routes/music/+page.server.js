@@ -13,8 +13,8 @@ function asArray(value) {
 }
 
 function text(value) {
-	if (typeof value === 'string') return value.trim();
-	return String(value?.['#text'] ?? '').trim();
+  if (typeof value === 'string') return value.trim();
+  return String(value?.['#text'] ?? value?.['name'] ?? '').trim(); // ← add value?.['name']
 }
 
 function keyFor(...parts) {
