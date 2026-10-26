@@ -2,8 +2,8 @@
   import { onMount } from "svelte";
   import { swan, colors } from "$lib/svgpaths";
 
-  import Wall from "$lib/wall.svelte";
-  import Wallp from "$lib/wallp.svelte";
+  import Wall from "$lib/wall/Wall3D.svelte";
+  import Wallp from "$lib/wallp/Wall3D.svelte";
 
     let CurrentWall = $state(null);
     
@@ -14,8 +14,8 @@
 
 		async function loadWall() {
 			const module = media.matches
-				? await import('$lib/wallp.svelte')
-				: await import('$lib/wall.svelte');
+				? await import('$lib/wallp/Wall3D.svelte')
+				: await import('$lib/wall/Wall3D.svelte');
 
 			if (disposed) return;
 
