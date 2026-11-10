@@ -137,7 +137,7 @@
 		align-items: center;
 
 		font-family:
-			'PlusJakartaSans-SemiBold';
+			'Instrument Serif';
 
 		font-size: 10px;
 
@@ -219,7 +219,7 @@
 			50px
 			auto;
 
-		font-family: 'Gambarino';
+		font-family: 'Instrument Serif';
 
 		font-size:
 			clamp(20px, 2.3vw, 32px);
@@ -239,7 +239,7 @@
 		gap: 20px;
 
 		font-family:
-			'PlusJakartaSans-SemiBold';
+			'Instrument Serif';
 
 		font-size: 9px;
 
@@ -288,7 +288,7 @@
 		gap: 7px;
 
 		font-family:
-			'PlusJakartaSans-SemiBold';
+			'Instrument Serif';
 
 		font-size: 8px;
 
@@ -307,7 +307,7 @@
 	.content {
 		grid-column: 2;
 
-		font-family: 'Gambarino';
+		font-family: 'Instrument Serif';
 
 		font-size:
 			clamp(20px, 1.6vw, 25px);
@@ -412,7 +412,7 @@
 			1px solid var(--fill);
 
 		font-family:
-			'PlusJakartaSans-SemiBold';
+			'Instrument Serif';
 
 		font-size: 10px;
 

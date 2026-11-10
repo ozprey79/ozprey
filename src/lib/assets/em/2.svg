@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="250" viewBox="0 0 200 250">
+  <title>Walk — passing stride</title>
+  <g fill="none" stroke="#110e11" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="105" cy="38" r="18"/>
+    <path d="M103 58 101 105 99 141"/>
+    <path d="M102 74 91 102 94 124M102 74 116 99 128 114"/>
+    <path d="M99 141 123 165 111 191 125 193" stroke-opacity=".5"/>
+    <path d="M99 141 98 180 97 218 111 218"/>
+  </g>
+</svg>

@@ -191,9 +191,9 @@
 	.orbit-stage { position:relative; width:min(100%, 900px); margin:auto; }
 	svg { display:block; width:100%; height:auto; overflow:visible; }
 	.orbit-ring { fill:none; stroke:color-mix(in srgb, var(--fill) 28%, transparent); stroke-width:1; vector-effect:non-scaling-stroke; }
-	.day-label { fill:var(--fill); font-family:'PlusJakartaSans-SemiBold', sans-serif; font-size:9px; letter-spacing:.08em; opacity:.72; }
+	.day-label { fill:var(--fill); font-family:'Instrument Serif', sans-serif; font-size:9px; letter-spacing:.08em; opacity:.72; }
 	.sun { fill:var(--fill); }
-	.sun-label, .sun-period { fill:var(--bg); font-family:'PlusJakartaSans-SemiBold', sans-serif; text-anchor:middle; }
+	.sun-label, .sun-period { fill:var(--bg); font-family:'Instrument Serif', sans-serif; text-anchor:middle; }
 	.sun-label { font-size:7px; letter-spacing:.1em; }
 	.sun-period { font-size:7px; }
 	.orbit-motion { transform-box:view-box; transform-origin:center; animation:orbit var(--orbit-duration) linear var(--orbit-delay) infinite; }
@@ -205,7 +205,7 @@
 	.music-card { position:absolute; z-index:5; left:clamp(8px, 3vw, 32px); top:50%; width:min(280px, 36%); min-width:230px; aspect-ratio:5/7; padding:14px; overflow:hidden; pointer-events:none; color:var(--bg); background:linear-gradient(145deg, color-mix(in srgb, var(--fill) 94%, white), color-mix(in srgb, var(--fill) 72%, #f3bd36)); border:7px solid color-mix(in srgb, var(--fill) 55%, #d6a52a); border-radius:16px; box-shadow:0 16px 35px rgba(0,0,0,.42), inset 0 0 0 2px color-mix(in srgb, var(--bg) 35%, transparent); transform:translateY(-50%) rotate(-1.25deg); }
 	.card-foil { position:absolute; inset:0; pointer-events:none; opacity:.16; background:linear-gradient(115deg, transparent 16%, white 33%, transparent 48%, white 64%, transparent 81%); transform:translateX(-45%); animation:foil 3.6s ease-in-out infinite alternate; }
 	.card-header { position:relative; display:flex; justify-content:space-between; align-items:center; gap:8px; }
-	.card-header p, .card-header span, .card-artist, .card-spec, .card-info, .card-link, .card-number { font-family:'PlusJakartaSans-SemiBold', sans-serif; }
+	.card-header p, .card-header span, .card-artist, .card-spec, .card-info, .card-link, .card-number { font-family:'Instrument Serif', sans-serif; }
 	.card-header p { font-size:.57rem; letter-spacing:.06em; text-transform:uppercase; }
 	.card-header span { font-size:.63rem; white-space:nowrap; }
 	.music-card h3 { position:relative; margin:5px 0 1px; font-family:var(--mfont); font-size:clamp(1.35rem, 2.2vw, 2rem); font-weight:400; line-height:.85; text-transform:uppercase; }

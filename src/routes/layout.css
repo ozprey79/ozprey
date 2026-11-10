@@ -1,11 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap');
 
 :root{
 	--fill:rgb(255, 192, 236);
 	--bg:#181818;
 	--heart:#ff2600;
   --bgdot: rgba(49, 49, 49, 0.788);
-  --mfont:"Tanker-Regular";
+  --mfont:"Instrument Serif";
 }
 
 * {
@@ -37,33 +36,23 @@ button:focus{outline: none;}
 
 
 @font-face {
-  font-family: "Tanker-Regular";
-  src:
-    url("../lib/f/Tanker-Regular.woff2") format("woff2"),
-    url("../lib/f/Tanker-Regular.woff") format("woff"),
-    url("../lib/f/Tanker-Regular.ttf") format("truetype");
+  font-family: 'Instrument Serif';
+  src: url('../lib/f/InstrumentSerif-Regular.ttf') format('truetype');
   font-weight: 400;
-  font-display: swap;
   font-style: normal;
+  font-display: swap;
 }
 @font-face {
-  font-family: "Gambarino";
-  src:
+  font-family: 'Instrument Serif';
+  src: url('../lib/f/InstrumentSerif-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
 
-    url("../lib/f/Gambarino-Regular.woff")format("woff");
-  font-weight: 400;
-  font-display: swap;
-  font-style: normal;
-}
-@font-face {
-  font-family: 'PlusJakartaSans-SemiBold';
-  src: url('../lib/f/PlusJakartaSans-SemiBold.woff2') format('woff2'),
-       url('../lib/f/PlusJakartaSans-SemiBold.woff') format('woff'),
-       url('../lib/f/PlusJakartaSans-SemiBold.ttf') format('truetype');
-  font-weight: 600;
-  font-display: swap;
-  font-style: normal;
-}
+body { font-family: 'Instrument Serif', serif; font-weight: 400; font-synthesis: none; }
+input, textarea, select, button { font-family: inherit; }
+em, i { font-style: normal; }
 
 .tracker {
   position: fixed;
@@ -123,7 +112,7 @@ textarea {
 
 
 .catmenu {
-    position: absolute;
+    position: fixed;
     right: clamp(10px, 5vmin, 15px);
     top: clamp(10px, 5vmin, 15px);
     z-index: 11;
@@ -143,7 +132,7 @@ textarea {
   
   }
   .swanmenu{
-    position: absolute;
+    position: fixed;
      left: clamp(15px, 4vmin, 15px);
     top: clamp(5px, 4vmin, 15px);
       z-index: 11;
@@ -200,24 +189,31 @@ textarea {
    
   .mopen,
   .mclose {
-    position: absolute;
-    left: 0;
-    top: 0;
+    position: fixed;
+    inset: 0;
     z-index: 10;
-    display: flex;
-
-    transform-origin: 50% 50%;
-    transition: height 1s cubic-bezier(.37,-1.01,.42,1.55);
-
-    background-color: transparent;
+    width: 100%;
+    height: 100dvh;
     overflow: hidden;
-    /* mix-blend-mode: darken; */
+    background-color: transparent;
+    transition: visibility 0s linear;
   }
   .mopen {
-    height: 60vmin;
+    visibility: visible;
   }
   .mclose {
-    height: 0vmin;
+    visibility: hidden;
+    pointer-events: none;
+    transition-delay: 750ms;
+  }
+
+  html:has(#portfolio-menu.mopen) {
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mclose { transition-delay: 0s; }
   }
 
   /* Each Menu Icons */
@@ -246,13 +242,9 @@ textarea {
 	-webkit-text-fill-color: transparent;
 }
   @media (orientation: portrait) {
-    .mopen {
-      height: 70%;
-    }
-
     .pagebutton {
       /* display: inline-block; */
-      /* font-family: "Baskerville Light-Italic"; */
+      /* font-family: "Instrument Serif"; */
       font-size: larger;
     }
     .pagebutton a:active {

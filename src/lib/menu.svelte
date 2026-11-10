@@ -1,100 +1,76 @@
 <script>
-	let { onclose } = $props();
+	import MenuHeadline from '$lib/components/menu-headline/MenuHeadline.svelte';
+	let { onclose, open = false } = $props();
+	let revealed = $state(false);
+
+	$effect(() => {
+		if (!open) {
+			revealed = false;
+			return;
+		}
+		const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+		const revealWithoutMotion = () => { if (reduced.matches) revealed = true; };
+		revealWithoutMotion();
+		reduced.addEventListener('change', revealWithoutMotion);
+		return () => reduced.removeEventListener('change', revealWithoutMotion);
+	});
+
+	function slatFinished(event, index) {
+		if (open && index === 7 && event.propertyName === 'transform') revealed = true;
+	}
 </script>
 
-<nav class="menu" aria-label="Main navigation">
-	<a
-		class="pagebutton"
-		href="/"
-		onclick={onclose}
-	>
-		Home
-	</a>
-
-	<a
-		class="pagebutton"
-		href="/blog"
-		onclick={onclose}
-	>
-		Blog
-	</a>
-
-	<a
-		class="pagebutton"
-		href="/movies"
-		onclick={onclose}
-	>
-		Movies
-	</a>
-
-	<button
-		type="button"
-		class="pagebutton"
-		onclick={onclose}
-	>
-		Close
-	</button>
+<nav class="menu" class:open aria-label="Main navigation">
+	<div class="blind" aria-hidden="true">
+		{#each Array(8) as _, index}
+			<div class="slat" style={`--slat-index: ${index}`} ontransitionend={(event) => slatFinished(event, index)}></div>
+		{/each}
+	</div>
+	{#if open && revealed}
+		<MenuHeadline {onclose} />
+	{/if}
 </nav>
 
 <style>
 	.menu {
-		width: 100vw;
+		position: relative;
+		isolation: isolate;
+		width: 100%;
 		height: 100%;
 
 		display: flex;
 		align-items: center;
 		justify-content: space-evenly;
 
+	}
+
+	.blind {
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		display: grid;
+		grid-template-rows: repeat(8, 1fr);
+		pointer-events: none;
+		perspective: 1000px;
+	}
+
+	.slat {
+		margin-bottom: -1px;
 		background: var(--fill);
-		/* background-color: brown; */
-		
-		border-bottom-left-radius: 40px;
-		border-bottom-right-radius: 40px;
+		transform-origin: center;
+		transform: rotateX(-90deg);
+		opacity: 0;
+		transition: transform 480ms cubic-bezier(.22, 1, .36, 1), opacity 200ms ease;
+		transition-delay: calc((7 - var(--slat-index)) * 35ms);
 	}
 
-	.pagebutton {
-		position: relative;
-
-		display: inline-block;
-
-		padding: 0.35em;
-
-		font-family: var(--mfont);
-		font-size: clamp(24px, 4vw, 52px);
-		line-height: 1;
-
-		color: var(--bg);
-	
-
-		border: 0;
-
-		text-decoration: none;
-
-		cursor: pointer;
-
-		transition:
-			transform 180ms ease,
-			-webkit-text-stroke 180ms ease;
-
-				background: transparent;
-
+	.open .slat {
+		transform: rotateX(0deg);
+		opacity: 1;
+		transition-delay: calc(var(--slat-index) * 45ms);
 	}
 
-	.pagebutton:hover {
-		transform: scale(1.15);
-
-		-webkit-text-stroke: 0.5px var(--bg);
-		-webkit-text-fill-color: transparent;
-	}
-
-	.pagebutton:focus-visible {
-		outline: 2px solid var(--bg);
-		outline-offset: 6px;
-	}
-
-	@media (orientation: portrait) {
-		.menu {
-			flex-direction: column;
-		}
+	@media (prefers-reduced-motion: reduce) {
+		.slat, .open .slat { transition: none; }
 	}
 </style>

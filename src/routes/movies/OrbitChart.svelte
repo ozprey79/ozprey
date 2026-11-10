@@ -355,7 +355,7 @@
 	.movie-card.left { left:clamp(8px, 3vw, 32px); transform:translateY(-50%) rotate(-1.25deg); }
 	.card-foil { position:absolute; inset:0; pointer-events:none; opacity:.16; background:linear-gradient(115deg, transparent 16%, white 33%, transparent 48%, white 64%, transparent 81%); transform:translateX(-45%); animation:foil 3.6s ease-in-out infinite alternate; }
 	.card-header { position:relative; display:flex; justify-content:space-between; align-items:center; gap:8px; }
-	.card-header p, .card-header span, .card-spec, .card-info, .card-link, .card-number { font-family:'PlusJakartaSans-SemiBold', sans-serif; }
+	.card-header p, .card-header span, .card-spec, .card-info, .card-link, .card-number { font-family:'Instrument Serif', sans-serif; }
 	.card-header p { font-size:.61rem; letter-spacing:.08em; text-transform:uppercase; }
 	.card-header span { font-size:.66rem; white-space:nowrap; }
 	.card-badges { display:inline-flex; align-items:center; gap:7px; }

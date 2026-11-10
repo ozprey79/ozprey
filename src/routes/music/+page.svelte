@@ -130,10 +130,10 @@
 </main>
 
 <style>
-	.music-page { width:min(1400px, calc(100% - 40px)); margin:auto; padding:clamp(40px, 1vw, 170px) 0 60px; color:var(--fill); font-family:'PlusJakartaSans-SemiBold', sans-serif; }
+	.music-page { width:min(1400px, calc(100% - 40px)); margin:auto; padding:clamp(40px, 1vw, 170px) 0 60px; color:var(--fill); font-family:'Instrument Serif', sans-serif; }
 	.page-header { max-width:1000px; }
 	h1 { margin:.08em 0; font-family:var(--mfont); font-size:clamp(4rem, 13vw, 12rem); font-weight:400; line-height:.78; text-transform:uppercase; overflow-wrap:anywhere; }
-	.description { max-width:650px; font-family:Gambarino, serif; font-size:clamp(1rem, 2vw, 1.45rem); }
+	.description { max-width:650px; font-family:Instrument Serif, serif; font-size:clamp(1rem, 2vw, 1.45rem); }
 	.summary { display:grid; grid-template-columns:repeat(3, 1fr); gap:1px; margin:clamp(55px, 10vw, 120px) 0; border-block:1px solid currentColor; }
 	.summary div { display:flex; flex-direction:column; padding:24px 0; }
 	.summary strong { font-family:var(--mfont); font-size:clamp(2.8rem, 7vw, 6rem); font-weight:400; line-height:1; }

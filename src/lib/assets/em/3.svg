@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="250" viewBox="0 0 200 250">
+  <title>Walk — left foot forward</title>
+  <g fill="none" stroke="#110e11" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="105" cy="42" r="18"/>
+    <path d="M103 62 99 110 97 145"/>
+    <path d="M101 78 125 103 142 122M101 78 80 97 61 91"/>
+    <path d="M97 145 119 179 143 218 156 218" stroke-opacity=".5"/>
+    <path d="M97 145 77 181 53 214 65 218"/>
+  </g>
+</svg>

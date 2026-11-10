@@ -1,26 +1,25 @@
 <script>
-	import './layout.css';
+	import "./layout.css";
 
-	import { onMount } from 'svelte';
-	import ShaderLoader from '$lib/ShaderLoader.svelte';
+	import { onMount } from "svelte";
+	import ShaderLoader from "$lib/ShaderLoader.svelte";
 
-	import Menu from '$lib/menu.svelte';
-	import favicon from '$lib/assets/favicon.svg';
-	import { cat,swan } from '$lib/svgpaths';
-	import catSound from '$lib/assets/caty.mp3';
+	import Menu from "$lib/menu.svelte";
+	import favicon from "$lib/assets/favicon.svg";
+	import { cat, swan } from "$lib/svgpaths";
+	import catSound from "$lib/assets/caty.mp3";
 
 	let { children } = $props();
 
 	let status = $state(false);
-	let menuClass = $derived(status ? 'mopen' : 'mclose');
+	let menuClass = $derived(status ? "mopen" : "mclose");
 
 	let gsap;
-	let SplitText;
 	let audio;
 
 	onMount(() => {
 		audio = new Audio(catSound);
-		audio.preload = 'auto';
+		audio.preload = "auto";
 		audio.volume = 0.7;
 
 		return () => {
@@ -35,25 +34,21 @@
 		audio.currentTime = 0;
 
 		audio.play().catch((error) => {
-			console.warn('Audio could not play:', error);
+			console.warn("Audio could not play:", error);
 		});
 	}
-    
+
 	onMount(async () => {
 		const [
 			{ gsap: gsapCore },
 			{ MorphSVGPlugin },
-			{ SplitText: SplitTextPlugin }
 		] = await Promise.all([
-			import('gsap'),
-			import('gsap/MorphSVGPlugin'),
-			import('gsap/SplitText')
+			import("gsap"),
+			import("gsap/MorphSVGPlugin"),
 		]);
 
 		gsap = gsapCore;
-		SplitText = SplitTextPlugin;
-
-		gsap.registerPlugin(MorphSVGPlugin, SplitTextPlugin);
+		gsap.registerPlugin(MorphSVGPlugin);
 	});
 
 	function toggleMenu() {
@@ -66,55 +61,21 @@
 			GSAP may still be loading during the very first moment
 			the page opens, so don't animate until it is ready.
 		*/
-		if (!gsap || !SplitText) return;
+		if (!gsap || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
 		if (status) {
-			gsap.fromTo(
-				'.pagebutton',
-				{
-					color: 'transparent'
-				},
-				{
-					color: 'var(--bg)',
-					backgroundColor: 'transparent',
-					ease: 'linear'
-				}
-			);
-
-			SplitText.create('.pagebutton', {
-				type: 'lines, chars',
-				mask: 'lines',
-				autoSplit: true,
-
-				onSplit(self) {
-					return gsap.from(self.chars, {
-						duration: 1,
-						y: 100,
-						autoAlpha: 0,
-						stagger: 0.05,
-						ease: 'circ.inOut'
-					});
-				}
-			});
-
-			gsap.to('#caty', {
+			gsap.to("#caty", {
 				morphSVG: cat[2],
 				duration: 0.5,
 				delay: 0.1,
-				ease: 'power4.out'
+				ease: "power4.out",
 			});
 		} else {
-			gsap.to('.pagebutton', {
-				delay: 0.1,
-				color: 'transparent',
-				backgroundColor: 'transparent'
-			});
-
-			gsap.to('#caty', {
+			gsap.to("#caty", {
 				morphSVG: cat[1],
 				duration: 0.5,
 				delay: 0.1,
-				ease: 'power4.out'
+				ease: "power4.out",
 			});
 		}
 	}
@@ -130,26 +91,28 @@
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
+<svelte:window onkeydown={(event) => { if (event.key === 'Escape') closeMenu(); }} />
+
 <!-- <ShaderLoader /> -->
 
 <button
 	class="swanmenu"
-	
-	aria-label={status ? 'Close menu' : 'Open menu'}
+	aria-label={status ? "Close menu" : "Open menu"}
 	aria-expanded={status}
 	aria-controls="portfolio-menu"
 >
-<a href="/" aria-label="Blog">
-	<svg viewBox="0 0 30 30" aria-hidden="true">
-		<g transform="translate(0 3)">
-			<path id="swan" d={swan} />
-		</g>
-	</svg></a>
+	<a href="/" aria-label="Blog">
+		<svg viewBox="0 0 30 30" aria-hidden="true">
+			<g transform="translate(0 3)">
+				<path id="swan" d={swan} />
+			</g>
+		</svg></a
+	>
 </button>
 <button
 	class="catmenu"
 	onclick={toggleMenu}
-	aria-label={status ? 'Close menu' : 'Open menu'}
+	aria-label={status ? "Close menu" : "Open menu"}
 	aria-expanded={status}
 	aria-controls="portfolio-menu"
 >
@@ -160,5 +123,8 @@
 	</svg>
 </button>
 
+<div id="portfolio-menu" class={menuClass} inert={!status}>
+	<Menu onclose={closeMenu} open={status} />
+</div>
 
 {@render children()}

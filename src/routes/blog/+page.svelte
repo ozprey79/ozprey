@@ -114,7 +114,7 @@
 		margin-bottom: 40px;
 
 		font-family:
-			'PlusJakartaSans-SemiBold',
+			'Instrument Serif',
 			sans-serif;
 
 		font-size: 11px;
@@ -162,7 +162,7 @@
 
 		margin-top: 70px;
 
-		font-family: 'Gambarino';
+		font-family: 'Instrument Serif';
 		font-size:
 			clamp(18px, 2vw, 28px);
 
@@ -268,7 +268,7 @@
 		margin-bottom: 14px;
 
 		font-family:
-			'PlusJakartaSans-SemiBold';
+			'Instrument Serif';
 
 		font-size: 10px;
 
@@ -299,7 +299,7 @@
 
 		margin-top: 20px;
 
-		font-family: 'Gambarino';
+		font-family: 'Instrument Serif';
 
 		font-size:
 			clamp(16px, 1.4vw, 21px);
@@ -316,7 +316,7 @@
 		justify-content: space-between;
 
 		font-family:
-			'PlusJakartaSans-SemiBold';
+			'Instrument Serif';
 
 		font-size: 11px;
 
@@ -352,7 +352,7 @@
 		padding-top: 70px;
 
 		font-family:
-			'PlusJakartaSans-SemiBold';
+			'Instrument Serif';
 
 		font-size: 10px;
 
