@@ -1,6 +1,6 @@
 <script>
-  import FisheyeSurface from '$lib/components/FisheyeSurface.svelte';
-  import DrawnStroke from '$lib/components/DrawnStroke.svelte';
+  import FisheyeSurface from '$lib/about/FisheyeSurface.svelte';
+  import DrawnStroke from '$lib/about/DrawnStroke.svelte';
   let strokeActive = $state(false);
 </script>
 

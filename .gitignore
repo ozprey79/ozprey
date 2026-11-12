@@ -22,4 +22,6 @@ Thumbs.db
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
-.vercel
+# Local build logs and Windows folder metadata
+.tmp/
+desktop.ini

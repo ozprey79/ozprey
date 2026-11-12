@@ -1,6 +1,6 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 
-const destination = new URL('../src/lib/assets/cat/', import.meta.url);
+const destination = new URL('../src/lib/assets/source-art/cat/', import.meta.url);
 await mkdir(destination, { recursive: true });
 const n = (value) => Number(value.toFixed(2));
 
@@ -37,4 +37,4 @@ for (let i = 0; i < 24; i++) {
 `;
   await writeFile(new URL(`${String(i+1).padStart(2,'0')}.svg`, destination), svg);
 }
-console.log('Created 24 cat SVG exposures in src/lib/assets/cat.');
+console.log('Created 24 cat SVG exposures in src/lib/assets/source-art/cat.');

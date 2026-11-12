@@ -4,7 +4,6 @@
 	const post = data.post;
 </script>
 
-
 <svelte:head>
 	<title>{post.title} — Ozprey</title>
 	<meta
@@ -12,7 +11,6 @@
 		content={post.excerpt}
 	/>
 </svelte:head>
-
 
 <article class="essay">
 	<header class="essay-header">
@@ -28,26 +26,21 @@
 			</div>
 		</div> -->
 
-
 		<div class="number">
 			{post.number}
 		</div>
 
-
 		<h1>{post.title}</h1>
-
 
 		<p class="dek">
 			{post.excerpt}
 		</p>
-
 
 		<div class="header-rule">
 			<span></span>
 			<span>Essay / {post.number}</span>
 		</div>
 	</header>
-
 
 	<div class="essay-body">
 		<aside class="margin">
@@ -56,7 +49,6 @@
 				<span>WRITING / {post.number}</span>
 			</div>
 		</aside>
-
 
 		<div class="content">
 			{#each post.content as block}
@@ -84,7 +76,6 @@
 		</div>
 	</div>
 
-
 	<footer class="essay-footer">
 		<div>
 			<span>End / {post.number}</span>
@@ -97,8 +88,8 @@
 	</footer>
 </article>
 
-
 <style>
+	/* Page layout and responsive presentation. */
 	.essay {
 		width:
 			min(1500px, calc(100% - 40px));
@@ -115,7 +106,6 @@
 		color: var(--fill);
 	}
 
-
 	/* -------------------------
 		HEADER
 	------------------------- */
@@ -128,37 +118,6 @@
 		display: flex;
 		flex-direction: column;
 	}
-
-
-	.essay-nav {
-		display: flex;
-
-		justify-content: space-between;
-		align-items: center;
-
-		font-family:
-			'Instrument Serif';
-
-		font-size: 10px;
-
-		text-transform: uppercase;
-		letter-spacing: 0.12em;
-	}
-
-
-	.essay-nav a {
-		color: var(--fill);
-
-		text-decoration: none;
-	}
-
-
-	.meta {
-		display: flex;
-		gap:
-			clamp(12px, 3vw, 40px);
-	}
-
 
 	.number {
 		position: absolute;
@@ -180,7 +139,6 @@
 
 		pointer-events: none;
 	}
-
 
 	.essay-header h1 {
 		position: relative;
@@ -205,7 +163,6 @@
 		text-transform: uppercase;
 	}
 
-
 	.dek {
 		position: relative;
 		z-index: 1;
@@ -227,7 +184,6 @@
 		line-height: 1.25;
 	}
 
-
 	.header-rule {
 		display: grid;
 
@@ -246,13 +202,11 @@
 		letter-spacing: .15em;
 	}
 
-
 	.header-rule > span:first-child {
 		height: 1px;
 
 		background: var(--fill);
 	}
-
 
 	/* -------------------------
 		ESSAY
@@ -271,11 +225,9 @@
 			0;
 	}
 
-
 	.margin {
 		grid-column: 1;
 	}
-
 
 	.margin-inner {
 		position: sticky;
@@ -303,7 +255,6 @@
 		opacity: .65;
 	}
 
-
 	.content {
 		grid-column: 2;
 
@@ -315,11 +266,9 @@
 		line-height: 1.55;
 	}
 
-
 	.content p {
 		margin-bottom: 1.5em;
 	}
-
 
 	.content .lead {
 		margin-bottom: 2em;
@@ -329,7 +278,6 @@
 
 		line-height: 1.15;
 	}
-
 
 	.content .lead::first-letter {
 		float: left;
@@ -346,7 +294,6 @@
 
 		line-height: .69;
 	}
-
 
 	.content h2 {
 		margin:
@@ -365,7 +312,6 @@
 
 		text-transform: uppercase;
 	}
-
 
 	blockquote {
 		position: relative;
@@ -397,7 +343,6 @@
 			1px var(--fill);
 	}
 
-
 	/* -------------------------
 		FOOTER
 	------------------------- */
@@ -420,7 +365,6 @@
 		letter-spacing: .12em;
 	}
 
-
 	.essay-footer a {
 		display: flex;
 		gap: 15px;
@@ -429,7 +373,6 @@
 
 		text-decoration: none;
 	}
-
 
 	/* -------------------------
 		MOBILE
@@ -440,35 +383,24 @@
 			width:
 				calc(100% - 28px);
 
-			
 		}
-
 
 		.essay-header {
 			min-height: 70dvh;
 		}
 
-
-		.meta span:nth-child(2) {
-			display: none;
-		}
-
-
 		.number {
 			top: 28%;
 		}
-
 
 		.essay-header h1 {
 			font-size:
 				clamp(70px, 22vw, 130px);
 		}
 
-
 		.dek {
 			width: 100%;
 		}
-
 
 		.essay-body {
 			display: block;
@@ -476,16 +408,13 @@
 			padding: 90px 0;
 		}
 
-
 		.margin {
 			display: none;
 		}
 
-
 		.content {
 			font-size: 19px;
 		}
-
 
 		blockquote {
 			width: 100%;

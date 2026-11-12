@@ -11,7 +11,6 @@
 	/>
 </svelte:head>
 
-
 <main class="blog">
 	<header class="blog-header">
 		<!-- <div class="eyebrow">
@@ -30,7 +29,6 @@
 			enough to become a thought.
 		</p>
 	</header>
-
 
 	<section class="post-list" aria-label="Essays">
 		{#each data.posts as post}
@@ -64,7 +62,6 @@
 		{/each}
 	</section>
 
-
 	<footer class="blog-footer">
 		<span>END OF CURRENT RECORDS</span>
 
@@ -74,8 +71,8 @@
 	</footer>
 </main>
 
-
 <style>
+	/* Page layout and responsive presentation. */
 	.blog {
 		width: min(1500px, calc(100% - 40px));
 
@@ -88,7 +85,6 @@
 
 		color: var(--fill);
 	}
-
 
 	/* -------------------------
 		HEADER
@@ -105,25 +101,6 @@
 		padding-bottom:
 			clamp(50px, 8vw, 110px);
 	}
-
-
-	.eyebrow {
-		display: flex;
-		justify-content: space-between;
-
-		margin-bottom: 40px;
-
-		font-family:
-			'Instrument Serif',
-			sans-serif;
-
-		font-size: 11px;
-
-		letter-spacing: 0.15em;
-
-		text-transform: uppercase;
-	}
-
 
 	h1 {
 		display: flex;
@@ -143,7 +120,6 @@
 		letter-spacing: -0.025em;
 	}
 
-
 	h1 .outline {
 		align-self: flex-end;
 
@@ -152,7 +128,6 @@
 		-webkit-text-stroke:
 			1.5px var(--fill);
 	}
-
 
 	.intro {
 		width:
@@ -169,7 +144,6 @@
 		line-height: 1.25;
 	}
 
-
 	/* -------------------------
 		POST LIST
 	------------------------- */
@@ -178,7 +152,6 @@
 		border-top:
 			1px solid var(--fill);
 	}
-
 
 	.post {
 		position: relative;
@@ -210,7 +183,6 @@
 			padding 350ms ease;
 	}
 
-
 	/*
 		Pink fill growing behind a row.
 	*/
@@ -235,12 +207,10 @@
 			cubic-bezier(.2,.8,.2,1);
 	}
 
-
 	.post:hover::before {
 		transform:
 			scaleY(1);
 	}
-
 
 	.post:hover {
 		color: var(--bg);
@@ -248,7 +218,6 @@
 		padding-left: 18px;
 		padding-right: 18px;
 	}
-
 
 	.post-number {
 		font-family: var(--mfont);
@@ -258,7 +227,6 @@
 
 		line-height: 1;
 	}
-
 
 	.post-meta {
 		display: flex;
@@ -277,7 +245,6 @@
 		letter-spacing: 0.12em;
 	}
 
-
 	.post h2 {
 		max-width: 900px;
 
@@ -293,7 +260,6 @@
 		text-transform: uppercase;
 	}
 
-
 	.post-main p {
 		max-width: 550px;
 
@@ -306,7 +272,6 @@
 
 		line-height: 1.3;
 	}
-
 
 	.post-side {
 		display: flex;
@@ -323,7 +288,6 @@
 		text-transform: uppercase;
 	}
 
-
 	.arrow {
 		font-family: var(--mfont);
 
@@ -333,12 +297,10 @@
 			transform 300ms ease;
 	}
 
-
 	.post:hover .arrow {
 		transform:
 			translate(7px, -7px);
 	}
-
 
 	/* -------------------------
 		FOOTER
@@ -359,16 +321,13 @@
 		letter-spacing: 0.12em;
 	}
 
-
 	.blog-footer a {
 		color: var(--fill);
 	}
 
-
 	.dot {
 		font-size: 7px;
 	}
-
 
 	/* -------------------------
 		MOBILE
@@ -380,24 +339,16 @@
 				calc(100% - 28px);
 		}
 
-
 		.blog-header {
 			min-height: 5dvh;
 			/* background-color: chartreuse; */
 		}
-
-
-		.eyebrow {
-			font-size: 9px;
-		}
-
 
 		h1 {
 			font-size:
 				clamp(72px, 2vw, 150px);
 				/* background-color: aqua; */
 		}
-
 
 		.intro {
 			align-self: flex-start;
@@ -406,28 +357,23 @@
 			/* background-color: brown; */
 		}
 
-
 		.post {
 			grid-template-columns:
 				50px 1fr;
 		}
 
-
 		.post-side {
 			display: none;
 		}
-
 
 		.post h2 {
 			font-size:
 				clamp(40px, 15vw, 80px);
 		}
 
-
 		.post-main p {
 			font-size: 16px;
 		}
-
 
 		.blog-footer {
 			gap: 20px;

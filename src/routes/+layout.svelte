@@ -2,12 +2,11 @@
 	import "./layout.css";
 
 	import { onMount } from "svelte";
-	import ShaderLoader from "$lib/ShaderLoader.svelte";
 
-	import Menu from "$lib/menu.svelte";
-	import favicon from "$lib/assets/favicon.svg";
-	import { cat, swan } from "$lib/svgpaths";
-	import catSound from "$lib/assets/caty.mp3";
+	import Menu from "$lib/navigation/Menu.svelte";
+	import favicon from "$lib/assets/icons/favicon.svg";
+	import { cat, swan } from "$lib/assets/icons/paths.js";
+	import catSound from "$lib/navigation/assets/cat.mp3";
 
 	let { children } = $props();
 
@@ -17,6 +16,7 @@
 	let gsap;
 	let audio;
 
+	// Prepare the menu sound once per layout.
 	onMount(() => {
 		audio = new Audio(catSound);
 		audio.preload = "auto";
@@ -38,6 +38,7 @@
 		});
 	}
 
+	// Load the cat morph independently of the menu controls.
 	onMount(async () => {
 		const [
 			{ gsap: gsapCore },
@@ -51,39 +52,25 @@
 		gsap.registerPlugin(MorphSVGPlugin);
 	});
 
+	// Toggle the overlay and play the cat's feedback.
 	function toggleMenu() {
 		status = !status;
 
 		navigator.vibrate?.([60, 120, 40, 300]);
 		playCatSound();
 
-		/*
-			GSAP may still be loading during the very first moment
-			the page opens, so don't animate until it is ready.
-		*/
 		if (!gsap || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-		if (status) {
-			gsap.to("#caty", {
-				morphSVG: cat[2],
-				duration: 0.5,
-				delay: 0.1,
-				ease: "power4.out",
-			});
-		} else {
-			gsap.to("#caty", {
-				morphSVG: cat[1],
-				duration: 0.5,
-				delay: 0.1,
-				ease: "power4.out",
-			});
-		}
+		gsap.to("#caty", {
+			morphSVG: cat[status ? 2 : 1],
+			duration: 0.5,
+			delay: 0.1,
+			ease: "power4.out",
+		});
 	}
 
 	function closeMenu() {
-		if (status) {
-			toggleMenu();
-		}
+		if (status) toggleMenu();
 	}
 </script>
 
@@ -93,8 +80,7 @@
 
 <svelte:window onkeydown={(event) => { if (event.key === 'Escape') closeMenu(); }} />
 
-<!-- <ShaderLoader /> -->
-
+<!-- Keep the site controls above the full-screen overlay. -->
 <button
 	class="swanmenu"
 	aria-label={status ? "Close menu" : "Open menu"}
@@ -123,6 +109,7 @@
 	</svg>
 </button>
 
+<!-- Disable navigation as soon as closing begins. -->
 <div id="portfolio-menu" class={menuClass} inert={!status}>
 	<Menu onclose={closeMenu} open={status} />
 </div>

@@ -1,12 +1,13 @@
-
+/* Shared palette and typography. */
 :root{
-	--fill:rgb(255, 192, 236);
+	--fill:rgb(255, 237, 231);
 	--bg:#181818;
 	--heart:#ff2600;
   --bgdot: rgba(49, 49, 49, 0.788);
   --mfont:"Instrument Serif";
 }
 
+/* Reset layout defaults before applying page and form styles. */
 * {
 	margin: 0;
 	padding: 0;
@@ -32,19 +33,17 @@ body {
 }
 
 button:focus{outline: none;}
-/* button:focus-visible{outline: 3px solid white;} */
-
 
 @font-face {
   font-family: 'Instrument Serif';
-  src: url('../lib/f/InstrumentSerif-Regular.ttf') format('truetype');
+  src: url('../lib/assets/fonts/InstrumentSerif-Regular.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Instrument Serif';
-  src: url('../lib/f/InstrumentSerif-Italic.ttf') format('truetype');
+  src: url('../lib/assets/fonts/InstrumentSerif-Italic.ttf') format('truetype');
   font-weight: 400;
   font-style: italic;
   font-display: swap;
@@ -54,52 +53,12 @@ body { font-family: 'Instrument Serif', serif; font-weight: 400; font-synthesis:
 input, textarea, select, button { font-family: inherit; }
 em, i { font-style: normal; }
 
-.tracker {
-  position: fixed;
-
-  fill: var(--fill);
-  z-index: 9999;
-
-  top: 0;
-		left: 0;
-		width: 20px;
-		height: 20px;
-		border-radius: 50%;
-		background: var(--fill);
-		pointer-events: none;
-
-}
-
-
-
-@keyframes slidein {
-  from {
-    /* translate: 150vw 0; */
-    scale: 0% 1;
-  }
-
-  to {
-    /* translate: 0 0; */
-    scale: 100% 1;
-  }
-}
-
-
-
-
-
-
-
-
-
-
 input,
 button,
 select,
 textarea {
 	font-family: inherit;
 	font-size: inherit;
-	-webkit-padding: 0.4em 0;
 	padding: 0.4em;
 	margin: 0 0 0.5em 0;
 	box-sizing: border-box;
@@ -109,8 +68,7 @@ textarea {
   fill:var(--fill);
 }
 
-
-
+/* Persistent navigation controls and their entrance animation. */
 .catmenu {
     position: fixed;
     right: clamp(10px, 5vmin, 15px);
@@ -129,7 +87,6 @@ textarea {
    animation-iteration-count: 1;
    animation-duration: 0.6s;
    animation-fill-mode: forwards;
-  
   }
   .swanmenu{
     position: fixed;
@@ -143,35 +100,25 @@ textarea {
     background-color: transparent;
     border-radius: 50%;
     border: 0px solid red;
-
-
 }
 
   @keyframes slidein {
     from {
-      /* translate: 150vw 0; */
       scale: 0%;
     }
-  
+
     to {
-      /* translate: 0 0; */
       scale: 100%;
     }
   }
-  
-  
+
   .catmenu > svg {
     fill: var(--fill);
-    /* filter: invert(100%); */
-    /* fill: rgb(25, 0, 255); */
   }
   .catmenu > svg:hover {
     fill: var(--fill);
     outline: none;
-    stroke: yellow;
-    /* filter: invert(50%); */
-    /* fill: rgb(25, 0, 255); */
-    /* filter: hue-rotate(90deg) ; */
+
     stroke: var(--bg);
   }
   .catmenu:active {
@@ -186,7 +133,7 @@ textarea {
     outline-width: 0;
   }
 
-   
+  /* Delay hiding until the menu closing animation has finished. */
   .mopen,
   .mclose {
     position: fixed;
@@ -216,63 +163,30 @@ textarea {
     .mclose { transition-delay: 0s; }
   }
 
-  /* Each Menu Icons */
   button:focus {
     box-shadow: none;
     outline-color: darkorange;
     outline: none;
   }
-  .pagebutton {
-    /* display: inline-block; */
-    font-family: var(--mfont);
-    font-size: clamp(10px, 3em, 40px);
-    text-decoration: none;
-    cursor: pointer;
-    border: 0px solid;
-    /* color: white;
-    
-    */
-
-    /* transition: opacity 5s ease-in-out 10s ; */
-  }
-
- .pagebutton:hover {
-	scale: 1.2;
-	-webkit-text-stroke: 0.4px var(--bg);
-	-webkit-text-fill-color: transparent;
-}
-  @media (orientation: portrait) {
-    .pagebutton {
-      /* display: inline-block; */
-      /* font-family: "Instrument Serif"; */
-      font-size: larger;
-    }
-    .pagebutton a:active {
-      scale: 1.2;
-      -webkit-text-stroke: 0.4px var(--bg);
-      -webkit-text-fill-color: rgba(255, 255, 255, 0);
-    }
-  }
-
 
   input:disabled {
     color: #ccc;
   }
-  
+
   button {
     color: var(--fill);
     background-color: transparent;
     outline: none;
   }
-  
+
   button:disabled {
     color: #999;
   }
-  
+
   button:not(:disabled):active {
     background-color: #00ff1a00;
   }
-  
+
   button:focus {
     border-color: #666;
   }
@@ -281,3 +195,10 @@ textarea {
     color: var(--fill);
     text-decoration: none;
   }
+
+/* Hide navigation from first paint until the loader is removed. */
+body:has(.s-loader) .catmenu,
+body:has(.s-loader) .swanmenu {
+  visibility: hidden;
+  pointer-events: none;
+}

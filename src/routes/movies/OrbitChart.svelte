@@ -328,6 +328,7 @@
 {/if}
 
 <style>
+	/* Page layout and responsive presentation. */
 	.abacus-controls { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:15px 0; font-size:.75rem; text-transform:uppercase; }
 	.abacus-controls p { letter-spacing:.08em; }
 	.abacus-controls label { display:flex; align-items:center; gap:10px; }
@@ -347,7 +348,7 @@
 	.bead { fill:var(--fill); opacity:var(--tone, 1); transition:filter 150ms ease, opacity 150ms ease; }
 	.bead.selected, .bead-link:hover .bead, .bead-link:focus .bead { opacity:1; filter:drop-shadow(0 0 8px var(--fill)); }
 	.beadheart { fill:var(--heart); pointer-events:none; }
-	.beadheart.selected, .beadheart-link:hover .beadheart, .beadheart-link:focus .bead { opacity:1; filter:drop-shadow(0 0 8px var(--fill)); }
+	.beadheart.selected { opacity:1; filter:drop-shadow(0 0 8px var(--fill)); }
      
 	/* hover card sits on the side opposite the hovered bead */
 	.movie-card { position:absolute; z-index:5; top:50%; width:min(280px, 34%); min-width:230px; aspect-ratio:5/7; padding:14px; overflow:hidden; pointer-events:none; color:var(--bg); background:linear-gradient(145deg, color-mix(in srgb, var(--fill) 94%, white), color-mix(in srgb, var(--fill) 72%, #f3bd36)); border:7px solid color-mix(in srgb, var(--fill) 55%, #d6a52a); border-radius:16px; box-shadow:0 16px 35px rgba(0,0,0,.42), inset 0 0 0 2px color-mix(in srgb, var(--bg) 35%, transparent); }

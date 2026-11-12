@@ -7,6 +7,7 @@ const DAYS_SHOWN = 7;
 const PAGE_SIZE = 200;
 const MAX_PAGES = 10;
 
+// Normalize the scalar, object, and array forms returned by Last.fm.
 function asArray(value) {
 	if (!value) return [];
 	return Array.isArray(value) ? value : [value];
@@ -14,7 +15,7 @@ function asArray(value) {
 
 function text(value) {
   if (typeof value === 'string') return value.trim();
-  return String(value?.['#text'] ?? value?.['name'] ?? '').trim(); // ← add value?.['name']
+  return String(value?.['#text'] ?? value?.['name'] ?? '').trim();
 }
 
 function keyFor(...parts) {
@@ -35,6 +36,7 @@ function lastfmUrl(artist, name, type) {
 		: `${base}/_/${encodeURIComponent(name)}`;
 }
 
+// Keep API credentials server-side and surface upstream failures consistently.
 async function lastfm(fetch, method, params = {}) {
 	const url = new URL(API);
 	url.search = new URLSearchParams({
@@ -57,6 +59,7 @@ async function lastfm(fetch, method, params = {}) {
 	return data;
 }
 
+// Map each listen to the stable shape consumed by the orbit visualization.
 function normalizeScrobble(track, index, now) {
 	const artist = text(track.artist) || 'Unknown artist';
 	const title = text(track.name) || 'Untitled track';
