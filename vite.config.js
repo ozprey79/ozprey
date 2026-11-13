@@ -3,6 +3,9 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+	optimizeDeps: {
+		include: ['d3-force', 'd3-selection', 'd3-transition']
+	},
 	plugins: [
 		sveltekit({
 			compilerOptions: {

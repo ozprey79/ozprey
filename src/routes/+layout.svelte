@@ -2,20 +2,25 @@
 	import "./layout.css";
 
 	import { onMount } from "svelte";
+	import { afterNavigate } from "$app/navigation";
 
 	import Menu from "$lib/navigation/Menu.svelte";
+	import HandwrittenMenu from "$lib/navigation/HandwrittenMenu.svelte";
+	import PageTransition from "$lib/navigation/PageTransition.svelte";
 	import favicon from "$lib/assets/icons/favicon.svg";
 	import { cat, swan } from "$lib/assets/icons/paths.js";
 	import catSound from "$lib/navigation/assets/cat.mp3";
 
 	let { children } = $props();
 
+	// Flip this back to restore the original slat menu.
+	const useHandwrittenMenu = true;
 	let status = $state(false);
 	let menuClass = $derived(status ? "mopen" : "mclose");
+	let catButton;
 
 	let gsap;
 	let audio;
-
 	// Prepare the menu sound once per layout.
 	onMount(() => {
 		audio = new Audio(catSound);
@@ -52,10 +57,13 @@
 		gsap.registerPlugin(MorphSVGPlugin);
 	});
 
-	// Toggle the overlay and play the cat's feedback.
+	// Original slat menu handler.
 	function toggleMenu() {
-		status = !status;
+		setMenuOpen(!status);
+	}
 
+	function setMenuOpen(open) {
+		status = open;
 		navigator.vibrate?.([60, 120, 40, 300]);
 		playCatSound();
 
@@ -63,22 +71,33 @@
 
 		gsap.to("#caty", {
 			morphSVG: cat[status ? 2 : 1],
+			overwrite: true,
 			duration: 0.5,
 			delay: 0.1,
 			ease: "power4.out",
 		});
 	}
 
+	const toggleActiveMenu = useHandwrittenMenu ? () => setMenuOpen(!status) : toggleMenu;
+
 	function closeMenu() {
-		if (status) toggleMenu();
+		if (status) toggleActiveMenu();
 	}
+
+	afterNavigate(() => {
+		if (useHandwrittenMenu) closeMenu();
+	});
 </script>
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-<svelte:window onkeydown={(event) => { if (event.key === 'Escape') closeMenu(); }} />
+<svelte:window onkeydown={(event) => {
+	if (event.key !== 'Escape' || !status) return;
+	closeMenu();
+	catButton?.focus();
+}} />
 
 <!-- Keep the site controls above the full-screen overlay. -->
 <button
@@ -97,7 +116,8 @@
 </button>
 <button
 	class="catmenu"
-	onclick={toggleMenu}
+	bind:this={catButton}
+	onclick={toggleActiveMenu}
 	aria-label={status ? "Close menu" : "Open menu"}
 	aria-expanded={status}
 	aria-controls="portfolio-menu"
@@ -109,9 +129,14 @@
 	</svg>
 </button>
 
-<!-- Disable navigation as soon as closing begins. -->
-<div id="portfolio-menu" class={menuClass} inert={!status}>
-	<Menu onclose={closeMenu} open={status} />
-</div>
+{#if useHandwrittenMenu}
+	<HandwrittenMenu open={status} />
+{:else}
+	<div id="portfolio-menu" class={menuClass} inert={!status}>
+		<Menu onclose={closeMenu} open={status} />
+	</div>
+{/if}
 
 {@render children()}
+
+<PageTransition />

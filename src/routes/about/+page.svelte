@@ -1,7 +1,6 @@
 <script>
   import FisheyeSurface from '$lib/about/FisheyeSurface.svelte';
-  import DrawnStroke from '$lib/about/DrawnStroke.svelte';
-  let strokeActive = $state(false);
+  import { swan } from '$lib/assets/icons/paths.js';
 </script>
 
 <svelte:head>
@@ -10,14 +9,16 @@
 </svelte:head>
 
 <main>
-  <FisheyeSurface ontransitionstart={() => strokeActive = false} ontransitionend={() => strokeActive = true}>
+  <FisheyeSurface>
     <section class="hero" aria-labelledby="about-title">
       <div class="eyebrow"><p data-lens-text>OZPREY / PERSONAL NOTES</p><p data-lens-text>01 — THE PERSON</p></div>
       <div class="title-block">
         <p class="preface" data-lens-text>A little out of the ordinary.</p>
         <div class="title-line">
-          <h1 id="about-title" data-lens-text>ABout me</h1>
-          <div class="handstroke"><DrawnStroke active={strokeActive} /></div>
+          <h1 id="about-title" data-lens-text>ABout</h1>
+          <svg class="title-swan" data-lens-svg viewBox="0 0 30 30" fill="currentColor" aria-hidden="true">
+            <path d={swan} />
+          </svg>
         </div>
         <div class="rule" data-lens-rule></div>
         <div class="intro">
@@ -56,8 +57,8 @@
   .title-block { padding: 45px 0 42px; }
   .preface { font: 400 clamp(20px, 2.3vw, 34px)/1.5 'Instrument Serif', serif; }
   h1 { font: 400 clamp(96px, 20.6vw, 360px)/.98 var(--mfont); letter-spacing: -.025em; white-space: nowrap; margin: 14px 0 25px; }
-  .title-line { position: relative; display: flow-root; }
-  .handstroke { position: absolute; right: 0; top: 50%; width: 24%; max-width: 320px; transform: translateY(-50%); color: var(--fill); pointer-events: none; }
+  .title-line { display: flex; align-items: center; gap: clamp(16px, 3vw, 54px); }
+  .title-swan { width: clamp(60px, 13vw, 220px); height: auto; flex-shrink: 0; color: var(--fill); }
   .rule { height: 1px; background: #614454; margin-bottom: 30px; }
   .identity { font: 400 clamp(23px, 3vw, 46px)/1.15 var(--mfont); }
   .statement { width: 47%; font: 400 clamp(23px, 3.2vw, 49px)/1.18 'Instrument Serif', serif; }

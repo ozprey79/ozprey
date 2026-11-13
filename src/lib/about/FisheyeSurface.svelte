@@ -19,7 +19,7 @@
     let renderer, target, material, quadGeometry, scene, camera, postScene, postCamera;
     let frame = 0, resizeFrame = 0, meshes = [], width = 0, height = 0;
     let animating = false, elapsed = 0, lastTime = null, inView = true, firstRun = true;
-    let THREE, Text;
+    let THREE, Text, SVGLoader;
     let completed = false;
     function complete() {
       if (disposed || completed) return;
@@ -137,6 +137,24 @@
           bounds.height / 2 - (rect.top - bounds.top + rect.height / 2), 0);
         next.push(mesh);
       }
+      for (const element of surface.querySelectorAll('[data-lens-svg]')) {
+        const rect = element.getBoundingClientRect(), style = getComputedStyle(element);
+        const viewBox = element.viewBox.baseVal;
+        const scale = Math.min(rect.width / viewBox.width, rect.height / viewBox.height);
+        const left = rect.left - bounds.left - bounds.width / 2 + (rect.width - viewBox.width * scale) / 2;
+        const top = bounds.height / 2 - (rect.top - bounds.top) - (rect.height - viewBox.height * scale) / 2;
+        const svg = new SVGLoader().parse(new XMLSerializer().serializeToString(element));
+        for (const path of svg.paths) {
+          for (const shape of SVGLoader.createShapes(path)) {
+            const mesh = new THREE.Mesh(new THREE.ShapeGeometry(shape),
+              new THREE.MeshBasicMaterial({ color: style.getPropertyValue('--lens-ink').trim() || style.color,
+                side: THREE.DoubleSide, depthTest: false, depthWrite: false }));
+            mesh.scale.set(scale, -scale, 1);
+            mesh.position.set(left - viewBox.x * scale, top + viewBox.y * scale, 0);
+            next.push(mesh);
+          }
+        }
+      }
       await Promise.all(jobs);
       if (disposed || version !== generation) { release(next); return; }
       const staged = new THREE.Scene();
@@ -192,10 +210,11 @@
     async function init() {
       if (motion.matches || disposed) { pending = false; clearTimeout(loadingTimeout); complete(); return; }
       try {
-        const modules = await Promise.all([import('three'), import('troika-three-text'), document.fonts.ready]);
+        const modules = await Promise.all([import('three'), import('troika-three-text'), import('three/addons/loaders/SVGLoader.js'), document.fonts.ready]);
         if (disposed || failed || motion.matches) return;
         THREE = modules[0];
         Text = modules[1].Text;
+        SVGLoader = modules[2].SVGLoader;
         renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'high-performance' });
         renderer.setClearColor(0x000000, 0);
         renderer.debug.onShaderError = fallback;
@@ -345,6 +364,7 @@
   .ready canvas { visibility: visible; }
   .ready :global([data-lens-text]) { color: transparent !important; }
   .ready :global([data-lens-rule]) { background-color: transparent !important; }
+  .ready :global([data-lens-svg]) { visibility: hidden; }
   .ready :global([data-lens-text]::selection) { color: #181818; background: #ffc0ec; }
   .ready :global([data-lens-text]:hover) { text-decoration-color: var(--fill); }
   /* Applies from the server's first paint, before imports/fonts initialize.
@@ -352,6 +372,7 @@
   @media (scripting: enabled) {
     .pending :global([data-lens-text]) { color: transparent !important; }
     .pending :global([data-lens-rule]) { background-color: transparent !important; }
+    .pending :global([data-lens-svg]) { visibility: hidden; }
   }
   .replay { position: absolute; bottom: 24px; right: 5vw; z-index: 3; margin: 0; padding: 10px 0; font: 11px 'Instrument Serif', sans-serif; cursor: pointer; letter-spacing: .02em; }
   .replay span { display: inline-block; margin-right: 6px; font-size: 18px; vertical-align: middle; }
@@ -361,5 +382,6 @@
     .replay, canvas { display: none; }
     .ready :global([data-lens-text]), .pending :global([data-lens-text]) { color: var(--lens-ink, var(--fill)) !important; }
     .ready :global([data-lens-rule]), .pending :global([data-lens-rule]) { background-color: var(--lens-rule-ink, #614454) !important; }
+    .ready :global([data-lens-svg]), .pending :global([data-lens-svg]) { visibility: visible; }
   }
 </style>

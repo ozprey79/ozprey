@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import frames from './sFrames.json';
   import signature from './signature.json';
+  import LoaderRipples from './LoaderRipples.svelte';
 
   // Total time includes the opening and its mirrored closing transition.
   let { duration = 6200, motion = 'stack', oncomplete = () => {} } = $props();
@@ -100,10 +101,11 @@
         }));
       });
     }
+    // Extra dash gap and cap clearance prevent endpoint dots before drawing.
     // Draw the original centerline, then hold the complete signature before closing.
     const signatureStart = letterTotal - edge;
     animations.push(signaturePath.animate([
-      { strokeDashoffset: 1 }, { strokeDashoffset: 0 }
+      { strokeDashoffset: 1.03 }, { strokeDashoffset: 0 }
     ], {
       delay: signatureStart, duration: signatureDuration,
       easing: 'cubic-bezier(0.65, 0.02, 0.22, 1)', fill: 'both'
@@ -128,6 +130,7 @@
 </script>
 
 <div class="s-loader" bind:this={backdrop} role="status" aria-label="Loading Ozprey">
+  <LoaderRipples />
   <svg class="filter-definitions" aria-hidden="true">
     <defs>
       <filter id="{uid}-inset" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
@@ -158,16 +161,21 @@
   </div>
     <svg bind:this={signatureLayer} class="signature" viewBox="-15 -15 530 363" aria-hidden="true">
       <defs>
-        <filter id="{uid}-signature-ink" x="-10%" y="-10%" width="120%" height="120%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.065 0.3" numOctaves="3" seed="8" result="grain" />
-          <feDisplacementMap in="SourceGraphic" in2="grain" scale="2.4" xChannelSelector="R" yChannelSelector="G" result="rough" />
-          <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.5 0.2" result="texture" />
-          <feComposite in="rough" in2="texture" operator="in" />
+        <filter id="{uid}-signature-inner" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
+          <feComponentTransfer in="SourceAlpha" result="outside">
+            <feFuncA type="table" tableValues="1 0" />
+          </feComponentTransfer>
+          <feGaussianBlur in="outside" stdDeviation="0.7" />
+          <feOffset dx="0.6" dy="1" />
+          <feComposite in2="SourceAlpha" operator="in" result="inner" />
+          <feFlood flood-color="#000000" flood-opacity="0.6" />
+          <feComposite in2="inner" operator="in" result="shadow" />
+          <feMerge><feMergeNode in="SourceGraphic" /><feMergeNode in="shadow" /></feMerge>
         </filter>
       </defs>
       <path bind:this={signaturePath} d={signature.d} pathLength="1" fill="none"
-        stroke="var(--heart)" stroke-width="9.5316" stroke-linecap="round" stroke-linejoin="round"
-        stroke-dasharray="1 1" stroke-dashoffset="1" filter="url(#{uid}-signature-ink)" />
+        stroke="var(--heart)" stroke-width="5.5316" stroke-linecap="round" stroke-linejoin="round"
+        stroke-dasharray="1 2" stroke-dashoffset="1.03" filter="url(#{uid}-signature-inner)" />
     </svg>
   <!-- <span class="caption" aria-hidden="true">OZPREY <span>STUDIES IN MOTION</span></span> -->
 </div>

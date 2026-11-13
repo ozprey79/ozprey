@@ -1,0 +1,214 @@
+{
+  "backup_name": "musicolet_backup.zip",
+  "songs_in_db": 133,
+  "songs_with_total_plays": 83,
+  "total_play_count": 514,
+  "songs_with_last_played": 83,
+  "period_rows": 68,
+  "period_files": [
+    "PCs_W_2026.45"
+  ],
+  "decoded_files": [
+    "PCs_M_2025.11",
+    "0.names",
+    "0.favs",
+    "26.mpl",
+    "PP",
+    "RPN",
+    "SSP",
+    "USP",
+    "OMV",
+    "DB_SONGS_LOG",
+    "DB_BDN",
+    "PCs_W_2026.45",
+    "PCs_M_2026.5",
+    "hash",
+    "PCs_M_2026.6",
+    "PCs_M_2025.10",
+    "PCs_M_2026.3",
+    "PCs_M_2026.4",
+    "PCs_M_2026.9",
+    "PCs_M_2026.7",
+    "PCs_M_2026.8",
+    "PCs_M_2026.1",
+    "PCs_M_2026.2",
+    "PCs_M_2026.0",
+    "PCs_Y_2024",
+    "PCs_Y_2023",
+    "PCs_Y_2025",
+    "PCs_Y_2020",
+    "PCs_Y_2022",
+    "PCs_Y_2021",
+    "PCs_Y_2017",
+    "PCs_Y_2016",
+    "PCs_Y_2019",
+    "PCs_Y_2018",
+    "0.qstk",
+    "0.musicolet.backup"
+  ],
+  "top_artists": [
+    {
+      "artist": "Sai Abhyankkar",
+      "plays": 85
+    },
+    {
+      "artist": "Sid Sriram",
+      "plays": 36
+    },
+    {
+      "artist": "Mohan Kannan",
+      "plays": 34
+    },
+    {
+      "artist": "Sushin Shyam & Vaasi",
+      "plays": 34
+    },
+    {
+      "artist": "Adesh Krishna",
+      "plays": 23
+    },
+    {
+      "artist": "Karthik Netha",
+      "plays": 19
+    },
+    {
+      "artist": "Farhan Saeed, Shreya Ghoshal",
+      "plays": 15
+    },
+    {
+      "artist": "Heisenberg",
+      "plays": 15
+    },
+    {
+      "artist": "Yung Raja",
+      "plays": 15
+    },
+    {
+      "artist": "Vaasi",
+      "plays": 13
+    },
+    {
+      "artist": "Sushin Shyam, V.M. Mahalingam & Vaasi",
+      "plays": 12
+    },
+    {
+      "artist": "<unknown>",
+      "plays": 10
+    },
+    {
+      "artist": "Sushin Shyam & Yung Raja",
+      "plays": 10
+    },
+    {
+      "artist": "Nakkhul",
+      "plays": 9
+    },
+    {
+      "artist": "Palak Muchhal",
+      "plays": 9
+    },
+    {
+      "artist": "Sublahshini",
+      "plays": 8
+    },
+    {
+      "artist": "Vineeth Sreenivasan, Swetha Mohan",
+      "plays": 8
+    },
+    {
+      "artist": "Hariharan",
+      "plays": 8
+    },
+    {
+      "artist": "Thamarai",
+      "plays": 7
+    },
+    {
+      "artist": "Na.Muthukumar",
+      "plays": 6
+    }
+  ],
+  "top_albums": [
+    {
+      "album": "OM Chapter 1: Udhiram  - The Blood Wood\"",
+      "plays": 104
+    },
+    {
+      "album": "Scene (Original Motion Picture Soundtrack)",
+      "plays": 90
+    },
+    {
+      "album": "Baththa (Original Motion Picture Soundtrack)",
+      "plays": 89
+    },
+    {
+      "album": "Jailer 2 (Original Motion Picture Soundtrack)",
+      "plays": 21
+    },
+    {
+      "album": "Azhagiya Tamil Magan (Original Motion Picture Soundtrack)",
+      "plays": 18
+    },
+    {
+      "album": "Rifle Club (Original Motion Picture Soundtrack)",
+      "plays": 18
+    },
+    {
+      "album": "7 Aum Arivu (Original Motion Picture Soundtrack)",
+      "plays": 16
+    },
+    {
+      "album": "Half Girlfriend - A2ZCity.net",
+      "plays": 15
+    },
+    {
+      "album": "Aadukalam (Original Motion Picture Soundtrack)",
+      "plays": 14
+    },
+    {
+      "album": "Vettaiyaadu Vilaiyaadu (Original Motion Picture Soundtrack)",
+      "plays": 13
+    },
+    {
+      "album": "M.S. Dhoni: The Untold Story",
+      "plays": 10
+    },
+    {
+      "album": "Balti (Original Motion Picture Soundtrack)",
+      "plays": 8
+    },
+    {
+      "album": "Theevram (Original Motion Picture Soundtrack)",
+      "plays": 8
+    },
+    {
+      "album": "Theri",
+      "plays": 8
+    },
+    {
+      "album": "Dhurandhar The Revenge (Original Motion Picture Soundtrack)",
+      "plays": 7
+    },
+    {
+      "album": "Dude (Original Motion Picture Soundtrack)",
+      "plays": 6
+    },
+    {
+      "album": "Rhythm",
+      "plays": 6
+    },
+    {
+      "album": "Ayan (Original Motion Picture Soundtrack)",
+      "plays": 6
+    },
+    {
+      "album": "Hey Minnale (From \"Amaran\")",
+      "plays": 5
+    },
+    {
+      "album": "Aadhavan (Original Motion Picture Soundtrack)",
+      "plays": 5
+    }
+  ],
+  "play_threshold_note": "Musicolet commonly counts a play after its MINPBR threshold, often 30% of track duration, depending on app settings."
+}
