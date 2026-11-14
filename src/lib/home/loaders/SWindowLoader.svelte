@@ -152,7 +152,7 @@
   <div class="window" bind:this={aperture} aria-hidden="true">
     <div class="strip" class:stack={motion !== 'train'} bind:this={strip}>
       {#each frames as frame}
-        <svg class="frame" viewBox="0 0 320 320">
+        <svg class="frame" viewBox={frame.viewBox ?? '0 0 320 320'}>
           <path d={frame.d} fill="black" filter="url(#{uid}-inset)" />
         </svg>
       {/each}
@@ -183,7 +183,20 @@
 <style>
   /* Full-screen aperture and overlapping letter frames. */
   .s-loader { --cell: min(86vw, clamp(190px, 28vw, 390px)); position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center; background: #181818; overflow: hidden; }
-  .signature { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(96vw, calc(var(--cell) * 1.65)); height: auto; overflow: visible; pointer-events: none; }
+  /* Keep the signature compact and anchored to the page, below the card. */
+  .signature {
+    position: absolute;
+    left: 50%;
+    top: auto;
+    bottom: max(20px, env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    width: clamp(90px, 12vw, 120px);
+    max-width: 30vw;
+    max-height: 14dvh;
+    height: auto;
+    overflow: visible;
+    pointer-events: none;
+  }
   .filter-definitions { position: absolute; width: 0; height: 0; }
   /* Each 320-unit frame includes at least 68 units of space on either side of S. */
   .window { position: relative; width: var(--cell); height: var(--cell); background: var(--fill); overflow: hidden; clip-path: inset(50% 8% round 2px); }

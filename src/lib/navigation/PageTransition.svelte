@@ -4,6 +4,7 @@
 
   let overlay;
   let curtain;
+  let waveField;
   let sweep = () => {};
 
   // onNavigate excludes initial loads and full-document/external navigation.
@@ -15,6 +16,7 @@
   onMount(() => {
     const paths = [...overlay.querySelectorAll('.wave-stroke')];
     const motion = matchMedia('(prefers-reduced-motion: reduce)');
+    const portraitPhone = matchMedia('(max-width: 767px) and (orientation: portrait)');
     let frame = 0;
     let finish;
     let generation = 0;
@@ -34,10 +36,18 @@
     }
 
     function draw(progress, revealing, time) {
-      const width = innerWidth, height = innerHeight;
+      const viewportWidth = innerWidth, viewportHeight = innerHeight;
+      const vertical = portraitPhone.matches;
+      // Rotate the entire field, including its cover, so both drawing and
+      // erasing travel from the bottom edge to the top on portrait phones.
+      const width = vertical ? viewportHeight : viewportWidth;
+      const height = vertical ? viewportWidth : viewportHeight;
+      waveField.setAttribute('transform', vertical
+        ? `matrix(0 -1 1 0 0 ${viewportHeight})`
+        : 'matrix(1 0 0 1 0 0)');
       const amplitude = Math.min(height * 0.045, 32);
       const verticalInset = amplitude + 12;
-      overlay.setAttribute('viewBox', `0 0 ${width} ${height}`);
+      overlay.setAttribute('viewBox', `0 0 ${viewportWidth} ${viewportHeight}`);
       // A flowing dark front blends into the site's background. Strokes have
       // their own tips below, rather than sharing a rectangular clipping edge.
       const front = [];
@@ -136,12 +146,14 @@
 </script>
 
 <svg bind:this={overlay} class="page-sweep" aria-hidden="true" focusable="false" preserveAspectRatio="none">
-  <path bind:this={curtain} fill="var(--bg, #181818)" />
+  <g bind:this={waveField}>
+    <path bind:this={curtain} fill="var(--bg, #181818)" />
     <g fill="none" stroke="var(--fill, #ffede7)" stroke-width="0.65" stroke-linecap="round" stroke-linejoin="round">
       {#each Array(52) as _, row (row)}
         <path class="wave-stroke" />
       {/each}
     </g>
+  </g>
 </svg>
 
 <style>

@@ -1,5 +1,6 @@
 <script>
 	import OrbitChart from './OrbitChart.svelte';
+	import ReleaseYearChart from './ReleaseYearChart.svelte';
 
 	let { data } = $props();
 
@@ -17,12 +18,9 @@
 	});
 
 	const maxGenre = $derived(Math.max(1, ...genres.map(([, count]) => count)));
-	const ratedMovies = $derived(data.movies.filter((movie) => movie.personalRating !== null));
-	const averagePersonalRating = $derived(
-		ratedMovies.length
-			? ratedMovies.reduce((sum, movie) => sum + movie.personalRating, 0) / ratedMovies.length
-			: null
-	);
+	const number = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 1 });
+	const totalWatchHours = $derived(data.movies.reduce((sum, movie) => sum + (movie.runtime || 0), 0) / 60);
+	const missingRuntimes = $derived(data.movies.filter((movie) => !movie.runtime).length);
 
 	const visibleMovies = $derived.by(() => {
 		const filtered = selectedGenre === 'All'
@@ -38,27 +36,28 @@
 </script>
 
 <svelte:head>
-	<title>{data.list.name} — Ozprey</title>
-	<meta name="description" content={`A visual reading of ${data.list.name} on TMDB.`} />
+	<title>Films — Ozprey</title>
+	<meta name="description" content="A film journal in watched films and hours." />
 </svelte:head>
 
 <main class="movies-page">
-	<header>
-		<!-- <a class="back" href="/">← Home</a>
-		<p class="eyebrow">TMDB LIST / VISUAL STUDY</p> -->
-		<h1>{data.list.name}</h1>
-		{#if data.list.description}<p class="description">{data.list.description}</p>{/if}
-	</header>
-
-	<section class="summary" aria-label="List summary">
-		<div><strong>{data.list.itemCount}</strong><span>movies</span></div>
-		<!-- <div><strong>{averagePersonalRating?.toFixed(1) ?? '—'}</strong><span>my average rating</span></div> -->
-		<!-- <div><strong>{genres.length}</strong><span>genres</span></div> -->
-	</section>
+	<a class="film-archive-link" href="/filmarchive">Film Archive <span aria-hidden="true">↗</span></a>
+	<dl class="summary" aria-label="Watching totals">
+		<div><dt>Films watched</dt><dd>{number.format(data.movies.length)}</dd></div>
+		<div><dt>Total watch hours</dt><dd>{data.movies.length && missingRuntimes === data.movies.length ? 'Unavailable' : `${number.format(totalWatchHours)}h`}</dd></div>
+	</dl>
+	{#if missingRuntimes}
+		<p class="summary-note">Watch time excludes {number.format(missingRuntimes)} {missingRuntimes === 1 ? 'film' : 'films'} with no recorded runtime.</p>
+	{/if}
 
 	<section class="chart-section" aria-labelledby="orbit-heading">
 		<div class="section-heading"><h2 id="orbit-heading">Films</h2><span>orbit = month · size = runtime</span></div>
 		<OrbitChart movies={data.movies} />
+	</section>
+
+	<section class="chart-section" aria-labelledby="release-year-title">
+		<div class="section-heading"><h2 id="release-year-title">By year</h2><span>films by release year</span></div>
+		<ReleaseYearChart movies={data.movies} />
 	</section>
 
 	<section class="chart-section" aria-labelledby="genre-title">
@@ -99,20 +98,17 @@
 </main>
 
 <style>
+	.film-archive-link { display: inline-block; margin-bottom: 1rem; color: var(--heart); font-size: 1.2rem; text-underline-offset: .2em; }
 	/* Page layout and responsive presentation. */
 
 	.movies-page { width:min(1400px, calc(100% - 40px)); margin:auto; padding:clamp(12vmin, 1vw, 170px) 0px 60px; color:var(--fill); font-family:'Instrument Serif', sans-serif; }
-	header { max-width:1000px; text-align: center;}
 
 	.section-heading span { font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; }
-	h1 { margin:.08em 0; font-family:var(--mfont); font-size:clamp(4rem, 13vw, 12rem); font-weight:400; line-height:.78; text-transform:uppercase; overflow-wrap:anywhere; }
-	.description { max-width:650px; font-family:Instrument Serif, serif; font-size:clamp(1rem, 2vw, 1.45rem); }
-
-	.summary {text-align: center; display:grid; grid-template-columns:repeat(3, 1fr); gap:1px; margin:clamp(55px, 10vw, 120px) 0; border-block:1px solid currentColor; }
-
-	.summary div { display:flex; flex-direction:column; padding:24px 0; }
-	.summary strong { font-family:var(--mfont); font-size:clamp(2.8rem, 7vw, 6rem); font-weight:400; line-height:1; }
-	.summary span { font-size:.75rem; text-transform:uppercase; }
+	.summary { text-align:center; display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:16px; margin:0; border-block:1px solid currentColor; }
+	.summary div { padding-block:20px; }
+	.summary dt { font-size:.86rem; letter-spacing:.09em; text-transform:uppercase; }
+	.summary dd { margin:0; font-family:var(--mfont); font-size:clamp(2.25rem, 6vw, 5.5rem); font-weight:400; line-height:1.05; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+	.summary-note { margin-top:12px; font-size:.85rem; opacity:.7; text-align:center; }
 	.chart-section, .collection { margin-top:clamp(80px, 12vw, 150px); }
 	.section-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; padding-bottom:15px; border-bottom:1px solid currentColor; }
 
