@@ -60,10 +60,10 @@
   <div class="cells">
     <div class="bottomicons">
       <p>Designer</p>
-      <a href="/movies"><p class="wt">FILMS</p></a>
+      <a href="/movies"><p class="wt">Dark Clouds</p></a>
 
       <p>Touch</p>
-      <p>Dark clouds</p>
+      <p>Monsoon</p>
       <p>Desert</p>
     </div>
 
@@ -72,11 +72,11 @@
     </button>
 
     <div class="bottomicons">
-      <p class="wt">Designer</p>
-      <a href="/music"><p class="wt">MUSIC</p></a>
+      <!-- <p class="wt">Delicate</p>
+      <a href="/music"><p class="wt">D</p></a>
       <p>Calligrapher</p>
       <p>Archivist</p>
-      <p>Nobody</p>
+      <p>Nobody</p> -->
     </div>
   </div>
 </div>
@@ -122,7 +122,7 @@
   }
 
   #titl {
-    font-family: "Instrument Serif";
+    font-family: var(--mfont);
     font-size: 2em;
   }
 
@@ -144,7 +144,7 @@
     font-family: var(--mfont);
   }
   .seven {
-    font-family: "Instrument Serif";
+    font-family: var(--mfont);
     border-style: none;
     background: none;
     border: none;

@@ -76,7 +76,7 @@ export const headlineFragment = /* glsl */ `
 	varying float vPx;
 
 	void main() {
-		// Browser-rasterized Instrument Serif Italic coverage.
+		// Browser-rasterized Melodrama coverage.
 		float a = texture2D(tAtlas, vUv).a;
 
 		// Smooth the moving clip edge across one CSS pixel.

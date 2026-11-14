@@ -3,6 +3,7 @@
 
 	import { onMount, setContext } from "svelte";
 	import { afterNavigate, onNavigate } from "$app/navigation";
+	import { page } from "$app/state";
 
 	import Menu from "$lib/navigation/Menu.svelte";
 	import HandwrittenMenu from "$lib/navigation/HandwrittenMenu.svelte";
@@ -23,6 +24,7 @@
 	const useHandwrittenMenu = true;
 	let status = $state(false);
 	let menuClass = $derived(status ? "mopen" : "mclose");
+	let isBlog = $derived(page.route.id === '/blog' || page.route.id === '/blog/[slug]');
 	let catButton;
 
 	let gsap;
@@ -102,12 +104,13 @@
 <svelte:window onkeydown={(event) => {
 	if (event.key !== 'Escape' || !status) return;
 	closeMenu();
-	catButton?.focus();
+	catButton?.focus({ preventScroll: true });
 }} />
 
 <!-- Keep the site controls above the full-screen overlay. -->
 <button
 	class="swanmenu"
+	class:reading-control={isBlog}
 	aria-label={status ? "Close menu" : "Open menu"}
 	aria-expanded={status}
 	aria-controls="portfolio-menu"
@@ -122,6 +125,7 @@
 </button>
 <button
 	class="catmenu"
+	class:reading-control={isBlog}
 	bind:this={catButton}
 	onclick={toggleActiveMenu}
 	aria-label={status ? "Close menu" : "Open menu"}

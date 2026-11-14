@@ -176,7 +176,7 @@
 			50px
 			auto;
 
-		font-family: 'Instrument Serif';
+		font-family: var(--bfont);
 
 		font-size:
 			clamp(20px, 2.3vw, 32px);
@@ -195,7 +195,7 @@
 		gap: 20px;
 
 		font-family:
-			'Instrument Serif';
+			var(--bfont);
 
 		font-size: 9px;
 
@@ -240,7 +240,7 @@
 		gap: 7px;
 
 		font-family:
-			'Instrument Serif';
+			var(--bfont);
 
 		font-size: 8px;
 
@@ -258,7 +258,7 @@
 	.content {
 		grid-column: 2;
 
-		font-family: 'Instrument Serif';
+		font-family: var(--bfont);
 
 		font-size:
 			clamp(20px, 1.6vw, 25px);
@@ -357,7 +357,7 @@
 			1px solid var(--fill);
 
 		font-family:
-			'Instrument Serif';
+			var(--bfont);
 
 		font-size: 10px;
 

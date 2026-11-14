@@ -49,27 +49,27 @@
 </main>
 
 <style>
-  main { --muted: #bc94ae; --lens-ink: var(--fill); --lens-rule-ink: #614454; font-family: 'Instrument Serif', sans-serif; }
+  main { --muted: #bc94ae; --lens-ink: var(--fill); --lens-rule-ink: #614454; font-family: var(--bfont); }
   .hero { min-height: max(740px, 100svh); padding: 126px 5vw 90px; display: flex; flex-direction: column; justify-content: space-between; }
   .eyebrow, .intro { display: flex; justify-content: space-between; gap: 32px; }
   .eyebrow, .scroll-note, .section-label > span, footer, .index, .detail { font-size: 10px; letter-spacing: .09em; line-height: 1.6; }
   .eyebrow { --lens-ink: var(--muted); color: var(--muted); }
   .title-block { padding: 45px 0 42px; }
-  .preface { font: 400 clamp(20px, 2.3vw, 34px)/1.5 'Instrument Serif', serif; }
+  .preface { font: 400 clamp(20px, 2.3vw, 34px)/1.5 var(--bfont); }
   h1 { font: 400 clamp(96px, 20.6vw, 360px)/.98 var(--mfont); letter-spacing: -.025em; white-space: nowrap; margin: 14px 0 25px; }
   .title-line { display: flex; align-items: center; gap: clamp(16px, 3vw, 54px); }
   .title-swan { width: clamp(60px, 13vw, 220px); height: auto; flex-shrink: 0; color: var(--fill); }
   .rule { height: 1px; background: #614454; margin-bottom: 30px; }
   .identity { font: 400 clamp(23px, 3vw, 46px)/1.15 var(--mfont); }
-  .statement { width: 47%; font: 400 clamp(23px, 3.2vw, 49px)/1.18 'Instrument Serif', serif; }
+  .statement { width: 47%; font: 400 clamp(23px, 3.2vw, 49px)/1.18 var(--bfont); }
   .scroll-note { align-self: flex-start; text-underline-offset: 5px; }
   .scroll-note:hover { text-decoration: underline; }
   .notes { padding: 110px 5vw 100px; display: grid; grid-template-columns: 1fr 1fr; gap: 6vw; border-top: 1px solid #614454; scroll-margin-top: 30px; }
   .section-label > span { color: var(--muted); }
   h2 { margin-top: 30px; font: 400 clamp(35px, 4.5vw, 68px)/1.1 var(--mfont); }
-  h2 em { font-family: 'Instrument Serif', serif; font-weight: 400; }
+  h2 em { font-family: var(--mfont); font-weight: 400; }
   .note-copy { max-width: 530px; padding-top: 45px; }
-  .note-copy p { font: 400 clamp(19px, 2vw, 27px)/1.5 'Instrument Serif', serif; margin-bottom: 24px; }
+  .note-copy p { font: 400 clamp(19px, 2vw, 27px)/1.5 var(--bfont); margin-bottom: 24px; }
   .note-copy a { display: inline-block; margin-top: 14px; font-size: 12px; border-bottom: 1px solid #bc94ae; padding-bottom: 8px; }
   .note-copy a span { margin-left: 24px; }
   .interests { margin: 0 5vw; }

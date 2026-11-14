@@ -137,7 +137,7 @@
 
 		margin-top: 70px;
 
-		font-family: 'Instrument Serif';
+		font-family: var(--bfont);
 		font-size:
 			clamp(18px, 2vw, 28px);
 
@@ -236,7 +236,7 @@
 		margin-bottom: 14px;
 
 		font-family:
-			'Instrument Serif';
+			var(--bfont);
 
 		font-size: 10px;
 
@@ -265,7 +265,7 @@
 
 		margin-top: 20px;
 
-		font-family: 'Instrument Serif';
+		font-family: var(--bfont);
 
 		font-size:
 			clamp(16px, 1.4vw, 21px);
@@ -281,7 +281,7 @@
 		justify-content: space-between;
 
 		font-family:
-			'Instrument Serif';
+			var(--bfont);
 
 		font-size: 11px;
 
@@ -314,7 +314,7 @@
 		padding-top: 70px;
 
 		font-family:
-			'Instrument Serif';
+			var(--bfont);
 
 		font-size: 10px;
 

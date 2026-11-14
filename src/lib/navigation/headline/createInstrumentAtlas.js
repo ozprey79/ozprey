@@ -1,16 +1,16 @@
-// Use the same local italic face for WebGL glyphs and the accessible HTML fallback.
+// Use the same local display face for WebGL glyphs and the accessible HTML fallback.
 // Browser rasterization also retains the font's kerning without an external atlas tool.
 export async function createInstrumentAtlas(lines) {
   const size = 192, cell = 256, columns = 8, padding = 8;
-  const loaded = await document.fonts.load(`italic ${size}px "Instrument Serif"`);
-  if (!loaded.length) throw new Error('Instrument Serif Italic did not load');
+  const loaded = await document.fonts.load(`400 ${size}px "Melodrama"`);
+  if (!loaded.length) throw new Error('Melodrama did not load');
   const chars = [...new Set(`H? ${lines.join('')}`)];
   const canvas = document.createElement('canvas');
   canvas.width = columns * cell;
   canvas.height = Math.ceil(chars.length / columns) * cell;
   const context = canvas.getContext('2d');
   if (!context) throw new Error('Cannot create menu font atlas');
-  context.font = `italic ${size}px "Instrument Serif"`;
+  context.font = `400 ${size}px "Melodrama"`;
   context.fillStyle = '#fff';
   context.textBaseline = 'alphabetic';
   const glyphs = chars.map((char, index) => {

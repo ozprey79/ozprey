@@ -101,7 +101,7 @@
 	.film-archive-link { display: inline-block; margin-bottom: 1rem; color: var(--heart); font-size: 1.2rem; text-underline-offset: .2em; }
 	/* Page layout and responsive presentation. */
 
-	.movies-page { width:min(1400px, calc(100% - 40px)); margin:auto; padding:clamp(12vmin, 1vw, 170px) 0px 60px; color:var(--fill); font-family:'Instrument Serif', sans-serif; }
+	.movies-page { width:min(1400px, calc(100% - 40px)); margin:auto; padding:clamp(12vmin, 1vw, 170px) 0px 60px; color:var(--fill); font-family:var(--bfont); }
 
 	.section-heading span { font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; }
 	.summary { text-align:center; display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:16px; margin:0; border-block:1px solid currentColor; }

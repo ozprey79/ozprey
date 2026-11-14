@@ -179,7 +179,7 @@
   .headline { position: absolute; inset: max(90px, 12dvh) 6vw 7dvh; overflow: hidden; color: var(--bg); }
   .headline :global(canvas) { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
   .links { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; }
-  a, button { display: flex; align-items: center; justify-content: center; color: inherit; background: transparent; border: 0; margin: 0; padding: 0; font: italic 400 clamp(24px, 5vmin, 64px)/1.4 'Instrument Serif', serif; text-decoration: none; cursor: pointer; }
+  a, button { display: flex; align-items: center; justify-content: center; color: inherit; background: transparent; border: 0; margin: 0; padding: 0; font: 400 clamp(24px, 5vmin, 64px)/1.4 var(--mfont); text-decoration: none; cursor: pointer; }
   .ready a, .ready button { position: absolute; min-height: 24px; }
   .headline:not(.failed) span { opacity: 0; }
   .failed span { transition: letter-spacing 300ms ease; }

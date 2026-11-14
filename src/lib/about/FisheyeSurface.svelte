@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
-  import instrument from '$lib/assets/fonts/InstrumentSerif-Regular.ttf?url';
+  import melodrama from '$lib/assets/fonts/Melodrama-Regular.otf?url';
+  import familjen from '$lib/assets/fonts/FamiljenGrotesk-Variable.ttf?url';
 
   let { children, ontransitionstart = () => {}, ontransitionend = () => {} } = $props();
   let surface, overlay;
@@ -106,7 +107,7 @@
       const next = [], jobs = [];
       for (const element of surface.querySelectorAll('[data-lens-text]')) {
         const style = getComputedStyle(element), size = parseFloat(style.fontSize);
-        const font = instrument;
+        const font = style.fontFamily.includes('Melodrama') ? melodrama : familjen;
         const color = style.getPropertyValue('--lens-ink').trim() || style.color;
         for (const line of linesFor(element)) {
           const mesh = new Text();
@@ -374,7 +375,7 @@
     .pending :global([data-lens-rule]) { background-color: transparent !important; }
     .pending :global([data-lens-svg]) { visibility: hidden; }
   }
-  .replay { position: absolute; bottom: 24px; right: 5vw; z-index: 3; margin: 0; padding: 10px 0; font: 11px 'Instrument Serif', sans-serif; cursor: pointer; letter-spacing: .02em; }
+  .replay { position: absolute; bottom: 24px; right: 5vw; z-index: 3; margin: 0; padding: 10px 0; font: 11px var(--bfont); cursor: pointer; letter-spacing: .02em; }
   .replay span { display: inline-block; margin-right: 6px; font-size: 18px; vertical-align: middle; }
   .replay:hover { text-decoration: underline; text-underline-offset: 5px; }
   .replay:focus-visible { outline: 1px solid var(--fill); outline-offset: 5px; }

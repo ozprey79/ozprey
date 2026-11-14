@@ -4,7 +4,8 @@
 	--bg:#181818;
 	--heart:#c78ed9;
   --bgdot: rgba(49, 49, 49, 0.788);
-  --mfont:"Instrument Serif";
+  --mfont: "Melodrama", serif;
+  --bfont: "Familjen Grotesk", sans-serif;
 }
 
 /* Reset layout defaults before applying page and form styles. */
@@ -35,21 +36,50 @@ body {
 button:focus{outline: none;}
 
 @font-face {
-  font-family: 'Instrument Serif';
-  src: url('../lib/assets/fonts/InstrumentSerif-Regular.ttf') format('truetype');
+  font-family: 'Melodrama';
+  src: url('../lib/assets/fonts/Melodrama-Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Melodrama';
+  src: url('../lib/assets/fonts/Melodrama-Regular.otf') format('opentype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'Instrument Serif';
-  src: url('../lib/assets/fonts/InstrumentSerif-Italic.ttf') format('truetype');
-  font-weight: 400;
-  font-style: italic;
+  font-family: 'Melodrama';
+  src: url('../lib/assets/fonts/Melodrama-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Melodrama';
+  src: url('../lib/assets/fonts/Melodrama-Semibold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Melodrama';
+  src: url('../lib/assets/fonts/Melodrama-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Familjen Grotesk';
+  src: url('../lib/assets/fonts/FamiljenGrotesk-Variable.ttf') format('truetype');
+  font-weight: 400 700;
+  font-style: normal;
   font-display: swap;
 }
 
-body { font-family: 'Instrument Serif', serif; font-weight: 400; font-synthesis: none; }
+body { font-family: var(--bfont); font-weight: 400; font-synthesis: none; }
+h1, h2 { font-family: var(--mfont); font-weight: 400; }
 input, textarea, select, button { font-family: inherit; }
 em, i { font-style: normal; }
 
@@ -101,6 +131,12 @@ textarea {
     border-radius: 50%;
     border: 0px solid red;
 }
+
+  /* Let the blog navigation scroll away, keeping the close button reachable. */
+  .swanmenu.reading-control,
+  .catmenu.reading-control[aria-expanded="false"] {
+    position: absolute;
+  }
 
   @keyframes slidein {
     from {
