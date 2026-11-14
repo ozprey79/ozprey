@@ -1,4 +1,5 @@
 <script>
+  import { getContext } from 'svelte';
   import Home from '$lib/home/Home.svelte';
   import Zoopraxiscope from '$lib/home/loaders/Zoopraxiscope.svelte';
   import SWindowLoader from '$lib/home/loaders/SWindowLoader.svelte';
@@ -6,7 +7,12 @@
   const loader = 's-window';
   // 'morph': SVG shapes transform. 'stack': crossfade in place. 'train': slide horizontally.
   const sFrameMotion = 'morph';
-  let entered = $state(false);
+  const entrance = getContext('apex-entrance');
+  let entered = $state(entrance.entered);
+  function completeApex() {
+    entrance.entered = true;
+    entered = true;
+  }
   const variant = 'traces';
 </script>
 
@@ -20,9 +26,9 @@
   {#if entered}
     <Home {variant} />
   {:else if loader === 'zoopraxiscope'}
-    <Zoopraxiscope oncomplete={() => { entered = true; }} />
+    <Zoopraxiscope oncomplete={completeApex} />
   {:else}
-    <SWindowLoader motion={sFrameMotion} duration={6200} oncomplete={() => { entered = true; }} />
+    <SWindowLoader motion={sFrameMotion} duration={6200} oncomplete={completeApex} />
   {/if}
 </div>
 

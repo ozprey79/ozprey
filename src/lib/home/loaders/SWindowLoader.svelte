@@ -174,7 +174,7 @@
         </filter>
       </defs>
       <path bind:this={signaturePath} d={signature.d} pathLength="1" fill="none"
-        stroke="var(--heart)" stroke-width="5.5316" stroke-linecap="round" stroke-linejoin="round"
+        stroke="var(--fill)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"
         stroke-dasharray="1 2" stroke-dashoffset="1.03" filter="url(#{uid}-signature-inner)" />
     </svg>
   <!-- <span class="caption" aria-hidden="true">OZPREY <span>STUDIES IN MOTION</span></span> -->

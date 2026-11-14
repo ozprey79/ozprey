@@ -1,8 +1,8 @@
 <script>
 	import "./layout.css";
 
-	import { onMount } from "svelte";
-	import { afterNavigate } from "$app/navigation";
+	import { onMount, setContext } from "svelte";
+	import { afterNavigate, onNavigate } from "$app/navigation";
 
 	import Menu from "$lib/navigation/Menu.svelte";
 	import HandwrittenMenu from "$lib/navigation/HandwrittenMenu.svelte";
@@ -12,6 +12,12 @@
 	import catSound from "$lib/navigation/assets/cat.mp3";
 
 	let { children } = $props();
+
+	// APEX belongs to the initial entry; STRINGS handles subsequent navigation.
+	// Layout context survives route changes and stays isolated per SSR request.
+	const entrance = { entered: false };
+	setContext('apex-entrance', entrance);
+	onNavigate(() => { entrance.entered = true; });
 
 	// Flip this back to restore the original slat menu.
 	const useHandwrittenMenu = true;
