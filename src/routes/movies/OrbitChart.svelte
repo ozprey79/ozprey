@@ -1,8 +1,8 @@
 <script>
-	let { movies } = $props();
+	let { movies, selectedMovie = null, onselect = () => {} } = $props();
 
 	// ── Calendar & layout constants (SVG user units) ──────────────────────────
-	const DEFAULT_YEAR = 2027;
+	const DEFAULT_YEAR = 2026;
 	const monthNames = [
 		'January', 'February', 'March', 'April', 'May', 'June',
 		'July', 'August', 'September', 'October', 'November', 'December'
@@ -73,8 +73,6 @@
 	// ── State ─────────────────────────────────────────────────────────────────
 	let stageWidth = $state(0);
 	let selectedYear = $state(DEFAULT_YEAR);
-	let hoveredMovie = $state(null);
-	let touchMode = false; // true after the last pointer was a finger or pen
 
 	const narrow = $derived(stageWidth > 0 && stageWidth < NARROW_BELOW);
 	const layout = $derived(narrow ? NARROW : WIDE);
@@ -160,38 +158,13 @@
 	const undatedMovies = $derived(movies.filter((movie) => !dateParts(movie.watchedDate)));
 	const totalMinutes = $derived(beads.reduce((sum, item) => sum + (item.movie.runtime || 0), 0));
 
-	// Card opens on the side away from the hovered bead so it never covers it
-	const cardSide = $derived(
-		hoveredMovie && monthIndex(hoveredMovie.watchedDate, selectedYear) >= 6 ? 'left' : 'right'
-	);
-
-	// ── Interaction ───────────────────────────────────────────────────────────
-	function showCard(movie) {
-		hoveredMovie = movie;
-	}
-
-	function hideCard(movie) {
-		if (hoveredMovie?.id === movie.id) hoveredMovie = null;
-	}
-
-	// Touch: first tap shows the card, second tap on the same bead opens TMDB.
-	// Tapping anywhere else closes the card.
-	function onPointerDown(event) {
-		touchMode = event.pointerType !== 'mouse';
-		if (touchMode && !(event.target instanceof Element && event.target.closest('.bead-link'))) {
-			hoveredMovie = null;
-		}
-	}
-
 	function onBeadClick(event, movie) {
-		if (touchMode && hoveredMovie?.id !== movie.id) {
-			event.preventDefault();
-			showCard(movie);
-		}
+		event.preventDefault();
+		onselect(movie);
 	}
 </script>
 
-<svelte:window onpointerdown={onPointerDown} onkeydown={() => (touchMode = false)} />
+
 
 <div class="abacus-controls">
 	<p><strong>{beads.length}</strong> watched · <strong>{Math.round(totalMinutes / 60)}</strong> hours</p>
@@ -226,18 +199,16 @@
 			>
 				<a
 					class="bead-link"
-					href={item.movie.url}
+					href="#selected-film"
+					aria-controls="selected-film"
+					aria-current={selectedMovie?.id === item.movie.id ? 'true' : undefined}
 					aria-label={`${item.movie.title}, ${item.movie.runtime || 'unknown'} minutes, watched ${formatDate(item.movie.watchedDate)}${item.fav ? ', favourite' : ''}`}
 					onclick={(event) => onBeadClick(event, item.movie)}
-					onmouseenter={() => !touchMode && showCard(item.movie)}
-					onmouseleave={() => !touchMode && hideCard(item.movie)}
-					onfocus={() => !touchMode && showCard(item.movie)}
-					onblur={() => !touchMode && hideCard(item.movie)}
 				>
 					{#if !item.fav}
 					<circle class="bead-hit" cx={item.x} cy={item.y} r={narrow ? Math.max(item.r + 4, 14) : Math.max(item.r + 5, 18)} />
 					<circle
-						class:selected={hoveredMovie?.id === item.movie.id}
+						class:selected={selectedMovie?.id === item.movie.id}
 						class="bead"
 						style={`--tone:${item.tone}`}
 						cx={item.x}
@@ -247,7 +218,7 @@
 					{/if}
 					{#if item.fav}
 						<path
-						    class:selected={hoveredMovie?.id === item.movie.id}
+						    class:selected={selectedMovie?.id === item.movie.id}
 							class="beadheart"
 							d={HEART_PATH}
 							transform={`translate(${item.x} ${item.y}) scale(${item.r * 0.095}) translate(-12 -12.2)`}
@@ -259,46 +230,6 @@
 		{/each}
 	</svg>
 
-	{#if hoveredMovie}
-		<article class="movie-card {cardSide}" aria-live="polite">
-			<div class="card-foil" aria-hidden="true"></div>
-			<header class="card-header">
-				<p>{formatDate(hoveredMovie.watchedDate)}</p>
-				<span class="card-badges">
-					{#if isFavorite(hoveredMovie)}
-						<svg class="card-heart" viewBox="0 0 24 24" aria-label="Favourite" role="img"><path d={HEART_PATH} /></svg>
-					{/if}
-					{#if hoveredMovie.personalRating !== null && hoveredMovie.personalRating !== undefined}
-						<span><strong>{hoveredMovie.personalRating}</strong>/10 ★</span>
-					{/if}
-				</span>
-			</header>
-
-			<h3>{hoveredMovie.title}</h3>
-
-			<div class="card-art">
-				{#if hoveredMovie.posterPath}
-					<img src={`https://image.tmdb.org/t/p/w342${hoveredMovie.posterPath}`} alt={`Poster for ${hoveredMovie.title}`} />
-				{:else}
-					<div class="card-art-fallback">No poster</div>
-				{/if}
-			</div>
-
-			<p class="card-spec">
-				<span>{hoveredMovie.releaseDate?.slice(0, 4) || 'Year unknown'}</span>
-				<span>{hoveredMovie.language || 'Language unknown'}</span>
-				<span>{hoveredMovie.runtime ? `${hoveredMovie.runtime} min` : 'Runtime unknown'}</span>
-			</p>
-
-			<div class="card-info">
-				<strong>Type</strong>
-				<p>{hoveredMovie.genres?.join(' · ') || 'Genre unavailable'}</p>
-			</div>
-
-			<p class="card-link">{touchMode ? 'Tap again to view on TMDB ↗' : 'Select bead to view on TMDB ↗'}</p>
-			<p class="card-number">TMDB #{hoveredMovie.id}</p>
-		</article>
-	{/if}
 
 	<div class="runtime-legend" aria-label="Legend: bead size is runtime, bead brightness is your rating">
 		<!-- <span>Runtime</span>
@@ -350,28 +281,6 @@
 	.beadheart { fill:var(--heart); pointer-events:none; }
 	.beadheart.selected { opacity:1; filter:drop-shadow(0 0 8px var(--fill)); }
      
-	/* hover card sits on the side opposite the hovered bead */
-	.movie-card { position:absolute; z-index:5; top:50%; width:min(280px, 34%); min-width:230px; aspect-ratio:5/7; padding:14px; overflow:hidden; pointer-events:none; color:var(--bg); background:linear-gradient(145deg, color-mix(in srgb, var(--fill) 94%, white), color-mix(in srgb, var(--fill) 72%, #f3bd36)); border:7px solid color-mix(in srgb, var(--fill) 55%, #d6a52a); border-radius:16px; box-shadow:0 16px 35px rgba(0,0,0,.42), inset 0 0 0 2px color-mix(in srgb, var(--bg) 35%, transparent); }
-	.movie-card.right { right:clamp(8px, 3vw, 32px); transform:translateY(-50%) rotate(1.25deg); }
-	.movie-card.left { left:clamp(8px, 3vw, 32px); transform:translateY(-50%) rotate(-1.25deg); }
-	.card-foil { position:absolute; inset:0; pointer-events:none; opacity:.16; background:linear-gradient(115deg, transparent 16%, white 33%, transparent 48%, white 64%, transparent 81%); transform:translateX(-45%); animation:foil 3.6s ease-in-out infinite alternate; }
-	.card-header { position:relative; display:flex; justify-content:space-between; align-items:center; gap:8px; }
-	.card-header p, .card-header span, .card-spec, .card-info, .card-link, .card-number { font-family:var(--bfont); }
-	.card-header p { font-size:.61rem; letter-spacing:.08em; text-transform:uppercase; }
-	.card-header span { font-size:.66rem; white-space:nowrap; }
-	.card-badges { display:inline-flex; align-items:center; gap:7px; }
-	.card-heart { width:15px; height:15px; fill:var(--heart); }
-	.movie-card h3 { position:relative; margin:5px 0 7px; min-height:1.9em; font-family:var(--mfont); font-size:clamp(1.45rem, 2.4vw, 2.15rem); font-weight:400; line-height:.85; text-transform:uppercase; }
-	.card-art { position:relative; aspect-ratio:1.43/1; overflow:hidden; border:4px ridge color-mix(in srgb, var(--bg) 45%, #d2a732); background:color-mix(in srgb, var(--bg) 82%, transparent); box-shadow:inset 0 0 18px rgba(0,0,0,.35); }
-	.card-art img, .card-art-fallback { width:100%; height:100%; object-fit:cover; object-position:center 25%; }
-	.card-art-fallback { display:grid; place-items:center; color:var(--fill); }
-	.card-spec { position:relative; display:flex; justify-content:center; flex-wrap:wrap; gap:4px 10px; margin:6px 0; padding:3px 4px; font-size:.55rem; text-transform:uppercase; border-block:1px solid color-mix(in srgb, var(--bg) 35%, transparent); }
-	.card-info { position:relative; min-height:45px; display:grid; grid-template-columns:42px 1fr; gap:6px; align-items:start; padding:5px 0; font-size:.62rem; }
-	.card-info strong { text-transform:uppercase; }
-	.card-info p { line-height:1.3; }
-	.card-link { position:relative; color:inherit; font-size:.62rem; text-transform:uppercase; }
-	.card-number { position:absolute; right:12px; bottom:7px; font-size:.48rem; opacity:.62; }
-
 	.runtime-legend { display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:8px 12px; margin-top:12px; font-size:.66rem; text-transform:uppercase; }
 	.runtime-key { display:flex; align-items:center; gap:5px; }
 	.runtime-key i { display:block; flex:none; border-radius:50%; background:var(--fill); }
@@ -383,16 +292,13 @@
 	.undated { margin-top:12px; opacity:.65; text-transform:uppercase; }
 
 	@keyframes slide-in { from { transform:translate(var(--fx), var(--fy)); } to { transform:translate(0, 0); } }
-	@keyframes foil { to { transform:translateX(45%); } }
 
 	@media (max-width:650px) {
 		.abacus-controls { align-items:flex-start; flex-direction:column; }
 		.runtime-legend { justify-content:center; }
-		.movie-card, .movie-card.left, .movie-card.right { left:50%; right:auto; width:min(245px, 76%); min-width:0; transform:translate(-50%, -50%); }
 	}
 	@media (prefers-reduced-motion:reduce) {
 		.bead-motion { animation:none; }
 		.bead { transition:none; }
-		.card-foil { animation:none; }
 	}
 </style>

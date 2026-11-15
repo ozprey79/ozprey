@@ -46,7 +46,7 @@ async function movieDetails(fetch, id) {
 	if (detailsCache.has(id)) return detailsCache.get(id);
 
 	try {
-		const response = await fetch(`${API}/3/movie/${id}?language=en-US`, { headers: headers() });
+		const response = await fetch(`${API}/3/movie/${id}?language=en-US&append_to_response=credits`, { headers: headers() });
 		if (!response.ok) return null;
 		const details = await response.json();
 		detailsCache.set(id, details); // only successful lookups are remembered
@@ -107,6 +107,8 @@ async function enrichMovies(fetch, movies) {
 				// `||` not `??`: list items carry runtime 0, which `??` would keep,
 				// so the real runtime from the details call was never used.
 				runtime: Number(movie.runtime || detail?.runtime || 0),
+				director: detail?.credits?.crew?.filter(person => person.job === 'Director').map(person => person.name).join(', ') || null,
+				backdropPath: movie.backdropPath || detail?.backdrop_path || null,
 				language: detail?.spoken_languages?.[0]?.english_name
 					?? detail?.original_language
 					?? movie.language
@@ -168,6 +170,7 @@ async function buildPayload(fetch, listId) {
 			personalRating: personalRatings.get(movie.id) ?? null,
 			favorite: favoriteIds.has(movie.id),
 			posterPath: movie.poster_path ?? null,
+			backdropPath: movie.backdrop_path ?? null,
 			runtime: Number(movie.runtime ?? 0),
 			watchedDate: watchedDateFromComment(
 				comments[`movie:${movie.id}`] ?? movie.comment

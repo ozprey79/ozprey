@@ -132,10 +132,26 @@ textarea {
     border: 0px solid red;
 }
 
-  /* Let the blog navigation scroll away, keeping the close button reachable. */
-  .swanmenu.reading-control,
-  .catmenu.reading-control[aria-expanded="false"] {
-    position: absolute;
+  .catmenu,
+  .swanmenu {
+    --control-fade: 240ms;
+    transition: opacity var(--control-fade) cubic-bezier(.645, .045, .355, 1),
+      visibility 0s;
+  }
+
+  .catmenu.scroll-hidden,
+  .swanmenu.scroll-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition-delay: 0s, var(--control-fade);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .catmenu,
+    .swanmenu {
+      --control-fade: 0s;
+    }
   }
 
   @keyframes slidein {

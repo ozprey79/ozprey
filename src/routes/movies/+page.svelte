@@ -1,11 +1,24 @@
 <script>
+	import { tick } from 'svelte';
 	import OrbitChart from './OrbitChart.svelte';
 	import ReleaseYearChart from './ReleaseYearChart.svelte';
+	import JewelCase from './JewelCase.svelte';
 
 	let { data } = $props();
 
 	let sort = $state('list');
 	let selectedGenre = $state('All');
+	let selectedMovieId = $state(null);
+	const latestMovie = $derived(data.movies.reduce((latest, movie) =>
+		movie.watchedDate && (!latest?.watchedDate || movie.watchedDate >= latest.watchedDate)
+			? movie : latest, null) ?? data.movies.at(-1) ?? null);
+	const selectedMovie = $derived(data.movies.find(movie => movie.id === selectedMovieId) ?? latestMovie);
+	let selectedPanel;
+	async function selectMovie(movie) {
+		selectedMovieId = movie.id;
+		await tick();
+		selectedPanel?.scrollIntoView({behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block:'start'});
+	}
 
 	const genres = $derived.by(() => {
 		const counts = new Map();
@@ -41,7 +54,7 @@
 </svelte:head>
 
 <main class="movies-page">
-	<a class="film-archive-link" href="/filmarchive">Film Archive <span aria-hidden="true">↗</span></a>
+	<!-- <a class="film-archive-link" href="/filmarchive">Film Archive <span aria-hidden="true">↗</span></a> -->
 	<dl class="summary" aria-label="Watching totals">
 		<div><dt>Films watched</dt><dd>{number.format(data.movies.length)}</dd></div>
 		<div><dt>Total watch hours</dt><dd>{data.movies.length && missingRuntimes === data.movies.length ? 'Unavailable' : `${number.format(totalWatchHours)}h`}</dd></div>
@@ -50,9 +63,17 @@
 		<p class="summary-note">Watch time excludes {number.format(missingRuntimes)} {missingRuntimes === 1 ? 'film' : 'films'} with no recorded runtime.</p>
 	{/if}
 
+	<div id="selected-film" bind:this={selectedPanel} style="scroll-margin-top:90px">
+		{#if selectedMovie}
+			<JewelCase movie={selectedMovie} />
+		{:else}
+			<p style="margin-top:24px;opacity:.65">Select a bead to see its movie on disc.</p>
+		{/if}
+	</div>
+
 	<section class="chart-section" aria-labelledby="orbit-heading">
-		<div class="section-heading"><h2 id="orbit-heading">Films</h2><span>orbit = month · size = runtime</span></div>
-		<OrbitChart movies={data.movies} />
+		<div class="section-heading"><h2 id="orbit-heading">Films</h2></div>
+		<OrbitChart movies={data.movies} {selectedMovie} onselect={selectMovie} />
 	</section>
 
 	<section class="chart-section" aria-labelledby="release-year-title">
@@ -60,7 +81,7 @@
 		<ReleaseYearChart movies={data.movies} />
 	</section>
 
-	<section class="chart-section" aria-labelledby="genre-title">
+	<!-- <section class="chart-section" aria-labelledby="genre-title">
 		<div class="section-heading"><h2 id="genre-title">Genre gravity</h2><span>click to filter</span></div>
 		<div class="genre-chart">
 			{#each genres as [genre, count]}
@@ -71,9 +92,9 @@
 				</button>
 			{/each}
 		</div>
-	</section>
+	</section> -->
 
-	<section class="collection" aria-labelledby="collection-title">
+	<!-- <section class="collection" aria-labelledby="collection-title">
 		<div class="section-heading collection-heading">
 			<h2 id="collection-title">{selectedGenre === 'All' ? 'The collection' : selectedGenre}</h2>
 			<label>Sort <select bind:value={sort}><option value="list">List order</option><option value="my-rating">My rating</option><option value="year">Newest</option></select></label>
@@ -94,7 +115,7 @@
 				</a>
 			{/each}
 		</div>
-	</section>
+	</section> -->
 </main>
 
 <style>

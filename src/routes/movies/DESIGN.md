@@ -1,0 +1,33 @@
+# Movie jewel case direction
+
+User-approved direction (2026-11-14): closed clear jewel case; artwork printed on the disc inside; pristine glass-like finish, no wear or scratches; rounded corners; small semicircular moulded recesses around the disc; clean retro barcode sticker with title, runtime, year and director.
+
+Interaction effects are an explicit user requirement. User rejected a flat image rotating in CSS: use actual 3D geometry with thickness and separated parts. Retain mouse/touch rotation, keyboard control and reduced-motion support.
+
+Current demo uses Three.js geometry for lid, rear tray, rounded frames, hinges, disc, hub, finger wells and sticker. The disc texture is temporarily sampled from the generated concept (so its printed artwork still includes some baked lighting); replace with clean independent movie artwork when connecting collection data. Sticker text is independently rendered to a canvas texture. Model is a single Interstellar demo, not connected to collection data yet.
+
+Material correction: overlapping transmission shells produced black surfaces. Thin case surfaces now use view-dependent alpha (clear front faces, reflective bevels), independent 3D geometry and studio reflections. This is an artistic glass approximation, not volumetric refraction. Do not reintroduce opaque dark mouldings. Visual target remains the approved clean image; build success alone does not verify visual parity.
+
+Reflection revision: use explicit reflected-ray intersections against studio softboxes in the surface shader. Highlights must retain their own coverage instead of being multiplied by near-zero face opacity. This preserves clear faces and visible moving reflections. GPU appearance still requires visual verification; do not claim parity with the approved image based on compilation.
+
+Corner study: use the Corner & hinge close-up button on /movies. The camera follows the upper-left corner during rotation. Added stepped L-shaped rails, a recessed spine channel, braces, three hinge knuckles and a pivot pin. Keep this limited study until its visual quality is approved before replicating details across the case.
+
+User clarification: close-up images are construction references, NOT a requested UI feature. No close-up controls or corner inspection mode. Apply detailed geometry across the complete case: continuous stepped perimeter rails, full spine channel, top/bottom hinge assemblies, retaining clips and curved recess walls. Keep whole-case rotation.
+
+Glass reflection update: capture the studio in a linear HDR cube map for the custom surface shader, retaining sharp reflected softboxes around the model. Add narrow angle-dependent glints and restrained chromatic edge separation. This is an artistic spectral approximation, not physical dispersion. Dispose the reflection target on teardown. Browser/GPU output still needs visual verification.
+
+User requests stress-like interference colours in hard clear plastic, with less white glare. Shader now anchors simulated colour bands to the case perimeter, hinges and finger wells; strength varies with angle. This is an artistic polarized-stress appearance, not a physical stress solver. Canvas and stage backgrounds are transparent so the existing webpage background remains continuous.
+
+Realism reference applied: use locally bundled Poly Haven Studio Small 09 HDR for linear HDR environment reflections, PMREM for physical materials, explicit sRGB output and ACES tone mapping inside the custom glass shader. Preserve transparent background and procedural fallback if loading fails. Custom thin-surface shader remains an approximation, not full multi-layer refraction.
+
+2026-11-15 geometry rebuild: jewelGeometry.js replaces the decorative frames/tubes with five named fitted components. Rear pan and lid have independent walls and mating rebates; tray has semicircular edge cutouts and a revolved multi-step seat; hub has twelve separated retaining fingers; hinge ears have actual pivot holes; lid includes batched micro ribs. References show construction, not a request for open/exploded UI. Keep case closed. Approximately 159k rendered triangles including instancing; geometry checked for finite vertices and bounds. This is procedural hard-surface modelling, not a Blender-authored asset; render equivalence is not yet visually verified.
+
+User changed interaction requirement: click must now open/close the case to verify modelling. Lid and sticker share a pivot on the left spine; dragging rotates without toggling. Open-case framing expands. HDR environment retained; physical hinge/hub materials expose it more clearly. Local annular contact-occlusion gradients and a PCF shadow receiver supply depth cues (not full SSAO).
+
+Screenshot defect corrections: custom shader must apply instanceMatrix (edge ribs were otherwise misplaced). Use double-sided surface normals for open lid. Avoid chalky opaque hinge/hub material. Disc has a closed revolved edge and light-responsive print; label has a blank back. Remove fixed floating shadow receiver causing black wedges. Frame both transformed shells using bounds at any angle. GPU appearance still needs visual verification.
+
+Blender workflow added: scripts/export-jewel-geometry.mjs and scripts/build-jewel-blender.py. Model is welded and weighted-normal finished in Blender 5.0, exported in metres to static/movies/jewel-case.glb, with editable output/jewel-case/jewel-case.blend. Interactive loader normalizes to scene units and preserves opening groups. Sidewalls have 0.65 mm-pitch vertical flutes, interrupted latch bays and seam rails. Cycles closed-preview.png visually inspected: thickness, seams, tray and clips present. This verifies offline geometry, NOT browser shader parity.
+
+Current priority: pause 3D appearance work. Abacus bead click selects a movie and scrolls to the case panel below the chart; remove the old trading-card overlay. Case disc and sticker update in place from selected movie data, with backdrop/poster fallback, director from appended TMDB credits, metadata placeholders, and stale artwork request guards. Keep existing opening/rotation. No static Interstellar demo content should appear for another film.
+
+Open interaction: after the lid clears, the disc lifts 0.68 scene units from the tray and scales by 10%, with a slight presentation tilt. Closing reverses the same curve before lid contact. Disc body, print and rim move together; hub remains fixed. Clearcoat and physical iridescence give an angle-dependent thin-film appearance, not a full optical refraction simulation. Reduced motion snaps directly to the requested pose.
