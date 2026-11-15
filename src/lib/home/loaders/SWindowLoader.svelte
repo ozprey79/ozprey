@@ -153,7 +153,7 @@
     <div class="strip" class:stack={motion !== 'train'} bind:this={strip}>
       {#each frames as frame}
         <svg class="frame" viewBox={frame.viewBox ?? '0 0 320 320'}>
-          <path d={frame.d} fill="black" filter="url(#{uid}-inset)" />
+          <path d={frame.d} fill="black"  />
         </svg>
       {/each}
     </div>

@@ -7,6 +7,7 @@
 	import Menu from "$lib/navigation/Menu.svelte";
 	import HandwrittenMenu from "$lib/navigation/HandwrittenMenu.svelte";
 	import PageTransition from "$lib/navigation/PageTransition.svelte";
+	import { smoothScroll } from "$lib/navigation/smoothScroll.js";
 	import favicon from "$lib/assets/icons/favicon.svg";
 	import { cat, swan } from "$lib/assets/icons/paths.js";
 	import catSound from "$lib/navigation/assets/cat.mp3";
@@ -29,6 +30,12 @@
 
 	let gsap;
 	let audio;
+	let scrolling;
+	onMount(() => {
+		scrolling = smoothScroll({ paused: () => status });
+		return () => scrolling.destroy();
+	});
+	onNavigate(() => scrolling?.stop());
 	// Prepare the menu sound once per layout.
 	onMount(() => {
 		audio = new Audio(catSound);
@@ -71,6 +78,7 @@
 	}
 
 	function setMenuOpen(open) {
+		scrolling?.stop();
 		status = open;
 		navigator.vibrate?.([60, 120, 40, 300]);
 		playCatSound();
@@ -97,6 +105,7 @@
 	}
 
 	afterNavigate(() => {
+		scrolling?.stop();
 		updateScroll();
 		if (useHandwrittenMenu) closeMenu();
 	});

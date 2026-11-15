@@ -190,7 +190,7 @@
 	.orbit-controls { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:15px 0; font-size:.75rem; letter-spacing:.08em; text-transform:uppercase; }
 	.orbit-stage { position:relative; width:min(100%, 900px); margin:auto; }
 	svg { display:block; width:100%; height:auto; overflow:visible; }
-	.orbit-ring { fill:none; stroke:color-mix(in srgb, var(--fill) 28%, transparent); stroke-width:1; vector-effect:non-scaling-stroke; }
+	.orbit-ring { fill:none; stroke:color-mix(in srgb, var(--fill) 20%, transparent); stroke-width:1; vector-effect:non-scaling-stroke;stroke-dasharray: 1px;}
 	.day-label { fill:var(--fill); font-family:var(--bfont); font-size:9px; letter-spacing:.08em; opacity:.72; }
 	.sun { fill:var(--fill); }
 	.sun-label, .sun-period { fill:var(--bg); font-family:var(--bfont); text-anchor:middle; }
