@@ -1,5 +1,6 @@
 <script>
 	import MusicOrbit from './MusicOrbit.svelte';
+	import Cassette from './Cassette.svelte';
 
 	let { data } = $props();
 
@@ -48,6 +49,8 @@
 		<div><strong>{data.summary.albumCount}</strong><span>albums</span></div>
 		<div><strong>{data.summary.singleCount}</strong><span>singles</span></div>
 	</section>
+
+	<Cassette tracks={data.singles} />
 
 	<section class="chart-section" aria-labelledby="orbit-heading">
 		<div class="section-heading orbit-heading">

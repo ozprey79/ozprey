@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { toCreasedNormals } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
 // Dimensions in scene units. Separate fitted components, not decorative outlines.
@@ -11,7 +12,7 @@ export function buildJewelGeometry(materials) {
  }
  function add(part,name,geometry,material,x=0,y=0,z=0) {
   const m=new THREE.Mesh(geometry,material);m.name=name;m.position.set(x,y,z);
-  m.renderOrder=part==='front-lid'?3:1;parts[part].add(m);return m;
+  parts[part].add(m);return m;
  }
  function rounded(w,h,r) {
   const s=new THREE.Shape(),x=-w/2,y=-h/2;
@@ -21,8 +22,9 @@ export function buildJewelGeometry(materials) {
   s.lineTo(x,y+r);s.quadraticCurveTo(x,y,x+r,y);return s;
  }
  function solid(shape,depth,bevel=.004) {
-  return new THREE.ExtrudeGeometry(shape,{depth,steps:1,curveSegments:48,
+  const geometry=new THREE.ExtrudeGeometry(shape,{depth,steps:1,curveSegments:48,
    bevelEnabled:bevel>0,bevelSegments:3,bevelSize:bevel,bevelThickness:bevel});
+  const smooth=toCreasedNormals(geometry,Math.PI/6);if(smooth!==geometry)geometry.dispose();return smooth;
  }
  function panel(part,name,w,h,r,z,depth) {
   return add(part,name,solid(rounded(w,h,r),depth,.003),glass,0,0,z);
@@ -36,15 +38,16 @@ export function buildJewelGeometry(materials) {
  }
  // The rear pan has a floor, upright walls and a narrow mating ledge.
  panel('rear-shell','rear floor',4.43,3.88,.105,-.143,.022);
- frame('rear-shell','rear upright walls',4.45,3.9,.11,.034,-.12,.19);
+ frame('rear-shell','rear upright walls',4.39,3.84,.11,.034,-.12,.19);
  frame('rear-shell','rear inner mating rebate',4.365,3.815,.085,.018,.04,.025,moulding);
  // The lid is fitted around the rear wall, separated by a real seam.
  panel('front-lid','clear front window',4.42,3.87,.105,.148,.018);
- frame('front-lid','lid downward skirt',4.45,3.9,.11,.026,.077,.068);
+ frame('front-lid','lid downward skirt',4.45,3.9,.11,.026,-.060,.205);
  frame('front-lid','lid polished perimeter bevel',4.415,3.865,.10,.014,.145,.016);
  // An actual open spine channel, with end ribs; no filled solid spine slab.
- for(const x of [-2.055,-1.94])block('rear-shell','spine channel wall',.025,3.59,.18,x,0,-.025);
- for(const y of [-1.76,-1.64,1.64,1.76])block('rear-shell','spine end bridge',.15,.024,.14,-2,y,-.025);
+ for(const x of [-2.135,-1.85])block('rear-shell','spine channel wall',.025,3.59,.18,x,0,-.025);
+ for(const y of [-1.76,-1.64,1.64,1.76])block('rear-shell','spine end bridge',.31,.024,.14,-1.9925,y,-.025);
+ block('rear-shell','wide spine inset web',.285,3.54,.015,-1.9925,0,-.10,glass,.003);
  // Tray perimeter includes four semicircular finger-access cutouts.
  const tray=new THREE.Shape();const left=-1.87,right=2.10,top=1.79,bottom=-1.79;
  tray.moveTo(left,bottom);
@@ -109,18 +112,21 @@ export function buildJewelGeometry(materials) {
  for(const sign of [-1,1])for(let i=0;i<197;i++){
   const x=-2.02+i*.0205;
   if([-1.12,1.25].some(cx=>Math.abs(x-cx)<.16))continue;
-  matrix.makeTranslation(x,sign*1.953,.108);matrices.push(matrix.clone());
+  matrix.makeTranslation(x,sign*1.953,.044);matrices.push(matrix.clone());
  }
- const ribs=new THREE.InstancedMesh(new RoundedBoxGeometry(.005,.007,.063,2,.0015),edge,matrices.length);
+ const ribs=new THREE.InstancedMesh(new RoundedBoxGeometry(.005,.007,.198,2,.0015),edge,matrices.length);
  ribs.name='vertical sidewall microflutes';ribs.renderOrder=3;
  matrices.forEach((m,i)=>ribs.setMatrixAt(i,m));parts['front-lid'].add(ribs);
+ const rearRibs=new THREE.InstancedMesh(new RoundedBoxGeometry(.005,.007,.049,2,.0015),edge,matrices.length);
+ rearRibs.name='rear sidewall microflutes';
+ matrices.forEach((m,i)=>{const t=m.clone();t.elements[13]-=Math.sign(t.elements[13])*.03;t.elements[14]=-.0895;rearRibs.setMatrixAt(i,t);});parts['rear-shell'].add(rearRibs);
  // Nested narrow rails form the long seam, stopping at the radiused corners.
  for(const sign of [-1,1]){
-  for(const z of [.082,.141])block('front-lid','sidewall polished seam rail',4.14,.009,.008,0,sign*1.952,z,edge,.002);
+  for(const z of [-.053,.143])block('front-lid','sidewall polished seam rail',4.14,.009,.008,0,sign*1.952,z,edge,.002);
   for(const x of [-1.12,1.25]){
    // Raised recess border and inset floor; ribbing leaves these bays clear.
-   block('front-lid','latch recess sill',.28,.012,.012,x,sign*1.949,.086,edge,.003);
-   for(const dx of [-.145,.145])block('front-lid','latch recess jamb',.012,.018,.056,x+dx,sign*1.942,.112,edge,.003);
+   block('front-lid','latch recess sill',.28,.012,.012,x,sign*1.949,-.051,edge,.003);
+   for(const dx of [-.145,.145])block('front-lid','latch recess jamb',.012,.018,.191,x+dx,sign*1.942,.0435,edge,.003);
    block('rear-shell','latch inset tongue',.24,.012,.018,x,sign*1.928,.102,moulding,.003);
   }
   // Four shallow stepped grooves at each end of the fluted edge.

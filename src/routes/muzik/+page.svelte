@@ -1,6 +1,7 @@
 <script>
 	import { onMount, tick } from 'svelte';
 	import RotationGauges from '$lib/music_data/RotationGauges.svelte';
+	import DiscoPanel from '$lib/music_data/DiscoPanel.svelte';
 	let viewTransition;
 	let pageElement;
 
@@ -217,6 +218,7 @@
 			<p class="note">Counted plays from {history.length} saved {period} {history.length === 1 ? 'snapshot' : 'snapshots'}.</p>
 		{/if}
 	</section>
+	<DiscoPanel />
 </main>
 
 <style>

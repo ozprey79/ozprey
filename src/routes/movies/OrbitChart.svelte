@@ -205,8 +205,9 @@
 					aria-label={`${item.movie.title}, ${item.movie.runtime || 'unknown'} minutes, watched ${formatDate(item.movie.watchedDate)}${item.fav ? ', favourite' : ''}`}
 					onclick={(event) => onBeadClick(event, item.movie)}
 				>
-					{#if !item.fav}
+					<title>{item.movie.title}</title>
 					<circle class="bead-hit" cx={item.x} cy={item.y} r={narrow ? Math.max(item.r + 4, 14) : Math.max(item.r + 5, 18)} />
+					{#if !item.fav}
 					<circle
 						class:selected={selectedMovie?.id === item.movie.id}
 						class="bead"
@@ -275,11 +276,11 @@
 	.bead-motion { animation:slide-in 760ms cubic-bezier(.2,.8,.2,1) var(--delay) backwards; }
 	.bead-link { cursor:pointer; }
 	.bead-link:focus { outline:none; }
-	.bead-hit { fill:transparent; }
+	.bead-hit { fill:transparent; pointer-events:all; }
 	.bead { fill:var(--fill); opacity:var(--tone, 1); transition:filter 150ms ease, opacity 150ms ease; }
 	.bead.selected, .bead-link:hover .bead, .bead-link:focus .bead { opacity:1; filter:drop-shadow(0 0 8px var(--fill)); }
 	.beadheart { fill:var(--heart); pointer-events:none; }
-	.beadheart.selected { opacity:1; filter:drop-shadow(0 0 8px var(--fill)); }
+	.beadheart.selected, .bead-link:hover .beadheart, .bead-link:focus-visible .beadheart { opacity:1; filter:drop-shadow(0 0 8px var(--fill)); }
      
 	.runtime-legend { display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:8px 12px; margin-top:12px; font-size:.66rem; text-transform:uppercase; }
 	.runtime-key { display:flex; align-items:center; gap:5px; }

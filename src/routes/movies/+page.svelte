@@ -17,6 +17,7 @@
 	async function selectMovie(movie) {
 		selectedMovieId = movie.id;
 		await tick();
+		if (window.matchMedia('(min-width: 1100px)').matches) return;
 		selectedPanel?.scrollIntoView({behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block:'start'});
 	}
 
@@ -63,6 +64,7 @@
 		<p class="summary-note">Watch time excludes {number.format(missingRuntimes)} {missingRuntimes === 1 ? 'film' : 'films'} with no recorded runtime.</p>
 	{/if}
 
+	<div class="film-workspace">
 	<div id="selected-film" bind:this={selectedPanel} style="scroll-margin-top:90px">
 		{#if selectedMovie}
 			<JewelCase movie={selectedMovie} />
@@ -71,11 +73,12 @@
 		{/if}
 	</div>
 
-	<section class="chart-section" aria-labelledby="orbit-heading">
+	<section class="chart-section abacus-panel" aria-labelledby="orbit-heading">
 		<div class="section-heading"><h2 id="orbit-heading">Films</h2></div>
 		<OrbitChart movies={data.movies} {selectedMovie} onselect={selectMovie} />
 	</section>
 
+	</div>
 	<section class="chart-section" aria-labelledby="release-year-title">
 		<div class="section-heading"><h2 id="release-year-title">By year</h2><span>films by release year</span></div>
 		<ReleaseYearChart movies={data.movies} />
@@ -119,6 +122,16 @@
 </main>
 
 <style>
+ .film-workspace { margin-top:46px; }
+ @media(min-width:1100px) {
+  .film-workspace { display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,3vw,48px);align-items:start; }
+  .film-workspace > * { min-width:0; }
+  .film-workspace .abacus-panel { margin-top:0; }
+  .film-workspace :global(.disc-panel) { width:100%;margin:0; }
+  .film-workspace :global(.stage) { height:clamp(330px,31vw,460px); }
+  .film-workspace :global(.disc-panel h2), .abacus-panel h2 { font-size:clamp(42px,4.5vw,70px);margin-top:0; }
+ }
+
 	.film-archive-link { display: inline-block; margin-bottom: 1rem; color: var(--heart); font-size: 1.2rem; text-underline-offset: .2em; }
 	/* Page layout and responsive presentation. */
 
