@@ -193,6 +193,12 @@
 </section>
 
 <style>
+    @font-face {
+        font-family: 'Disc Signature';
+        src: url('../../lib/assets/fonts/Clarity-Signature-BF6aa5046924898.otf') format('opentype');
+        font-weight: 400;
+        font-display: swap;
+    }
     .movie-details {
         font-size: 13px;
         line-height: 1.8;
@@ -266,9 +272,15 @@
         padding-top: 20px;
     }
     footer > span {
-        font-size: 18px;
+        font-family: 'Disc Signature', cursive;
+        font-size: clamp(32px, 3.4vw, 52px);
+        line-height: 1.2;
+        color: var(--heart);
     }
     small {
+        font-family: var(--bfont);
+        color: var(--fill);
+        line-height: 1.5;
         display: block;
         font-size: 11px;
         opacity: 0.55;
