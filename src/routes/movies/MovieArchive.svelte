@@ -1,6 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import DirectorChart from './DirectorChart.svelte';
+	import LanguageFilter from './LanguageFilter.svelte';
 	let { movies: yearMovies } = $props();
 	let period = $state('2026');
 	let allMovies = $state(null);
@@ -44,7 +45,8 @@
 	}
 	let query = $state('');
 	let genre = $state('');
-	let language = $state('');
+	let selectedLanguages = $state([]);
+	let languageMode = $state('include');
 	let decade = $state(null);
 	let selectedYear = $state(null);
 	let director = $state('');
@@ -78,20 +80,25 @@
 	}
 	function clearDecade() { decade = null; selectedYear = null; limit = 24; }
 	function changeLanguage() { director = ''; limit = 24; }
+	function matchesLanguage(movie) {
+		if (!selectedLanguages.length) return true;
+		const selected = selectedLanguages.includes(movie.language);
+		return languageMode === 'exclude' ? !selected : selected;
+	}
 	const directors = $derived.by(() => {
 		const counts = new Map();
-		for (const movie of movies.filter(movie => !language || movie.language === language)) for (const name of new Set(directorsOf(movie))) counts.set(name, (counts.get(name) ?? 0) + 1);
+		for (const movie of movies.filter(matchesLanguage)) for (const name of new Set(directorsOf(movie))) counts.set(name, (counts.get(name) ?? 0) + 1);
 		return [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 10).map(([name, count]) => ({ name, count }));
 	});
 	const visible = $derived(movies.filter(movie =>
 		(!query.trim() || movie.title.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())) &&
-		(!genre || movie.genres.includes(genre)) && (!language || movie.language === language) &&
+		(!genre || movie.genres.includes(genre)) && matchesLanguage(movie) &&
 		(decade === null || (yearOf(movie) >= decade && yearOf(movie) < decade + 10)) &&
 		(selectedYear === null || yearOf(movie) === selectedYear) &&
 		(!director || directorsOf(movie).includes(director))
 	));
 	const missingYears = $derived(movies.filter(movie => !yearOf(movie)).length);
-	function reset() { query = ''; genre = ''; language = ''; decade = null; selectedYear = null; director = ''; limit = 24; }
+	function reset() { query = ''; genre = ''; selectedLanguages = []; languageMode = 'include'; decade = null; selectedYear = null; director = ''; limit = 24; }
 </script>
 
 <div class="archive-panels">
@@ -115,7 +122,8 @@
 		{#if missingYears}<p class="notice">{missingYears} films without a release year remain in the unfiltered list.</p>{/if}
 	</section>
 	<section aria-labelledby="directors-title">
-		<div class="heading"><h2 id="directors-title">Top 10 directors</h2><label class="period">Language <select aria-label="Directors language" bind:value={language} onchange={changeLanguage}><option value="">All languages</option>{#each languages as name}<option value={name}>{name}</option>{/each}</select></label></div>
+		<div class="heading"><h2 id="directors-title">Top 10 directors</h2></div>
+		<div class="director-filters"><LanguageFilter {languages} bind:selected={selectedLanguages} bind:mode={languageMode} label="Director languages" onchange={changeLanguage} /></div>
 		{#if period === 'all' && creditsLoading}<p class="notice" role="status">Loading director credits: {loadedCredits} / {allMovies?.length ?? 0}. Counts are updating.</p>{/if}
 		{#if period === 'all' && creditFailures}<p class="notice">Director counts exclude {creditFailures} films whose credits are unavailable.</p>{/if}
 		<p class="chart-caption">Circle size shows film count · drag to explore</p>
@@ -132,8 +140,8 @@
 	<div class="filters">
 		<input type="search" placeholder="Find a title" aria-label="Find a title" bind:value={query} oninput={() => limit = 24} />
 		<select aria-label="Genre" bind:value={genre} onchange={() => limit = 24}><option value="">All genres</option>{#each genres as name}<option value={name}>{name}</option>{/each}</select>
-		<select aria-label="Language" bind:value={language} onchange={changeLanguage}><option value="">All languages</option>{#each languages as name}<option value={name}>{name}</option>{/each}</select>
-		{#if query || genre || language || decade !== null || director}<button onclick={reset}>Reset filters</button>{/if}
+		<LanguageFilter {languages} bind:selected={selectedLanguages} bind:mode={languageMode} label="List languages" onchange={changeLanguage} />
+		{#if query || genre || selectedLanguages.length || decade !== null || director}<button onclick={reset}>Reset filters</button>{/if}
 	</div>
 	{#if decade !== null || director}
 		<div class="active-filters">
@@ -153,6 +161,7 @@
 </section>
 
 <style>
+	.director-filters { margin-top:16px; }
 	.chart-navigation { display:flex; flex-wrap:wrap; align-items:center; gap:12px; min-height:44px; margin-top:12px; font-size:.85rem; }
 	.chart-navigation button { padding:8px 0; color:var(--heart); text-decoration:underline; text-underline-offset:4px; }
 	.chart-navigation span, .chart-caption { opacity:.7; font-size:.85rem; }
