@@ -11,12 +11,12 @@
 	/>
 </svelte:head>
 
-<main class="blog">
+<!-- <main class="blog">
 	<header class="blog-header">
-		<!-- <div class="eyebrow">
+		<div class="eyebrow">
 			<span>Archive / Writing</span>
 			<span>{data.posts.length.toString().padStart(2, '0')} entries</span>
-		</div> -->
+		</div>
 
 		<h1>
 			<span>NoTES</span>
@@ -70,7 +70,7 @@
 		<a href="/">Return home</a>
 	</footer>
 </main>
-
+ -->
 <style>
 	/* Page layout and responsive presentation. */
 	.blog {

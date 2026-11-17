@@ -1,4 +1,4 @@
-<script>
+<!-- <script>
   import FisheyeSurface from '$lib/about/FisheyeSurface.svelte';
   import { swan } from '$lib/assets/icons/paths.js';
 </script>
@@ -98,4 +98,4 @@
     footer { flex-direction: column; font-size: 9px; }
   }
   @media (prefers-reduced-motion: reduce) { .interests a { transition: none; } }
-</style>
+</style> -->
