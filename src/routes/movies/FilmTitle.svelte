@@ -12,6 +12,8 @@
 	let lettering;
 	let handwriting;
 	let heartStroke;
+	let handwritingBacking;
+	let heartBacking;
 
 	onMount(() => {
 		const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -43,7 +45,7 @@
 				context = gsap.context(() => {
 					gsap.set(letters, { attr: { d: filmInitial } });
 					gsap.set(lettering, { y: 54 });
-					gsap.set([handwriting, heartStroke], { drawSVG: '0%' });
+					gsap.set([handwritingBacking, heartBacking, handwriting, heartStroke], { drawSVG: '0%' });
 					artwork.style.visibility = '';
 					timeline = gsap.timeline({ delay: 0.15, onComplete: oncomplete })
 						.to(lettering, { y: 0, duration: 1.15, ease: 'power2.inOut' })
@@ -59,8 +61,8 @@
 								gsap.set(stage, { clearProps: 'all' });
 							}
 						})
-						.to(handwriting, { drawSVG: '100%', duration: 1.8, ease: 'none' }, '+=0.12')
-						.to(heartStroke, { drawSVG: '100%', duration: 0.28, ease: 'none' });
+						.to([handwritingBacking, handwriting], { drawSVG: '100%', duration: 1.8, ease: 'none' }, '+=0.12')
+						.to([heartBacking, heartStroke], { drawSVG: '100%', duration: 0.28, ease: 'none' });
 				}, heading);
 			} catch (error) {
 				context?.revert();
@@ -86,6 +88,11 @@
 		<g clip-path={`url(#${id}-ground)`}>
 			<g bind:this={lettering}><path bind:this={letters} class="film" d={filmFinal} /></g>
 		</g>
+		<!-- Match the menu's background-coloured backing at 2.8 times the ink width. -->
+		<g class="signature backing">
+			<path bind:this={handwritingBacking} d={signature} stroke-width="7" />
+			<path bind:this={heartBacking} d={heart} stroke-width="3.018848" />
+		</g>
 		<g class="signature">
 			<path bind:this={handwriting} d={signature} />
 			<path bind:this={heartStroke} d={heart} stroke-width="1.07816" />
@@ -101,5 +108,6 @@
 	.presenting svg { width:100%; height:100%; }
 	svg { display:block; width:100%; height:auto; overflow:visible; }
 	.film { fill:var(--filll, var(--fill)); }
-	.signature { fill:none; stroke:var(--heart); stroke-width:1; stroke-linecap:round; stroke-linejoin:round; }
+	.signature { fill:none; stroke:var(--heart); stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+	.backing { stroke:var(--bg); }
 </style>
