@@ -1,8 +1,8 @@
 /* Shared palette and typography. */
 :root{
-	--fill:rgb(233, 63, 245);
+	--fill:rgb(217, 193, 219);
 	--bg:#181818;
-	--heart:rgb(255, 247, 0);
+	--heart:red;
   --bgdot: rgba(49, 49, 49, 0.788);
   --mfont: "Melodrama", serif;
   --bfont: "Familjen Grotesk", sans-serif;
