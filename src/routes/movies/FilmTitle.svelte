@@ -81,9 +81,9 @@
 
 <h1 bind:this={heading} aria-label="Film archive">
 	<div bind:this={stage} class="stage" class:presenting>
-	<svg bind:this={artwork} viewBox="33 80 140 59" aria-hidden="true">
+	<svg bind:this={artwork} viewBox="36 80 148 59" aria-hidden="true">
 		<defs>
-			<clipPath id={`${id}-ground`}><rect x="33" y="80" width="140" height="53.822" /></clipPath>
+			<clipPath id={`${id}-ground`}><rect x="36" y="80" width="148" height="53.822" /></clipPath>
 		</defs>
 		<g clip-path={`url(#${id}-ground)`}>
 			<g bind:this={lettering}><path bind:this={letters} class="film" d={filmFinal} /></g>
@@ -102,7 +102,7 @@
 </h1>
 
 <style>
-	h1 { width:min(100%, 620px); aspect-ratio:140 / 59; margin:0 auto clamp(32px, 5vw, 64px); line-height:0; }
+	h1 { width:min(100%, 620px); aspect-ratio:148 / 59; margin:0 auto clamp(32px, 5vw, 64px); line-height:0; }
 	.stage { width:100%; height:100%; }
 	.stage.presenting { position:fixed; z-index:20; left:0; top:0; width:100vw; height:100dvh; box-sizing:border-box; padding:32px; pointer-events:none; }
 	.presenting svg { width:100%; height:100%; }
