@@ -1,7 +1,9 @@
 <script>
-  import { onMount } from 'svelte';
-  import { blogInk } from './assets/blogInk.js';
-  import { filmsInk } from './assets/filmsInk.js';
+  import { onMount, tick } from 'svelte';
+  import aboutSvg from '$lib/assets/source-art/menu/about.svg?raw';
+  import filmsSvg from '$lib/assets/source-art/menu/ldataviz.svg?raw';
+  import blogSvg from '$lib/assets/source-art/menu/log1.svg?raw';
+  import { readMenuSvg } from './readMenuSvg.js';
 
   let { open = false } = $props();
   let nav;
@@ -9,22 +11,15 @@
   let reduced = $state(false);
   let fallback = $state(false);
 
-  const links = [
-    {
-      label: 'About', href: '/about', viewBox: '135 72 427 291', weight: 5.5,
-      strokes: [
-        'M259 348 C261 312 264 246 271 219 C275 204 281 205 286 222 C291 243 298 285 307 306',
-        'M 327.84601,258.79491 C 329.06677,256.57256 333.43788,252.91597 342,255 c 15,5 -2,31 -10,24 -8,-6 -6,-45 -6,-89 0,-26 8,-41 19,-37 16,4 18,32 4,47 -9,11 -19,18 -30,25',
-        'M369 246 C360 242 354 254 357 258 C362 264 373 256 368 247 M375 243 C385 257 389 226 398 230 C409 242 412 219 416 196 L419 183',
-        'm 411,120 c -4,22 1,56 13,79 9,19 26,24 36,9 6,-7 6,-17 1,-20',
-        'M151 346 C218 284 302 228 370 179 M374 194 C381 202 403 169 434 148 C468 124 514 105 545 86'
-      ]
-    },
-    { label: 'Films', href: '/movies', ...filmsInk },
-    { label: 'Blog', href: '/blog', ...blogInk }
+  let links = $state([]);
+  const artwork = [
+    { label: 'About', href: '/about', source: aboutSvg },
+    { label: 'Films', href: '/movies', source: filmsSvg },
+    { label: 'Blog', href: '/blog', source: blogSvg }
   ];
 
   onMount(() => {
+    links = artwork.map(({ source, ...link }) => ({ ...link, ...readMenuSvg(source) }));
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const updateMotion = () => { reduced = motion.matches; };
     updateMotion();
@@ -35,6 +30,8 @@
 
     async function prepareInk() {
       try {
+        await tick();
+        if (disposed) return;
         const [{ gsap }, { DrawSVGPlugin }] = await Promise.all([
           import('gsap'),
           import('gsap/DrawSVGPlugin')
@@ -55,7 +52,7 @@
             let start = index * 0.18;
 
             for (const [stroke, path] of foreground.entries()) {
-              const duration = writingTime * lengths[stroke] / total;
+              const duration = writingTime * lengths[stroke] / (total || 1);
               ink.to([backing[stroke], path], { drawSVG: '100%', duration }, start);
               start += duration;
             }

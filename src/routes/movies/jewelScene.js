@@ -143,9 +143,9 @@ export async function createJewelScene(host) {
  contactRing(1.76,1.86,-.012,.38);contactRing(.15,.38,.028,.25);
  const discX=.12;
  const discProfile=[new THREE.Vector2(.35,-.018),new THREE.Vector2(1.778,-.018),new THREE.Vector2(1.78,-.013),new THREE.Vector2(1.78,.022),new THREE.Vector2(1.776,.025),new THREE.Vector2(.35,.025),new THREE.Vector2(.35,-.018)];
- const discBody=mesh(new THREE.LatheGeometry(discProfile,192),silver,discX,0,0);discBody.rotation.x=Math.PI/2;
+ const discBody=mesh(new THREE.LatheGeometry(discProfile,256),silver,discX,0,0);discBody.rotation.x=Math.PI/2;
 
- const disc=mesh(new THREE.RingGeometry(.35,1.78,128),new THREE.MeshPhysicalMaterial({color:0xffffff,roughness:.3,metalness:.48,clearcoat:1,clearcoatRoughness:.22,iridescence:.72,iridescenceIOR:1.45,iridescenceThicknessRange:[180,420],envMapIntensity:.65,side:THREE.FrontSide}),discX,0,.028);
+ const disc=mesh(new THREE.RingGeometry(.51,1.755,256),new THREE.MeshPhysicalMaterial({color:0xffffff,roughness:.48,metalness:.04,clearcoat:.38,clearcoatRoughness:.3,iridescence:.08,iridescenceIOR:1.45,iridescenceThicknessRange:[180,420],envMapIntensity:.4,side:THREE.FrontSide}),discX,0,.028);
  // Fine concentric machining, with mipmaps to keep distant grooves stable.
  const brushSize=1024,brushData=new Uint8Array(brushSize*brushSize*4);
  for(let y=0;y<brushSize;y++)for(let x=0;x<brushSize;x++){
@@ -156,7 +156,7 @@ export async function createJewelScene(host) {
  const brush=new THREE.DataTexture(brushData,brushSize,brushSize);
  brush.generateMipmaps=true;brush.minFilter=THREE.LinearMipmapLinearFilter;brush.magFilter=THREE.LinearFilter;
  brush.anisotropy=renderer.capabilities.getMaxAnisotropy();brush.needsUpdate=true;
- disc.material.bumpMap=brush;disc.material.bumpScale=.0015;
+ disc.material.bumpMap=brush;disc.material.bumpScale=.00022;
  // Radial diffraction tint follows the viewing angle and disc azimuth.
  // Apply to the printed disc shader, so the effect stays on its actual surface.
  const discCameraLocal=new THREE.Vector3();
@@ -183,20 +183,27 @@ export async function createJewelScene(host) {
   `);
   shader.fragmentShader=shader.fragmentShader.replace('#include <lights_fragment_end>',`
    #include <lights_fragment_end>
-   vec3 spectralTint=mix(vec3(1.0),spectrum*1.6,fan*mask*.65);
+   vec3 spectralTint=mix(vec3(1.0),spectrum*1.6,fan*mask*.16);
    reflectedLight.indirectSpecular*=spectralTint;
    reflectedLight.directSpecular*=spectralTint;
   `);
  };
- disc.material.customProgramCacheKey=()=> 'disc-brushed-reflected-spectrum-v3';
+ disc.material.customProgramCacheKey=()=> 'disc-printed-reflected-spectrum-v4';
  // Planar UVs across the disc, rather than the polar UVs of RingGeometry.
  const pos=disc.geometry.attributes.position,uv=disc.geometry.attributes.uv;
  for(let i=0;i<pos.count;i++) uv.setXY(i,pos.getX(i)/3.56+.5,pos.getY(i)/3.56+.5);
- const discRim=mesh(new THREE.TorusGeometry(1.78,.009,8,128),silver,discX,0,.015);
+ // Exposed metal and concentric moulded rings read separately from printed ink.
+ const discRim=mesh(new THREE.TorusGeometry(1.776,.006,12,256),silver,discX,0,.019);
+ const hubPlastic=new THREE.MeshPhysicalMaterial({color:0xc6cbd0,metalness:.12,roughness:.2,clearcoat:1,clearcoatRoughness:.12,envMapIntensity:.65});
+ const hubMirror=new THREE.MeshPhysicalMaterial({color:0xd2d6da,metalness:.9,roughness:.19,envMapIntensity:.8,iridescence:.25,iridescenceThicknessRange:[220,340]});
+ const hubWindow=mesh(new THREE.RingGeometry(.35,.465,256),hubPlastic,discX,0,.028);
+ const hubBand=mesh(new THREE.RingGeometry(.465,.51,256),hubMirror,discX,0,.029);
+ const hubInnerLip=mesh(new THREE.TorusGeometry(.353,.005,10,256),hubPlastic,discX,0,.03);
+ const hubOuterLip=mesh(new THREE.TorusGeometry(.49,.003,8,256),hubPlastic,discX,0,.032);
  // Move the whole physical disc together, leaving the spindle in the tray.
  const floatingDisc=new THREE.Group();floatingDisc.name='lift-out disc';floatingDisc.position.set(discX,0,0);model.add(floatingDisc);
  model.updateMatrixWorld(true);
- for(const part of [discBody,disc,discRim])floatingDisc.attach(part);
+ for(const part of [discBody,disc,discRim,hubWindow,hubBand,hubInnerLip,hubOuterLip])floatingDisc.attach(part);
  const label=document.createElement('canvas');label.width=2048;label.height=1200;const c=label.getContext('2d');c.scale(2,2);
  const paper=document.createElement('canvas');paper.width=1024;paper.height=600;
  const pc=paper.getContext('2d');let seed=41;
@@ -252,9 +259,24 @@ export async function createJewelScene(host) {
    if(!alive||request!==artworkRequest)return;
    const canvas=document.createElement('canvas');canvas.width=2048;canvas.height=2048;const ctx=canvas.getContext('2d');ctx.scale(2,2);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
    ctx.fillStyle='#28313b';ctx.fillRect(0,0,1024,1024);
-   if(img){const side=Math.min(img.naturalWidth,img.naturalHeight);ctx.drawImage(img,(img.naturalWidth-side)/2,(img.naturalHeight-side)*.3,side,side,0,0,1024,1024);}
-   const shade=ctx.createLinearGradient(0,0,0,400);shade.addColorStop(0,'rgba(0,0,0,.85)');shade.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=shade;ctx.fillRect(0,0,1024,400);
-   ctx.fillStyle='#fff3e5';ctx.textAlign='center';fittedText(ctx,info.title,512,230,740,62);ctx.font='28px Arial';ctx.fillText(info.year,512,282);
+   if(img){
+    // Cover the image area directly from the original, without a low-res intermediate.
+    const ratio=1024/756;
+    const width=Math.min(img.naturalWidth,img.naturalHeight*ratio),height=width/ratio;
+    ctx.drawImage(img,(img.naturalWidth-width)/2,(img.naturalHeight-height)*.3,width,height,0,0,1024,756);
+   }
+   ctx.fillStyle='#e4dfd3';ctx.fillRect(0,756,1024,268);
+   // Subtle deterministic ink/paper variation, not a coarse machining texture.
+   let grainSeed=31;
+   for(let i=0;i<16000;i++){
+    grainSeed=(Math.imul(grainSeed,1664525)+1013904223)>>>0;const x=grainSeed/4294967296*1024;
+    grainSeed=(Math.imul(grainSeed,1664525)+1013904223)>>>0;const y=756+grainSeed/4294967296*268;
+    ctx.fillStyle=i%2?'rgba(255,255,255,.09)':'rgba(50,40,30,.035)';ctx.fillRect(x,y,.7,.7);
+   }
+   ctx.fillStyle='#242320';ctx.textAlign='center';
+   fittedText(ctx,info.title,512,836,690,76,'normal',titleFont);
+   ctx.fillStyle='#666257';fittedText(ctx,info.director,512,882,550,22,'normal');
+   ctx.font='18px Arial';ctx.fillText(`${info.year}  /  ${info.runtime}`,512,916);
    const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;texture.generateMipmaps=true;texture.minFilter=THREE.LinearMipmapLinearFilter;texture.anisotropy=renderer.capabilities.getMaxAnisotropy();
    disc.material.map?.dispose();disc.material.map=texture;disc.material.color.set(0xffffff);disc.material.needsUpdate=true;
   }

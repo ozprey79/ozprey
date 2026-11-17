@@ -1,8 +1,10 @@
 <script>
 	import { onMount } from 'svelte';
+	import { reveal, drawRules } from './reveal.js';
 	import DirectorChart from './DirectorChart.svelte';
 	import LanguageFilter from './LanguageFilter.svelte';
 	let { movies: yearMovies } = $props();
+	const chartId = $props.id();
 	let period = $state('2026');
 	let allMovies = $state(null);
 	let loading = $state(false);
@@ -103,7 +105,7 @@
 
 <div class="archive-panels">
 	<section aria-labelledby="decades-title">
-		<div class="heading"><h2 id="decades-title">{decade === null ? 'Release decades' : `${decade}s by year`}</h2><label class="period">Collection <select aria-label="Collection period" bind:value={period} onchange={changePeriod}><option value="2026">Year 2026</option><option value="all">All time</option></select></label></div>
+		<div use:drawRules class="heading"><h2 use:reveal id="decades-title">{decade === null ? 'Release decades' : `${decade}s by year`}</h2><label class="period">Collection <select aria-label="Collection period" bind:value={period} onchange={changePeriod}><option value="2026">Year 2026</option><option value="all">All time</option></select></label></div>
 		<div class="chart-navigation">
 			{#if decade !== null}<button onclick={clearDecade}>← All decades</button><span>Select a year to filter the list</span>
 			{:else}<span>Select a decade to explore its years</span>{/if}
@@ -113,7 +115,21 @@
 				{#each chartBins as [year, count]}
 					<button class="column" class:muted={selectedYear !== null && selectedYear !== year} aria-pressed={selectedYear === year}
 						aria-label={`${year}${decade === null ? 's' : ''}: ${count} films`} onclick={() => selectBin(year)}>
-						<span class="plot"><span class="stem" class:empty={count === 0} style:height={`${count / peak * 100}%`}><span class="count">{count}</span></span></span>
+						<span class="plot"><span class="stem" class:empty={count === 0} style:height={`${count / peak * 100}%`}>
+							{#if count > 0}
+								<svg class="bar-fill" width="100%" height="100%" aria-hidden="true">
+									<defs>
+										<linearGradient id={`${chartId}-bar-${year}`} x1="0%" x2="100%" y1="0%" y2="0%">
+											<stop offset="0%" stop-color="var(--fill, #ffc0ec)" />
+											<stop offset="40%" stop-color="var(--fill, #ffc0ec)" />
+											<stop offset="100%" stop-color="black" />
+										</linearGradient>
+									</defs>
+									<rect width="100%" height="100%" fill={`url(#${chartId}-bar-${year})`} />
+								</svg>
+							{/if}
+							<span class="count">{count}</span>
+						</span></span>
 						<span class="tick">{year}{decade === null ? 's' : ''}</span>
 					</button>
 				{/each}
@@ -122,22 +138,21 @@
 		{#if missingYears}<p class="notice">{missingYears} films without a release year remain in the unfiltered list.</p>{/if}
 	</section>
 	<section aria-labelledby="directors-title">
-		<div class="heading"><h2 id="directors-title">Top 10 directors</h2></div>
-		<div class="director-filters"><LanguageFilter {languages} bind:selected={selectedLanguages} bind:mode={languageMode} label="Director languages" onchange={changeLanguage} /></div>
+		<div use:drawRules class="heading directors-heading"><h2 use:reveal id="directors-title">Top 10 directors</h2><LanguageFilter compact {languages} bind:selected={selectedLanguages} bind:mode={languageMode} label="Director languages" onchange={changeLanguage} /></div>
 		{#if period === 'all' && creditsLoading}<p class="notice" role="status">Loading director credits: {loadedCredits} / {allMovies?.length ?? 0}. Counts are updating.</p>{/if}
 		{#if period === 'all' && creditFailures}<p class="notice">Director counts exclude {creditFailures} films whose credits are unavailable.</p>{/if}
-		<p class="chart-caption">Circle size shows film count · drag to explore</p>
+		<p class="chart-caption">Node size shows film count · drag to explore</p>
 		<DirectorChart {directors} selected={director} onselect={(name) => { director = director === name ? '' : name; limit = 24; }} />
 	</section>
 </div>
 <section class="collection" aria-labelledby="index-title">
-	<div class="heading"><h2 id="index-title">The list</h2><p aria-live="polite">{visible.length} of {movies.length} films</p></div>
+	<div use:drawRules class="heading"><h2 use:reveal id="index-title">The list</h2><p aria-live="polite">{visible.length} of {movies.length} films</p></div>
 	{#if period === 'all'}
 		{#if loading}<p class="notice" role="status">Loading heyWatched…</p>{/if}
 		{#if stale}<p class="notice">Showing the last available heyWatched list.</p>{/if}
 		{#if loadError}<p class="notice" role="status">{loadError} <button onclick={loadAllTime}>Retry</button></p>{/if}
 	{/if}
-	<div class="filters">
+	<div use:reveal class="filters">
 		<input type="search" placeholder="Find a title" aria-label="Find a title" bind:value={query} oninput={() => limit = 24} />
 		<select aria-label="Genre" bind:value={genre} onchange={() => limit = 24}><option value="">All genres</option>{#each genres as name}<option value={name}>{name}</option>{/each}</select>
 		<LanguageFilter {languages} bind:selected={selectedLanguages} bind:mode={languageMode} label="List languages" onchange={changeLanguage} />
@@ -151,9 +166,9 @@
 		</div>
 	{/if}
 	{#if visible.length}
-		<ul class="index">
+		<ul use:drawRules class="index">
 			{#each visible.slice(0, limit) as movie (movie.id)}
-				<li><a href={movie.url} target="_blank" rel="noreferrer"><span class="dot" aria-hidden="true">◐</span><span class="title">{movie.title}</span><span class="language">{movie.language}</span><span class="year">{yearOf(movie) ?? '—'}</span><span aria-hidden="true">↗</span></a></li>
+				<li><a use:drawRules href={movie.url} target="_blank" rel="noreferrer"><span class="dot" aria-hidden="true">◐</span><span use:reveal={{ distance: 24, duration: 650 }} class="title">{movie.title}</span><span class="language">{movie.language}</span><span class="year">{yearOf(movie) ?? '—'}</span><span aria-hidden="true">↗</span></a></li>
 			{/each}
 		</ul>
 		{#if limit < visible.length}<button class="more" onclick={() => limit += 24}>Show more titles</button>{/if}
@@ -161,7 +176,8 @@
 </section>
 
 <style>
-	.director-filters { margin-top:16px; }
+	.directors-heading { flex-wrap:nowrap; align-items:center; gap:12px; }
+	.directors-heading h2 { min-width:0; font-size:clamp(1.8rem,2.8vw,3rem); }
 	.chart-navigation { display:flex; flex-wrap:wrap; align-items:center; gap:12px; min-height:44px; margin-top:12px; font-size:.85rem; }
 	.chart-navigation button { padding:8px 0; color:var(--heart); text-decoration:underline; text-underline-offset:4px; }
 	.chart-navigation span, .chart-caption { opacity:.7; font-size:.85rem; }
@@ -182,12 +198,15 @@
 	.column.muted { opacity:.4; }
 	.column[aria-pressed="true"] { color:var(--heart); }
 	.plot { display:flex; align-items:end; justify-content:center; height:270px; padding-top:28px; border-bottom:1px solid color-mix(in srgb,currentColor 30%,transparent); }
-	.stem { position:relative; display:block; width:14px; min-height:3px; border:1px solid var(--heart); background:linear-gradient(90deg,var(--heart) 50%,transparent 50%); }
+	.stem { position:relative; display:block; width:14px; min-height:3px; border:1px solid var(--fill); }
+	.bar-fill { display:block; }
 	.count { position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%); font-size:.9rem; }
 	.tick { display:block; padding-top:12px; font-size:.8rem; }
 	.collection { margin-top:64px; }
 	.filters { display:flex; flex-wrap:wrap; gap:10px; margin:24px 0 16px; }
 	.filters > *, .more, .active-filters button { min-height:44px; padding:10px 14px; border:1px solid color-mix(in srgb,currentColor 30%,transparent); }
+	.filters > input, .filters > select, .filters > button, .period select { border-radius:12px; }
+	.active-filters button { border-radius:999px; }
 	.filters input { flex:1 1 220px; min-width:0; }
 	select { max-width:100%; }
 	option { background:var(--bg); color:var(--fill); }

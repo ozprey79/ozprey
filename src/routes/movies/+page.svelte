@@ -1,17 +1,20 @@
 <script>
 	import { tick } from 'svelte';
+	import { reveal, drawRules } from './reveal.js';
 	import OrbitChart from './OrbitChart.svelte';
 	import MovieArchive from './MovieArchive.svelte';
 	import JewelCase from './JewelCase.svelte';
+	import FilmTitle from './FilmTitle.svelte';
 
 	let { data } = $props();
+	let titleComplete = $state(false);
 
 	let selectedMovieId = $state(null);
 	const latestMovie = $derived(data.movies.reduce((latest, movie) =>
 		movie.watchedDate && (!latest?.watchedDate || movie.watchedDate >= latest.watchedDate)
 			? movie : latest, null) ?? data.movies.at(-1) ?? null);
 	const selectedMovie = $derived(data.movies.find(movie => movie.id === selectedMovieId) ?? latestMovie);
-	let selectedPanel;
+	let selectedPanel = $state();
 	async function selectMovie(movie) {
 		selectedMovieId = movie.id;
 		await tick();
@@ -25,15 +28,16 @@
 </script>
 
 <svelte:head>
-	<title>Films — Ozprey</title>
+	<title>Films</title>
 	<meta name="description" content="A film journal in watched films and hours." />
 </svelte:head>
 
 <main class="movies-page">
-    <h1 id="ttl">Films Archived</h1>
-	<dl class="summary" aria-label="Watching totals">
-		<div><dt>Films watched</dt><dd>{number.format(data.movies.length)}</dd></div>
-		<div><dt>Total watch hours</dt><dd>{data.movies.length && missingRuntimes === data.movies.length ? 'Unavailable' : `${number.format(totalWatchHours)}h`}</dd></div>
+	<FilmTitle oncomplete={() => titleComplete = true} />
+	{#if titleComplete}
+	<dl use:drawRules class="summary" aria-label="Watching totals">
+		<div use:reveal><dt>Films watched</dt><dd>{number.format(data.movies.length)}</dd></div>
+		<div use:reveal><dt>Total watch hours</dt><dd>{data.movies.length && missingRuntimes === data.movies.length ? 'Unavailable' : `${number.format(totalWatchHours)}h`}</dd></div>
 	</dl>
 	{#if missingRuntimes}
 		<p class="summary-note">Watch time excludes {number.format(missingRuntimes)} {missingRuntimes === 1 ? 'film' : 'films'} with no recorded runtime.</p>
@@ -49,16 +53,16 @@
 	</div>
 
 	<section class="chart-section abacus-panel" aria-labelledby="orbit-heading">
-		<div class="section-heading"><h2 id="orbit-heading">Films</h2></div>
+		<div use:drawRules class="section-heading"><h2 use:reveal id="orbit-heading">Films</h2></div>
 		<OrbitChart movies={data.movies} {selectedMovie} onselect={selectMovie} />
 	</section>
 
 	</div>
 	<MovieArchive movies={data.movies} />
+	{/if}
 </main>
 
 <style>
- #ttl{ margin: auto; margin-top: 70px; font-size: 15vh;justify-content: center;}
  .film-workspace { margin-top:46px; }
  @media(min-width:1100px) {
   .film-workspace { display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);gap:clamp(24px,3vw,48px);align-items:start; }

@@ -1,4 +1,5 @@
 <script>
+    import { reveal, drawRules } from "./reveal.js";
     import { onMount } from "svelte";
     let { movie } = $props();
     let host;
@@ -128,12 +129,12 @@
 </script>
 
 <section class="disc-panel" aria-labelledby="disc-heading">
-    <header>
+    <header use:drawRules>
         <div>
-            <p class="eyebrow">FROM THE COLLECTION / {movie.id}</p>
-            <h2 id="disc-heading">On disc.</h2>
+        
+            <h2 use:reveal id="disc-heading">On playing</h2>
         </div>
-        <span class="edition">THE JEWEL CASE EDITION</span>
+     
     </header>
     <div
         class="stage"
@@ -160,27 +161,35 @@
                 />{/if}{/if}
     </div>
     <div class="movie-details" aria-live="polite">
-        <p>
-            {movie.genres?.join(" · ") || "Genre unavailable"} · {movie.language ||
-                "Language unknown"}
-        </p>
-        <p>
+        
+        <!-- <p>
             Watched: {movie.watchedDate || "Not recorded"} · Your rating: {movie.personalRating !=
             null
                 ? `${movie.personalRating}/10`
                 : "Not rated"}{movie.favorite ? " · Favourite" : ""}
-        </p>
+        </p> -->
         <!-- <a href={movie.url} target="_blank" rel="noreferrer">View on TMDB ↗</a> -->
     </div>
-    <footer>
-        <span
+    <footer use:drawRules>
+        <span use:reveal
             >{movie.title}<small
                 >{movie.director || "Director unavailable"} · {movie.releaseDate?.slice(
                     0,
                     4,
                 ) || "Year unknown"} · {movie.runtime
                     ? `${movie.runtime} min`
-                    : "Runtime unknown"}</small
+                    : "Runtime unknown"}
+                    
+                     <p>
+            Watched: {movie.watchedDate || "Not recorded"} · Your rating: {movie.personalRating !=
+            null
+                ? `${movie.personalRating}/10`
+                : "Not rated"}{movie.favorite ? " · Favourite" : ""}
+        </p>
+                  <p>
+            {movie.genres?.join(" · ") || "Genre unavailable"} · {movie.language ||
+                "Language unknown"}
+        </p>  </small
             ></span
         >
         <!-- <div>
@@ -268,7 +277,7 @@
         justify-content: space-between;
         align-items: center;
         gap: 20px;
-        border-top: 1px solid #ffffff26;
+        border-bottom: 1px solid #ffffff26;
         padding-top: 20px;
     }
     footer > span {
