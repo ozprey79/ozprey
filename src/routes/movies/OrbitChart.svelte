@@ -11,7 +11,8 @@
 	// Wide screens: 12 vertical rods, day runs top → bottom.
 	// Phones: the same abacus turned on its side, 12 horizontal rods, day runs left → right.
 	const WIDE = { w: 1000, h: 700, vertical: true, crossStart: 70, crossEnd: 930, alongStart: 48, alongEnd: 652, cap: 9 };
-	const NARROW = { w: 400, h: 760, vertical: false, crossStart: 36, crossEnd: 724, alongStart: 22, alongEnd: 378, cap: 7 };
+	// Half the mobile row pitch, retaining the original bead sizes and end padding.
+	const NARROW = { w: 400, h: 416, vertical: false, crossStart: 36, crossEnd: 380, alongStart: 22, alongEnd: 378, cap: 7 };
 	const NARROW_BELOW = 600; // px width of the chart container
 	const BEAD_GAP = 2;
 
@@ -295,8 +296,10 @@
 	@keyframes slide-in { from { transform:translate(var(--fx), var(--fy)); } to { transform:translate(0, 0); } }
 
 	@media (max-width:650px) {
-		.abacus-controls { align-items:flex-start; flex-direction:column; }
-		.runtime-legend { justify-content:center; }
+		.abacus-controls { align-items:flex-start; flex-direction:column; font-size:.7rem; }
+		.abacus-controls select { font-size:inherit; }
+		.runtime-legend { justify-content:center; font-size:.62rem; }
+		.empty-state, .undated { font-size:.68rem; }
 	}
 	@media (prefers-reduced-motion:reduce) {
 		.bead-motion { animation:none; }
