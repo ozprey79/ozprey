@@ -1,6 +1,7 @@
 <script>
 	import { forceSimulation, forceCollide, forceX, forceY } from 'd3-force';
-	let { directors, selected = '', onselect = () => {} } = $props();
+	import { fishEntrance } from './abacusEntrance.js';
+	let { directors, selected = '', showNames = false, onselect = () => {} } = $props();
 	let nodes = $state([]);
 	const shapeId = $props.id();
 	// Left-facing fish silhouette, mirrored from the reference; palette stays theme-driven.
@@ -61,32 +62,20 @@
 	<svg bind:this={svg} viewBox="0 0 600 370" role="group" aria-label="Top ten directors by film count. Select to filter the list, or drag the shapes.">
 		<defs>
 			<clipPath id={`${shapeId}-clip`} clipPathUnits="objectBoundingBox"><path d={nodeShape} transform="scale(0.00390625)" /></clipPath>
-			<linearGradient id={`${shapeId}-gradient`} x1="0%" y1="0%" x2="100%" y2="15%">
-				<stop offset="0%" stop-color="var(--heart)" />
-				<stop offset="40%" stop-color="color-mix(in srgb, var(--heart) 48%, var(--bg))" />
-				<stop offset="100%" stop-color="var(--bg)" />
-			</linearGradient>
-			<filter id={`${shapeId}-grain`} x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
-				<feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="3" seed="12" result="noise" />
-				<feColorMatrix in="noise" type="saturate" values="0" result="mono" />
-				<feComponentTransfer in="mono" result="grain">
-					<feFuncA type="linear" slope=".35" />
-				</feComponentTransfer>
-				<feBlend in="SourceGraphic" in2="grain" mode="soft-light" result="textured" />
-				<feComposite in="textured" in2="SourceAlpha" operator="in" />
-			</filter>
 		</defs>
-		{#each nodes as node (node.name)}
+		{#each nodes as node, index (node.name)}
 			<g class="director-node" class:active={selected === node.name} transform={`translate(${node.x - node.r} ${node.y - node.r})`}>
-				<path class="node-surface" d={`${nodeShape} ${fishEye}`} fill-rule="evenodd" transform={`scale(${node.r * 2 / 256})`} fill={`url(#${shapeId}-gradient)`} filter={`url(#${shapeId}-grain)`} />
+				<g class="fish-motion" use:fishEntrance={index}>
+				<path class="node-surface" d={`${nodeShape} ${fishEye}`} fill-rule="evenodd" transform={`scale(${node.r * 2 / 256})`} />
 
 			<foreignObject width={node.r * 2} height={node.r * 2} clip-path={`url(#${shapeId}-clip)`}>
-				<button style:--label-size={`${Math.max(9, Math.min(13, node.r / 5))}px`} style:--count-size={`${Math.max(14, Math.min(24, node.r / 3))}px`} class:active={selected === node.name} aria-pressed={selected === node.name} aria-label={`${node.name}: ${node.count} films`}
+				<button class="fish-button" style:--label-size={`${Math.max(9, Math.min(13, node.r / 5))}px`} style:--count-size={`${Math.max(14, Math.min(24, node.r / 3))}px`} class:active={selected === node.name} aria-pressed={selected === node.name} aria-label={`${node.name}: ${node.count} films`}
 					onpointerdown={event => start(event, node.name)} onpointermove={move} onpointerup={end} onpointercancel={end} onlostpointercapture={end}
 					onclick={event => { if (!suppressClick || event.detail === 0) onselect(node.name); suppressClick = false; }}>
-					<span>{node.name}</span><strong>{node.count}</strong>
+					{#if showNames}<span>{node.name}</span>{/if}<strong>{node.count}</strong>
 				</button>
 			</foreignObject>
+				</g>
 			</g>
 		{/each}
 	</svg>
@@ -94,13 +83,14 @@
 
 <style>
 	svg { display:block; width:100%; overflow:visible; margin-top:12px; }
-	button { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; width:100%; height:100%; padding:0 26% 0 12%; margin:0; border:0; border-radius:0; background:transparent; color:var(--fill); cursor:grab; touch-action:none; user-select:none; font-family:var(--bfont); text-shadow:0 1px 3px #000,0 0 5px #0008; }
-	button:active { cursor:grabbing; }
-	button:hover, button:focus-visible, button.active { color:var(--fill); background:transparent; }
-	.node-surface { stroke:var(--fill); pointer-events:none; opacity:.8; }
-	.director-node:hover .node-surface, .director-node:focus-within .node-surface, .director-node.active .node-surface { opacity:1; }
+	.fish-motion { visibility:hidden; }
+	@media (prefers-reduced-motion:reduce) { .fish-motion { visibility:visible; } }
+	.fish-button { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; width:100%; height:100%; padding:0 26% 0 12%; margin:0; border:0; border-radius:0; background:transparent; color:var(--bg); cursor:grab; touch-action:none; user-select:none; font-family:var(--bfont); }
+	.fish-button:active { cursor:grabbing; }
+	.fish-button:hover, .fish-button:focus-visible, .fish-button.active { color:var(--bg); background:transparent; }
+	.node-surface { stroke:none; fill:var(--heart); pointer-events:none; }
 	.director-node:focus-within span, .director-node.active span { text-decoration:underline; text-underline-offset:3px; }
-	button:focus-visible { outline:none; }
+	.fish-button:focus-visible { outline:none; }
 	span { color:inherit; font-size:var(--label-size,13px); line-height:1.1; text-align:center; overflow-wrap:anywhere; }
 	strong { font-size:var(--count-size,25px); line-height:1; font-weight:400; font-variant-numeric:tabular-nums; }
 	p { margin-top:24px; opacity:.7; }

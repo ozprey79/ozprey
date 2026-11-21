@@ -40,9 +40,9 @@
 <div class="grid">
   <div class="cells">
 
-    <div class="topicons" id="titl"></div>
+    <div class="topicons"><span id="titl">helo</span></div>
 
-    <div class="topicons"></div>
+    <div class="topicons">eik</div>
   </div>
 
   <div class="cells">
@@ -59,37 +59,21 @@
 
   <div class="cells">
     <div class="bottomicons">
-      <p>Designer</p>
-      <a href="/movies"><p class="wt">Dark Clouds</p></a>
-
-      <p>Touch</p>
-      <p>Monsoon</p>
-      <p>Desert</p>
-    </div>
-
-    <button class="seven">
-      <p id="qt"></p>
-    </button>
-
-    <div class="bottomicons">
-      <!-- <p class="wt">Delicate</p>
-      <a href="/music"><p class="wt">D</p></a>
-      <p>Calligrapher</p>
-      <p>Archivist</p>
-      <p>Nobody</p> -->
+    
     </div>
   </div>
 </div>
 
 <style>
   /* Keep the central wall flexible between the header and animated footer. */
-  .grid {
+   *{border:0px solid red;}
+    .grid {
     height: 100%;
     width: 100%;
     overflow: hidden;
 
     display: grid;
-    grid: clamp(57px, 15vmin, 100px) minmax(0, 1fr) 12vmin / minmax(0, 1fr);
+    grid: clamp(57px, 8vmin, 100px) minmax(0, 1fr) 8vmin / minmax(0, 1fr);
   }
   .grid > * {
     min-width: 0;
@@ -122,6 +106,10 @@
   }
 
   #titl {
+    display: flex;
+    margin: auto;
+    justify-content: center;
+    align-items: center;
     font-family: var(--mfont);
     font-size: 2em;
   }

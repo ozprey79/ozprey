@@ -1,8 +1,8 @@
 /* Shared palette and typography. */
 :root{
-	--fill:rgb(217, 193, 219);
+	--fill:rgb(219, 200, 193);
 	--bg:#181818;
-	--heart:red;
+	--heart:rgb(0, 140, 255);
   --bgdot: rgba(49, 49, 49, 0.788);
   --mfont: "Melodrama", serif;
   --bfont: "Familjen Grotesk", sans-serif;
@@ -131,8 +131,8 @@ textarea {
 /* Persistent navigation controls and their entrance animation. */
 .catmenu {
     position: fixed;
-    right: clamp(10px, 5vmin, 15px);
-    top: clamp(10px, 5vmin, 15px);
+    right: clamp(10px, 3vmin, 15px);
+    top: clamp(10px, 3vmin, 15px);
     z-index: 11;
     width: clamp(50px, 10vmin, 120px);
     aspect-ratio: 1/1;

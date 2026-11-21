@@ -86,7 +86,7 @@
 		if (!gsap || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
 		gsap.to("#caty", {
-			morphSVG: cat[status ? 2 : 1],
+			morphSVG: cat[status ? 1 : 0],
 			overwrite: true,
 			duration: 0.5,
 			delay: 0.1,
@@ -130,13 +130,13 @@
 	aria-expanded={status}
 	aria-controls="portfolio-menu"
 >
-	<a href="/" aria-label="Blog">
+	<!-- <a href="/" aria-label="Blog">
 		<svg viewBox="0 0 30 30" aria-hidden="true">
 			<g transform="translate(0 3)">
 				<path id="swan" d={swan} />
 			</g>
 		</svg></a
-	>
+	> -->
 </button>
 <button
 	class="catmenu"
@@ -150,7 +150,7 @@
 >
 	<svg viewBox="0 0 30 30" aria-hidden="true">
 		<g transform="translate(0 3)">
-			<path id="caty" d={cat[1]} />
+			<path id="caty" d={cat[0]} />
 		</g>
 	</svg>
 </button>

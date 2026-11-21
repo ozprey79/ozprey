@@ -1,6 +1,7 @@
 import { error } from '@sveltejs/kit';
 import { dev } from '$app/environment';
 import { env } from '$env/dynamic/private';
+import { runtimeTotals } from './watchTotals.server.js';
 
 const API = 'https://api.themoviedb.org';
 const MAX_PAGES = 25;
@@ -180,6 +181,9 @@ async function buildPayload(fetch, listId) {
 			url: `https://www.themoviedb.org/movie/${movie.id}`
 		}));
 	const items = await enrichMovies(fetch, baseItems);
+	const series = [...new Map(listPages.flatMap(page => page.results ?? [])
+		.filter(item => item.media_type === 'tv').map(item => [item.id, { id: item.id, type: 'tv' }])).values()];
+	const seriesTotals = await runtimeTotals(series, fetch);
 
 	if (dev) {
 		console.log(
@@ -195,7 +199,12 @@ async function buildPayload(fetch, listId) {
 			description: firstPage.description ?? '',
 			itemCount: items.length
 		},
-		movies: items
+		movies: items,
+		watchTotals: {
+			movies: items.length, series: series.length,
+			minutes: items.reduce((sum, movie) => sum + movie.runtime, 0) + seriesTotals.minutes,
+			missing: items.filter(movie => !movie.runtime).length + seriesTotals.missing
+		}
 	};
 }
 

@@ -274,7 +274,7 @@
 	.rod-cap { stroke:color-mix(in srgb, var(--fill) 55%, transparent); stroke-width:2; vector-effect:non-scaling-stroke; }
 
 	/* beads: flat circles, no outline; brightness follows your rating */
-	.bead-motion { animation:slide-in 760ms cubic-bezier(.2,.8,.2,1) var(--delay) backwards; }
+	.bead-motion { visibility:hidden; }
 	.bead-link { cursor:pointer; }
 	.bead-link:focus { outline:none; }
 	.bead-hit { fill:transparent; pointer-events:all; }
@@ -293,7 +293,6 @@
 	.empty-state { padding:18px 0; }
 	.undated { margin-top:12px; opacity:.65; text-transform:uppercase; }
 
-	@keyframes slide-in { from { transform:translate(var(--fx), var(--fy)); } to { transform:translate(0, 0); } }
 
 	@media (max-width:650px) {
 		.abacus-controls { align-items:flex-start; flex-direction:column; font-size:.7rem; }
@@ -302,7 +301,7 @@
 		.empty-state, .undated { font-size:.68rem; }
 	}
 	@media (prefers-reduced-motion:reduce) {
-		.bead-motion { animation:none; }
+		.bead-motion { visibility:visible; }
 		.bead { transition:none; }
 	}
 </style>

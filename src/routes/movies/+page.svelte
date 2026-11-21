@@ -1,7 +1,8 @@
 <script>
-	import { tick } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { reveal, drawRules } from './reveal.js';
 	import OrbitChart from './OrbitChart.svelte';
+	import { abacusEntrance } from './abacusEntrance.js';
 	import MovieArchive from './MovieArchive.svelte';
 	import JewelCase from './JewelCase.svelte';
 	import FilmTitle from './FilmTitle.svelte';
@@ -23,8 +24,42 @@
 	}
 
 	const number = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 1 });
-	const totalWatchHours = $derived(data.movies.reduce((sum, movie) => sum + (movie.runtime || 0), 0) / 60);
-	const missingRuntimes = $derived(data.movies.filter((movie) => !movie.runtime).length);
+	let summaryPeriod = $state('2026');
+	let allTimeTotals = $state(null);
+	let totalsLoading = $state(false);
+	let totalsError = $state('');
+	let totalsProcessed = $state(0);
+	let totalsController;
+	onMount(() => () => totalsController?.abort());
+	const totals = $derived(summaryPeriod === 'all' ? allTimeTotals : data.watchTotals);
+	const hoursLoading = $derived(summaryPeriod === 'all' && totalsLoading);
+	async function loadTotals() {
+		if (summaryPeriod !== 'all' || totalsLoading || (allTimeTotals && !totalsError)) return;
+		totalsController = new AbortController();
+		const signal = totalsController.signal;
+		totalsLoading = true;
+		totalsError = '';
+		totalsProcessed = 0;
+		try {
+			const read = async (path) => {
+				const response = await fetch(path, { signal });
+				if (!response.ok) throw new Error('Could not load all-time totals.');
+				return response.json();
+			};
+			allTimeTotals = { ...await read('/movies/totals'), minutes: 0, missing: 0 };
+			let offset = 0;
+			do {
+				const batch = await read(`/movies/totals?offset=${offset}`);
+				allTimeTotals = { ...allTimeTotals, minutes: allTimeTotals.minutes + batch.minutes, missing: allTimeTotals.missing + batch.missing };
+				totalsProcessed += batch.processed;
+				offset = batch.next;
+			} while (offset !== null);
+		} catch (error) {
+			if (!signal.aborted) totalsError = error.message;
+		} finally {
+			if (!signal.aborted) totalsLoading = false;
+		}
+	}
 </script>
 
 <svelte:head>
@@ -35,13 +70,21 @@
 <main class="movies-page">
 	<FilmTitle oncomplete={() => titleComplete = true} />
 	{#if titleComplete}
-	<dl use:drawRules class="summary" aria-label="Watching totals">
-		<div use:reveal><dt>Films watched</dt><dd>{number.format(data.movies.length)}</dd></div>
-		<div use:reveal><dt>Total watch hours</dt><dd>{data.movies.length && missingRuntimes === data.movies.length ? 'Unavailable' : `${number.format(totalWatchHours)}h`}</dd></div>
+	<dl use:drawRules class="summary" aria-label={`Watching totals: ${summaryPeriod === 'all' ? 'all time' : '2026'}`} aria-live="polite" aria-busy={hoursLoading}>
+		<div use:reveal><dt>Movies + series watched</dt><dd>{totals ? number.format(totals.movies + totals.series) : '—'}</dd>
+			{#if totals}<span class="summary-breakdown">{number.format(totals.movies)} movies · {number.format(totals.series)} series</span>{/if}
+		</div>
+		<div use:reveal><dt>Total watch hours</dt><dd>{hoursLoading ? 'Calculating…' : !totals || (summaryPeriod === 'all' && totalsError) || (totals.movies + totals.series > 0 && totals.missing === totals.movies + totals.series) ? 'Unavailable' : `${number.format(totals.minutes / 60)}h`}</dd></div>
 	</dl>
-	{#if missingRuntimes}
-		<p class="summary-note">Watch time excludes {number.format(missingRuntimes)} {missingRuntimes === 1 ? 'film' : 'films'} with no recorded runtime.</p>
+	{#if hoursLoading}
+		<p class="summary-note" role="status">Loading watch time{allTimeTotals ? `: ${number.format(totalsProcessed)} of ${number.format(allTimeTotals.total)} titles` : '…'}</p>
+	{:else if summaryPeriod === 'all' && totalsError}
+		<p class="summary-note" role="status">{totalsError} <button class="totals-retry" onclick={loadTotals}>Retry</button></p>
+	{:else if totals?.missing}
+		<p class="summary-note">Watch time excludes {number.format(totals.missing)} {totals.missing === 1 ? 'title' : 'titles'} with no recorded runtime.</p>
 	{/if}
+	{#if totals?.series}<p class="summary-note">Series hours are estimated using all aired episodes, assuming each series was watched in full.</p>{/if}
+	{#if summaryPeriod === 'all' && allTimeTotals?.stale}<p class="summary-note">Showing the last available watched archive.</p>{/if}
 
 	<div class="film-workspace">
 	<div id="selected-film" bind:this={selectedPanel} style="scroll-margin-top:90px">
@@ -52,8 +95,11 @@
 		{/if}
 	</div>
 
-	<section class="chart-section abacus-panel" aria-labelledby="orbit-heading">
-		<div use:drawRules class="section-heading"><h2 use:reveal id="orbit-heading">Films</h2></div>
+	<section use:abacusEntrance class="chart-section abacus-panel" aria-labelledby="orbit-heading">
+		<div use:drawRules class="section-heading">
+			<h2 use:reveal id="orbit-heading">Films</h2>
+			<label class="summary-period">Period <select aria-label="Watching totals period" bind:value={summaryPeriod} onchange={loadTotals}><option value="2026">2026</option><option value="all">All time</option></select></label>
+		</div>
 		<OrbitChart movies={data.movies} {selectedMovie} onselect={selectMovie} />
 	</section>
 
@@ -82,6 +128,12 @@
 	.summary dt { font-size:.86rem; letter-spacing:.09em; text-transform:uppercase; }
 	.summary dd { margin:0; font-family:var(--mfont); font-size:clamp(2.25rem, 6vw, 5.5rem); font-weight:400; line-height:1.05; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
 	.summary-note { margin-top:12px; font-size:.85rem; opacity:.7; text-align:center; }
+	.summary-breakdown { display:block; margin-top:8px; font-size:.85rem; opacity:.7; }
+	.summary-period { display:flex; align-items:center; flex-shrink:0; gap:8px; margin:0; font-size:.8rem; }
+	.summary-period select { min-height:36px; padding:5px 28px 5px 10px; border:1px solid color-mix(in srgb,currentColor 30%,transparent); border-radius:8px; background:transparent; color:inherit; font:inherit; cursor:pointer; }
+	.summary-period option { background:var(--bg); color:var(--fill); }
+	.summary-period select:focus-visible, .totals-retry:focus-visible { outline:2px solid var(--heart); outline-offset:4px; }
+	.totals-retry { border:0; background:transparent; color:inherit; font:inherit; text-decoration:underline; cursor:pointer; }
 	.chart-section { margin-top:clamp(80px, 12vw, 150px); }
 	.section-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; padding-bottom:15px; border-bottom:1px solid currentColor; }
 

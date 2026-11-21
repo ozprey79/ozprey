@@ -52,6 +52,9 @@ export async function createJewelScene(host) {
  scene.add(new THREE.HemisphereLight(0xe1eeff, 0x171921, .35));
  const key = new THREE.DirectionalLight(0xffffff, .65);key.position.set(-3,5,5);scene.add(key);
  const rim = new THREE.DirectionalLight(0xc5dfff,.35);rim.position.set(4,2,-2);scene.add(rim);
+ // A pale red accent adds warmth to the disc and clear case alongside the studio lights.
+ const redAccent = new THREE.DirectionalLight(0xffa3a3, .55);
+ redAccent.position.set(3, 1, 4);scene.add(redAccent);
  const model = new THREE.Group(); scene.add(model);
  // Physical dielectric response: transmission preserves reflection energy instead
  // of compositing a white reflection as opacity over the artwork.
@@ -64,10 +67,10 @@ export async function createJewelScene(host) {
  const transmissiveParts=[];
  function clearSurface(thickness, roughness, capture=transmissionCapture) {
   const material = new THREE.MeshPhysicalMaterial({
-   name:'polished clear polystyrene', color:0xffffff, metalness:0,
+   name:'pale blue glass', color:0xeaf5ff, metalness:0,
    roughness, transmission:1, opacity:1, transparent:false,
    ior:1.59, thickness, dispersion:.16,
-   attenuationColor:new THREE.Color(0xf4faff), attenuationDistance:12,
+   attenuationColor:new THREE.Color(0xc9e7ff), attenuationDistance:2,
    specularIntensity:1, envMapIntensity:.55, envMap:polishedEnvironment.texture,
    side:THREE.FrontSide, depthWrite:true
   });

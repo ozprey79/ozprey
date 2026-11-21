@@ -4,7 +4,6 @@
 	import DirectorChart from './DirectorChart.svelte';
 	import LanguageFilter from './LanguageFilter.svelte';
 	let { movies: yearMovies } = $props();
-	const chartId = $props.id();
 	let period = $state('2026');
 	let allMovies = $state(null);
 	let loading = $state(false);
@@ -52,6 +51,7 @@
 	let decade = $state(null);
 	let selectedYear = $state(null);
 	let director = $state('');
+	let showDirectorNames = $state(false);
 	let limit = $state(24);
 	const yearOf = (movie) => Number(movie.releaseDate?.slice(0, 4)) || null;
 	const directorsOf = (movie) => movie.directors ?? (movie.director ? movie.director.split(', ') : []);
@@ -118,14 +118,7 @@
 						<span class="plot"><span class="stem" class:empty={count === 0} style:height={`${count / peak * 100}%`}>
 							{#if count > 0}
 								<svg class="bar-fill" width="100%" height="100%" aria-hidden="true">
-									<defs>
-										<linearGradient id={`${chartId}-bar-${year}`} x1="0%" x2="100%" y1="0%" y2="0%">
-											<stop offset="0%" stop-color="var(--fill, #ffc0ec)" />
-											<stop offset="40%" stop-color="var(--fill, #ffc0ec)" />
-											<stop offset="100%" stop-color="black" />
-										</linearGradient>
-									</defs>
-									<rect width="100%" height="100%" fill={`url(#${chartId}-bar-${year})`} />
+									<rect width="50%" height="100%" fill="var(--fill)" />
 								</svg>
 							{/if}
 							<span class="count">{count}</span>
@@ -138,11 +131,21 @@
 		{#if missingYears}<p class="notice">{missingYears} films without a release year remain in the unfiltered list.</p>{/if}
 	</section>
 	<section aria-labelledby="directors-title">
-		<div use:drawRules class="heading directors-heading"><h2 use:reveal id="directors-title">Top 10 directors</h2><LanguageFilter compact {languages} bind:selected={selectedLanguages} bind:mode={languageMode} label="Director languages" onchange={changeLanguage} /></div>
+		<div use:drawRules class="heading directors-heading"><h2 use:reveal id="directors-title">Top 10 directors</h2>
+			<div class="director-controls">
+				<button class="names-toggle" aria-label={showDirectorNames ? 'Hide director names' : 'Show director names'} title={showDirectorNames ? 'Hide director names' : 'Show director names'} aria-pressed={showDirectorNames} onclick={() => showDirectorNames = !showDirectorNames}>
+					<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
+						<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" /><circle cx="12" cy="12" r="3" />
+						{#if !showDirectorNames}<path d="m3 3 18 18" />{/if}
+					</svg>
+				</button>
+				<LanguageFilter compact {languages} bind:selected={selectedLanguages} bind:mode={languageMode} label="Director languages" onchange={changeLanguage} />
+			</div>
+		</div>
 		{#if period === 'all' && creditsLoading}<p class="notice" role="status">Loading director credits: {loadedCredits} / {allMovies?.length ?? 0}. Counts are updating.</p>{/if}
 		{#if period === 'all' && creditFailures}<p class="notice">Director counts exclude {creditFailures} films whose credits are unavailable.</p>{/if}
 		<p class="chart-caption">Node size shows film count · drag to explore</p>
-		<DirectorChart {directors} selected={director} onselect={(name) => { director = director === name ? '' : name; limit = 24; }} />
+		<DirectorChart {directors} selected={director} showNames={showDirectorNames} onselect={(name) => { director = director === name ? '' : name; limit = 24; }} />
 	</section>
 </div>
 <section class="collection" aria-labelledby="index-title">
@@ -168,7 +171,7 @@
 	{#if visible.length}
 		<ul use:drawRules class="index">
 			{#each visible.slice(0, limit) as movie (movie.id)}
-				<li><a use:drawRules href={movie.url} target="_blank" rel="noreferrer"><span class="dot" aria-hidden="true">◐</span><span use:reveal={{ distance: 24, duration: 650 }} class="title">{movie.title}</span><span class="language">{movie.language}</span><span class="year">{yearOf(movie) ?? '—'}</span><span aria-hidden="true">↗</span></a></li>
+				<li><a use:drawRules href={movie.url} target="_blank" rel="noreferrer"><span class="dot" aria-hidden="true">✳</span><span use:reveal={{ distance: 24, duration: 650 }} class="title">{movie.title}</span><span class="language">{movie.language}</span><span class="year">{yearOf(movie) ?? '—'}</span><span aria-hidden="true">↗</span></a></li>
 			{/each}
 		</ul>
 		{#if limit < visible.length}<button class="more" onclick={() => limit += 24}>Show more titles</button>{/if}
@@ -178,6 +181,11 @@
 <style>
 	.directors-heading { flex-wrap:nowrap; align-items:center; gap:12px; }
 	.directors-heading h2 { min-width:0; font-size:clamp(1.8rem,2.8vw,3rem); }
+	.director-controls { display:flex; align-items:center; gap:3px; flex:none; }
+	.names-toggle { display:grid; place-items:center; width:36px; min-height:44px; padding:6px; border:0; color:var(--fill); background:transparent; cursor:pointer; opacity:.65; }
+	.names-toggle:hover { opacity:1; }
+	.names-toggle[aria-pressed="true"] { color:var(--heart); opacity:1; }
+	.names-toggle svg { display:block; width:22px; height:22px; }
 	.chart-navigation { display:flex; flex-wrap:wrap; align-items:center; gap:12px; min-height:44px; margin-top:12px; font-size:.85rem; }
 	.chart-navigation button { padding:8px 0; color:var(--heart); text-decoration:underline; text-underline-offset:4px; }
 	.chart-navigation span, .chart-caption { opacity:.7; font-size:.85rem; }
@@ -198,8 +206,8 @@
 	.column.muted { opacity:.4; }
 	.column[aria-pressed="true"] { color:var(--heart); }
 	.plot { display:flex; align-items:end; justify-content:center; height:270px; padding-top:28px; border-bottom:1px solid color-mix(in srgb,currentColor 30%,transparent); }
-	.stem { position:relative; display:block; width:14px; min-height:3px; border:1px solid var(--fill); }
-	.bar-fill { display:block; }
+	.stem { position:relative; display:block; width:14px; min-height:3px; border:1px solid var(--fill); border-radius:8px 8px 0 0; }
+	.bar-fill { display:block; border-radius:inherit; overflow:hidden; }
 	.count { position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%); font-size:.9rem; }
 	.tick { display:block; padding-top:12px; font-size:.8rem; }
 	.collection { margin-top:64px; }
@@ -213,7 +221,7 @@
 	.active-filters { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; color:var(--heart); }
 	.index { list-style:none; padding:0; margin:0; border-top:1px solid color-mix(in srgb,currentColor 30%,transparent); }
 	.index a { display:grid; grid-template-columns:auto minmax(0,1fr) auto 3.4em auto; align-items:center; gap:16px; padding:16px 4px; border-bottom:1px solid color-mix(in srgb,currentColor 25%,transparent); color:inherit; text-decoration:none; }
-	.title { font-size:clamp(1.15rem,2vw,1.6rem); line-height:1.2; }
+	.title { font-size:clamp(1rem,1.5vw,1.25rem); line-height:1.2; }
 	.dot, .index a:hover .title { color:var(--heart); }
 	.year { text-align:right; font-variant-numeric:tabular-nums; }
 	.language { opacity:.65; font-size:.9rem; }
