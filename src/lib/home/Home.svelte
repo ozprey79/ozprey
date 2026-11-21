@@ -40,9 +40,9 @@
 <div class="grid">
   <div class="cells">
 
-    <div class="topicons"><span id="titl">helo</span></div>
+    <div class="topicons"><span id="titl"></span></div>
 
-    <div class="topicons">eik</div>
+    <div class="topicons"></div>
   </div>
 
   <div class="cells">
