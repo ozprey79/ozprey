@@ -2,6 +2,7 @@ import { error } from '@sveltejs/kit';
 import { dev } from '$app/environment';
 import { env } from '$env/dynamic/private';
 import { runtimeTotals } from './watchTotals.server.js';
+import { productionCountries } from './movieCountries.js';
 
 const API = 'https://api.themoviedb.org';
 const MAX_PAGES = 25;
@@ -108,6 +109,7 @@ async function enrichMovies(fetch, movies) {
 				// `||` not `??`: list items carry runtime 0, which `??` would keep,
 				// so the real runtime from the details call was never used.
 				runtime: Number(movie.runtime || detail?.runtime || 0),
+				productionCountries: productionCountries(detail),
 				directors: detail?.credits?.crew?.filter(person => person.job === 'Director').map(person => person.name) ?? [],
 				director: detail?.credits?.crew?.filter(person => person.job === 'Director').map(person => person.name).join(', ') || null,
 				backdropPath: movie.backdropPath || detail?.backdrop_path || null,

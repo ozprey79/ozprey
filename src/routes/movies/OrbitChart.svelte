@@ -275,6 +275,8 @@
 
 	/* beads: flat circles, no outline; brightness follows your rating */
 	.bead-motion { visibility:hidden; }
+	/* Layout changes rewrite each bead's style; keep completed entrances visible. */
+	:global([data-entrance-ready]) .bead-motion { visibility:visible; }
 	.bead-link { cursor:pointer; }
 	.bead-link:focus { outline:none; }
 	.bead-hit { fill:transparent; pointer-events:all; }

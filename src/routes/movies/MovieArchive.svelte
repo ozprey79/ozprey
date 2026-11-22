@@ -3,6 +3,9 @@
 	import { reveal, drawRules } from './reveal.js';
 	import DirectorChart from './DirectorChart.svelte';
 	import LanguageFilter from './LanguageFilter.svelte';
+	import CountryMap from './CountryMap.svelte';
+	import { hasCountry } from './movieCountries.js';
+	import { mapScroll } from './workspaceScroll.js';
 	let { movies: yearMovies } = $props();
 	let period = $state('2026');
 	let allMovies = $state(null);
@@ -33,10 +36,10 @@
 			let offset = 0;
 			do {
 				const response = await fetch(`/movies/archive?offset=${offset}`, { signal });
-				if (!response.ok) throw new Error('Some director credits could not be loaded.');
+				if (!response.ok) throw new Error('Some director and country details could not be loaded.');
 				const batch = await response.json();
-				const credits = new Map(batch.credits.filter(item => item.directors !== null).map(item => [item.id, item.directors]));
-				allMovies = allMovies.map(movie => credits.has(movie.id) ? { ...movie, directors: credits.get(movie.id) } : movie);
+				const credits = new Map(batch.credits.filter(item => item.directors !== null).map(item => [item.id, item]));
+				allMovies = allMovies.map(movie => credits.has(movie.id) ? { ...movie, directors: credits.get(movie.id).directors, productionCountries: credits.get(movie.id).productionCountries } : movie);
 				loadedCredits += batch.credits.length;
 				creditFailures += batch.credits.filter(item => item.directors === null).length;
 				offset = batch.next;
@@ -51,8 +54,29 @@
 	let decade = $state(null);
 	let selectedYear = $state(null);
 	let director = $state('');
+	let country = $state('');
+	let countryName = $state('');
 	let showDirectorNames = $state(false);
 	let limit = $state(24);
+	let landscape = $state(false);
+	let listRows = $state(1);
+	let listColumns = $state(1);
+	let listPage = $state(0);
+	onMount(() => {
+		const media = window.matchMedia('(orientation: landscape)');
+		const update = () => { landscape = media.matches; listPage = 0; };
+		update();
+		media.addEventListener('change', update);
+		return () => media.removeEventListener('change', update);
+	});
+	function fitList(node) {
+		const observer = new ResizeObserver(() => {
+			listRows = Math.max(1, Math.floor(node.clientHeight / 58));
+			listColumns = node.clientWidth >= 1000 ? 2 : 1;
+		});
+		observer.observe(node);
+		return { destroy() { observer.disconnect(); } };
+	}
 	const yearOf = (movie) => Number(movie.releaseDate?.slice(0, 4)) || null;
 	const directorsOf = (movie) => movie.directors ?? (movie.director ? movie.director.split(', ') : []);
 	const genres = $derived([...new Set(movies.flatMap(movie => movie.genres))].sort());
@@ -92,18 +116,25 @@
 		for (const movie of movies.filter(matchesLanguage)) for (const name of new Set(directorsOf(movie))) counts.set(name, (counts.get(name) ?? 0) + 1);
 		return [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 10).map(([name, count]) => ({ name, count }));
 	});
-	const visible = $derived(movies.filter(movie =>
+	const matchingMovies = $derived(movies.filter(movie =>
 		(!query.trim() || movie.title.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())) &&
 		(!genre || movie.genres.includes(genre)) && matchesLanguage(movie) &&
 		(decade === null || (yearOf(movie) >= decade && yearOf(movie) < decade + 10)) &&
 		(selectedYear === null || yearOf(movie) === selectedYear) &&
 		(!director || directorsOf(movie).includes(director))
 	));
+	const visible = $derived(matchingMovies.filter(movie => hasCountry(movie, country)));
+	const pageSize = $derived(listRows * listColumns);
+	const pageCount = $derived(Math.max(1, Math.ceil(visible.length / pageSize)));
+	const currentPage = $derived(Math.min(listPage, pageCount - 1));
+	const displayedMovies = $derived(landscape ? visible.slice(currentPage * pageSize, (currentPage + 1) * pageSize) : visible.slice(0, limit));
+	$effect(() => { visible; listPage = 0; });
 	const missingYears = $derived(movies.filter(movie => !yearOf(movie)).length);
-	function reset() { query = ''; genre = ''; selectedLanguages = []; languageMode = 'include'; decade = null; selectedYear = null; director = ''; limit = 24; }
+	function reset() { query = ''; genre = ''; selectedLanguages = []; languageMode = 'include'; decade = null; selectedYear = null; director = ''; country = ''; countryName = ''; limit = 24; }
+	function selectCountry(code, name) { country = code === country ? '' : code; countryName = country ? name : ''; limit = 24; }
 </script>
 
-<div class="archive-panels">
+<div class="movie-panel archive-panels" aria-label="Decades and directors">
 	<section aria-labelledby="decades-title">
 		<div use:drawRules class="heading"><h2 use:reveal id="decades-title">{decade === null ? 'Release decades' : `${decade}s by year`}</h2><label class="period">Collection <select aria-label="Collection period" bind:value={period} onchange={changePeriod}><option value="2026">Year 2026</option><option value="all">All time</option></select></label></div>
 		<div class="chart-navigation">
@@ -148,7 +179,10 @@
 		<DirectorChart {directors} selected={director} showNames={showDirectorNames} onselect={(name) => { director = director === name ? '' : name; limit = 24; }} />
 	</section>
 </div>
-<section class="collection" aria-labelledby="index-title">
+<div class="movie-panel country-scroll" use:mapScroll>
+	<CountryMap movies={matchingMovies} selected={country} {countryName} loading={loading || creditsLoading} onselect={selectCountry} />
+</div>
+<section class="movie-panel collection" aria-labelledby="index-title">
 	<div use:drawRules class="heading"><h2 use:reveal id="index-title">The list</h2><p aria-live="polite">{visible.length} of {movies.length} films</p></div>
 	{#if period === 'all'}
 		{#if loading}<p class="notice" role="status">Loading heyWatched…</p>{/if}
@@ -159,26 +193,34 @@
 		<input type="search" placeholder="Find a title" aria-label="Find a title" bind:value={query} oninput={() => limit = 24} />
 		<select aria-label="Genre" bind:value={genre} onchange={() => limit = 24}><option value="">All genres</option>{#each genres as name}<option value={name}>{name}</option>{/each}</select>
 		<LanguageFilter {languages} bind:selected={selectedLanguages} bind:mode={languageMode} label="List languages" onchange={changeLanguage} />
-		{#if query || genre || selectedLanguages.length || decade !== null || director}<button onclick={reset}>Reset filters</button>{/if}
+		{#if query || genre || selectedLanguages.length || decade !== null || director || country}<button onclick={reset}>Reset filters</button>{/if}
 	</div>
-	{#if decade !== null || director}
+	{#if decade !== null || director || country}
 		<div class="active-filters">
 			{#if decade !== null}<button onclick={clearDecade} aria-label={`Remove ${decade}s filter`}>{decade}s ×</button>{/if}
 			{#if selectedYear !== null}<button onclick={() => { selectedYear = null; limit = 24; }} aria-label={`Remove ${selectedYear} filter`}>{selectedYear} ×</button>{/if}
 			{#if director}<button onclick={() => { director = ''; limit = 24; }} aria-label={`Remove ${director} filter`}>{director} ×</button>{/if}
+			{#if country}<button onclick={() => selectCountry(country, countryName)} aria-label={`Remove ${countryName} filter`}>{countryName} ×</button>{/if}
 		</div>
 	{/if}
 	{#if visible.length}
-		<ul use:drawRules class="index">
-			{#each visible.slice(0, limit) as movie (movie.id)}
-				<li><a use:drawRules href={movie.url} target="_blank" rel="noreferrer"><span class="dot" aria-hidden="true">✳</span><span use:reveal={{ distance: 24, duration: 650 }} class="title">{movie.title}</span><span class="language">{movie.language}</span><span class="year">{yearOf(movie) ?? '—'}</span><span aria-hidden="true">↗</span></a></li>
+		<ul use:drawRules use:fitList class="index" style:--list-rows={listRows} style:--list-columns={listColumns}>
+			{#each displayedMovies as movie (movie.id)}
+				<li><a use:drawRules href={movie.url} title={movie.title} target="_blank" rel="noreferrer"><span class="dot" aria-hidden="true">✳</span><span use:reveal={{ distance: 24, duration: 650 }} class="title">{movie.title}</span><span class="language">{movie.language}</span><span class="year">{yearOf(movie) ?? '—'}</span><span aria-hidden="true">↗</span></a></li>
 			{/each}
 		</ul>
-		{#if limit < visible.length}<button class="more" onclick={() => limit += 24}>Show more titles</button>{/if}
+		{#if landscape}
+			<nav class="list-pagination" aria-label="Film list pages">
+				<button disabled={currentPage === 0} onclick={() => listPage = currentPage - 1}>Previous</button>
+				<span aria-live="polite">{currentPage * pageSize + 1}–{Math.min((currentPage + 1) * pageSize, visible.length)} of {visible.length}</span>
+				<button disabled={currentPage >= pageCount - 1} onclick={() => listPage = currentPage + 1}>Next</button>
+			</nav>
+		{:else if limit < visible.length}<button class="more" onclick={() => limit += 24}>Show more titles</button>{/if}
 	{:else}<p class="notice">No films match these filters.</p>{/if}
 </section>
 
 <style>
+	.country-scroll { display:flow-root; }
 	.directors-heading { flex-wrap:nowrap; align-items:center; gap:12px; }
 	.directors-heading h2 { min-width:0; font-size:clamp(1.8rem,2.8vw,3rem); }
 	.director-controls { display:flex; align-items:center; gap:3px; flex:none; }
@@ -229,4 +271,31 @@
 	.notice { margin:24px 0; opacity:.7; }
 	@media(max-width:800px) { .archive-panels { grid-template-columns:1fr; gap:40px; } .plot { height:220px; } }
 	@media(max-width:540px) { .language { display:none; } .index a { grid-template-columns:auto minmax(0,1fr) 3em auto; gap:10px; } }
+	@media(orientation:landscape) {
+		.archive-panels { grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); align-content:stretch; gap:clamp(24px,4vw,64px); }
+		.archive-panels > section { display:flex; flex-direction:column; min-height:0; }
+		.heading { flex:none; padding-bottom:10px; }
+		h2, .directors-heading h2 { font-size:clamp(24px,5svh,48px); }
+		.directors-heading { flex-wrap:wrap; gap:4px; }
+		.chart-navigation { flex:none; margin-top:4px; }
+		.chart-caption { flex:none; margin-top:8px; }
+		.decades { flex:1; min-height:0; }
+		.column { display:flex; flex-direction:column; min-height:0; }
+		.plot { flex:1; width:100%; height:auto; min-height:0; }
+		.archive-panels :global(svg[aria-label^="Top ten directors"]) { flex:1; min-height:0; height:0; width:100%; }
+		.country-scroll :global(.country-section) { height:100%; margin-top:0; }
+		.collection { display:flex; flex-direction:column; margin-top:0; }
+		.filters { flex:none; margin:10px 0; }
+		.filters :global(details) { position:relative; }
+		.filters :global(.options-panel) { position:absolute; z-index:5; top:100%; right:0; width:300px; max-height:50svh; overflow-y:auto; background:var(--bg); border:1px solid currentColor; border-radius:12px; }
+		.index { flex:1; min-height:0; display:grid; grid-template-columns:repeat(var(--list-columns),minmax(0,1fr)); grid-template-rows:repeat(var(--list-rows),minmax(0,1fr)); grid-auto-flow:column; column-gap:32px; }
+		.index li { min-height:0; }
+		.index a { height:100%; min-height:0; gap:10px; padding:8px 4px; }
+		.title { display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; font-size:1rem; }
+		.active-filters { flex:none; margin-bottom:8px; }
+		.notice { flex:none; margin:8px 0; }
+		.list-pagination { display:flex; flex:none; align-items:center; justify-content:space-between; gap:12px; margin-top:8px; font-size:.85rem; }
+		.list-pagination button { min-height:36px; padding:6px 12px; border:1px solid color-mix(in srgb,currentColor 30%,transparent); border-radius:8px; }
+		.list-pagination button:disabled { opacity:.35; cursor:default; }
+	}
 </style>

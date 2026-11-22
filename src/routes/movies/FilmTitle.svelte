@@ -4,9 +4,7 @@
 
 	const id = $props.id();
 	let { oncomplete = () => {} } = $props();
-	let presenting = $state(true);
 	let heading;
-	let stage;
 	let artwork;
 	let letters;
 	let lettering;
@@ -23,7 +21,6 @@
 
 		function showFinal() {
 			timeline?.progress(1).pause();
-			presenting = false;
 			artwork.style.visibility = '';
 			oncomplete();
 		}
@@ -50,17 +47,6 @@
 					timeline = gsap.timeline({ delay: 0.15, onComplete: oncomplete })
 						.to(lettering, { y: 0, duration: 1.15, ease: 'power2.inOut' })
 						.to(letters, { morphSVG: { shape: filmFinal, shapeIndex: 0 }, duration: 1.1, ease: 'power2.inOut' })
-						.to(stage, {
-							left: () => heading.getBoundingClientRect().left,
-							top: () => heading.getBoundingClientRect().top,
-							width: () => heading.getBoundingClientRect().width,
-							height: () => heading.getBoundingClientRect().height,
-							padding: 0, duration: 1, ease: 'power2.inOut',
-							onComplete: () => {
-								presenting = false;
-								gsap.set(stage, { clearProps: 'all' });
-							}
-						})
 						.to([handwritingBacking, handwriting], { drawSVG: '100%', duration: 1.8, ease: 'none' }, '+=0.12')
 						.to([heartBacking, heartStroke], { drawSVG: '100%', duration: 0.28, ease: 'none' });
 				}, heading);
@@ -80,13 +66,16 @@
 </script>
 
 <h1 bind:this={heading} aria-label="Film archive">
-	<div bind:this={stage} class="stage" class:presenting>
+	<div class="title-stage">
 	<svg bind:this={artwork} viewBox="36 80 148 59" aria-hidden="true">
 		<defs>
 			<clipPath id={`${id}-ground`}><rect x="36" y="80" width="148" height="53.822" /></clipPath>
 		</defs>
-		<g clip-path={`url(#${id}-ground)`}>
-			<g bind:this={lettering}><path bind:this={letters} class="film" d={filmFinal} /></g>
+		<!-- Center FILM's bounds (55.661434–149.06777, 82.84299–133.82156) in the viewBox. -->
+		<g transform="translate(7.635398 1.167725)">
+			<g clip-path={`url(#${id}-ground)`}>
+				<g bind:this={lettering}><path bind:this={letters} class="film" d={filmFinal} /></g>
+			</g>
 		</g>
 		<!-- Match the menu's background-coloured backing at 2.8 times the ink width. -->
 		<g class="signature backing">
@@ -102,11 +91,9 @@
 </h1>
 
 <style>
-	h1 { width:min(100%, 620px); aspect-ratio:148 / 59; margin:0 auto clamp(32px, 5vw, 64px); line-height:0; }
-	.stage { width:100%; height:100%; }
-	.stage.presenting { position:fixed; z-index:20; left:0; top:0; width:100vw; height:100dvh; box-sizing:border-box; padding:32px; pointer-events:none; }
-	.presenting svg { width:100%; height:100%; }
-	svg { display:block; width:100%; height:auto; overflow:visible; }
+	h1 { width:100%; min-width:0; min-height:0; box-sizing:border-box; padding:clamp(20px, 4vmin, 40px) 12px; margin:0; line-height:0; pointer-events:none; }
+	.title-stage { width:100%; height:100%; }
+	svg { display:block; width:100%; height:100%; overflow:visible; }
 	.film { fill:var(--filll, var(--fill)); }
 	.signature { fill:none; stroke:var(--heart); stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
 	.backing { stroke:var(--bg); }

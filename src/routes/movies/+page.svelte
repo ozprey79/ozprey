@@ -3,12 +3,23 @@
 	import { reveal, drawRules } from './reveal.js';
 	import OrbitChart from './OrbitChart.svelte';
 	import { abacusEntrance } from './abacusEntrance.js';
+	import { workspaceScroll } from './workspaceScroll.js';
 	import MovieArchive from './MovieArchive.svelte';
 	import JewelCase from './JewelCase.svelte';
 	import FilmTitle from './FilmTitle.svelte';
+	import MoviePanels from './MoviePanels.svelte';
 
 	let { data } = $props();
 	let titleComplete = $state(false);
+	function revealSummary(node, ready) {
+		let animations = [];
+		function update(complete) {
+			if (!complete || animations.length) return;
+			animations = [...Array.from(node.children, child => reveal(child, { distance: 16 })), drawRules(node)];
+		}
+		update(ready);
+		return { update, destroy() { animations.forEach(animation => animation.destroy?.()); } };
+	}
 
 	let selectedMovieId = $state(null);
 	const latestMovie = $derived(data.movies.reduce((latest, movie) =>
@@ -19,7 +30,7 @@
 	async function selectMovie(movie) {
 		selectedMovieId = movie.id;
 		await tick();
-		if (window.matchMedia('(min-width: 1100px)').matches) return;
+		if (window.matchMedia('(orientation: landscape), (min-width: 1100px)').matches) return;
 		selectedPanel?.scrollIntoView({behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block:'start'});
 	}
 
@@ -68,14 +79,18 @@
 </svelte:head>
 
 <main class="movies-page">
+	<MoviePanels ready={titleComplete}>
+	<div class="movie-panel film-intro" aria-label="Film title and watching totals">
 	<FilmTitle oncomplete={() => titleComplete = true} />
-	{#if titleComplete}
-	<dl use:drawRules class="summary" aria-label={`Watching totals: ${summaryPeriod === 'all' ? 'all time' : '2026'}`} aria-live="polite" aria-busy={hoursLoading}>
-		<div use:reveal><dt>Movies + series watched</dt><dd>{totals ? number.format(totals.movies + totals.series) : '—'}</dd>
+	<dl use:revealSummary={titleComplete} class="summary" class:pending={!titleComplete} aria-hidden={!titleComplete} aria-label={`Watching totals: ${summaryPeriod === 'all' ? 'all time' : '2026'}`} aria-live="polite" aria-busy={hoursLoading}>
+		<div><dt>Movies + series watched</dt><dd>{totals ? number.format(totals.movies + totals.series) : '—'}</dd>
 			{#if totals}<span class="summary-breakdown">{number.format(totals.movies)} movies · {number.format(totals.series)} series</span>{/if}
 		</div>
-		<div use:reveal><dt>Total watch hours</dt><dd>{hoursLoading ? 'Calculating…' : !totals || (summaryPeriod === 'all' && totalsError) || (totals.movies + totals.series > 0 && totals.missing === totals.movies + totals.series) ? 'Unavailable' : `${number.format(totals.minutes / 60)}h`}</dd></div>
+		<div><dt>Total watch hours</dt><dd>{hoursLoading ? 'Calculating…' : !totals || (summaryPeriod === 'all' && totalsError) || (totals.movies + totals.series > 0 && totals.missing === totals.movies + totals.series) ? 'Unavailable' : `${number.format(totals.minutes / 60)}h`}</dd></div>
 	</dl>
+	</div>
+	{#if titleComplete}
+	<div class="movie-panel workspace-panel" aria-label="Disc and abacus">
 	{#if hoursLoading}
 		<p class="summary-note" role="status">Loading watch time{allTimeTotals ? `: ${number.format(totalsProcessed)} of ${number.format(allTimeTotals.total)} titles` : '…'}</p>
 	{:else if summaryPeriod === 'all' && totalsError}
@@ -86,7 +101,7 @@
 	{#if totals?.series}<p class="summary-note">Series hours are estimated using all aired episodes, assuming each series was watched in full.</p>{/if}
 	{#if summaryPeriod === 'all' && allTimeTotals?.stale}<p class="summary-note">Showing the last available watched archive.</p>{/if}
 
-	<div class="film-workspace">
+	<div use:workspaceScroll class="film-workspace">
 	<div id="selected-film" bind:this={selectedPanel} style="scroll-margin-top:90px">
 		{#if selectedMovie}
 			<JewelCase movie={selectedMovie} />
@@ -104,12 +119,15 @@
 	</section>
 
 	</div>
+	</div>
 	<MovieArchive movies={data.movies} />
 	{/if}
+	</MoviePanels>
 </main>
 
 <style>
- .film-workspace { margin-top:46px; }
+/* *{border: 1px solid red;} */
+ .film-workspace { margin-top:46px; padding-bottom:24px; }
  @media(min-width:1100px) {
   .film-workspace { display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);gap:clamp(24px,3vw,48px);align-items:start; }
   .film-workspace > * { min-width:0; }
@@ -121,18 +139,20 @@
 
 	/* Page layout and responsive presentation. */
 
-	.movies-page { width:min(1400px, calc(100% - 40px)); margin:auto; padding:clamp(12vmin, 1vw, 170px) 0px 60px; color:var(--fill); font-family:var(--bfont); margin-top: 50px;}
+	.movies-page { width:min(1400px, calc(100% - 40px)); margin:auto; padding:0 0 60px; color:var(--fill); font-family:var(--bfont); }
+	.film-intro { display:grid; grid-template-rows:minmax(0, 1fr) auto; height:100svh; }
 
 	.summary { text-align:center; display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:16px; margin:0; border-block:1px solid currentColor; }
+	.summary.pending { visibility:hidden; }
 	.summary div { padding-block:20px; }
 	.summary dt { font-size:.86rem; letter-spacing:.09em; text-transform:uppercase; }
 	.summary dd { margin:0; font-family:var(--mfont); font-size:clamp(2.25rem, 6vw, 5.5rem); font-weight:400; line-height:1.05; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
 	.summary-note { margin-top:12px; font-size:.85rem; opacity:.7; text-align:center; }
 	.summary-breakdown { display:block; margin-top:8px; font-size:.85rem; opacity:.7; }
 	.summary-period { display:flex; align-items:center; flex-shrink:0; gap:8px; margin:0; font-size:.8rem; }
-	.summary-period select { min-height:36px; padding:5px 28px 5px 10px; border:1px solid color-mix(in srgb,currentColor 30%,transparent); border-radius:8px; background:transparent; color:inherit; font:inherit; cursor:pointer; }
+	.summary-period select { min-height:36px; padding:5px 28px 5px 10px; border:0px solid color-mix(in srgb,currentColor 30%,transparent); border-radius:8px; background:transparent; color:inherit; font:inherit; cursor:pointer; }
 	.summary-period option { background:var(--bg); color:var(--fill); }
-	.summary-period select:focus-visible, .totals-retry:focus-visible { outline:2px solid var(--heart); outline-offset:4px; }
+	.summary-period select:focus-visible, .totals-retry:focus-visible { outline:0px solid var(--heart); outline-offset:4px; }
 	.totals-retry { border:0; background:transparent; color:inherit; font:inherit; text-decoration:underline; cursor:pointer; }
 	.chart-section { margin-top:clamp(80px, 12vw, 150px); }
 	.section-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; padding-bottom:15px; border-bottom:1px solid currentColor; }
@@ -140,4 +160,28 @@
 	h2 { text-align: center;font-family:var(--mfont); font-size:clamp(2.5rem, 6vw, 6rem); font-weight:400; line-height:.9; text-transform:uppercase; }
 
 	@media (max-width:700px) { .summary { grid-template-columns:1fr; } }
+	@media (orientation:landscape) {
+		.movies-page { width:100%; padding:0; }
+		.film-intro { height:100%; }
+		.workspace-panel { display:flex; flex-direction:column; }
+		.film-workspace { flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,2fr) minmax(0,3fr); gap:clamp(20px,3vw,48px); align-items:stretch; margin-top:0; padding-bottom:0; }
+		.film-workspace > * { min-width:0; min-height:0; }
+		.film-workspace .abacus-panel { display:flex; flex-direction:column; margin-top:0; }
+		.film-workspace :global(.disc-panel) { display:grid; grid-template-rows:auto minmax(0,1fr) auto; width:100%; height:100%; min-height:0; margin:0; }
+		.film-workspace :global(.disc-panel header) { padding-bottom:10px; }
+		.film-workspace :global(.movie-details) { display:none; }
+		.film-workspace :global(.disc-panel footer) { padding-top:10px; }
+		.film-workspace :global(.disc-panel footer > span) { font-size:clamp(24px,4.5svh,44px); overflow-wrap:anywhere; }
+		.film-workspace :global(.stage) { height:100%; min-height:0; margin:0; width:100%; }
+		.abacus-panel .section-heading { flex:none; padding-bottom:10px; }
+		.abacus-panel :global(.abacus-controls) { flex:none; padding-block:8px; }
+		.abacus-panel :global(.abacus-stage) { flex:1; min-height:0; display:flex; flex-direction:column; width:100%; }
+		.abacus-panel :global(.abacus-stage > svg) { flex:1; min-height:0; height:0; width:100%; }
+		.abacus-panel :global(.runtime-legend) { flex:none; margin-top:8px; }
+		.film-workspace :global(.disc-panel h2), .abacus-panel h2 { font-size:clamp(32px,6svh,70px); margin-top:0; }
+		.summary { grid-template-columns:repeat(2,minmax(0,1fr)); }
+		.summary div { padding-block:clamp(10px,2svh,20px); }
+		.summary dd { font-size:clamp(2.25rem,10svh,5.5rem); }
+		.summary-note { margin:0 0 12px; }
+	}
 </style>
