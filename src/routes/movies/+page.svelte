@@ -8,6 +8,7 @@
 	import JewelCase from './JewelCase.svelte';
 	import FilmTitle from './FilmTitle.svelte';
 	import MoviePanels from './MoviePanels.svelte';
+	import MinimalSelect from './MinimalSelect.svelte';
 
 	let { data } = $props();
 	let titleComplete = $state(false);
@@ -82,12 +83,15 @@
 	<MoviePanels ready={titleComplete}>
 	<div class="movie-panel film-intro" aria-label="Film title and watching totals">
 	<FilmTitle oncomplete={() => titleComplete = true} />
-	<dl use:revealSummary={titleComplete} class="summary" class:pending={!titleComplete} aria-hidden={!titleComplete} aria-label={`Watching totals: ${summaryPeriod === 'all' ? 'all time' : '2026'}`} aria-live="polite" aria-busy={hoursLoading}>
-		<div><dt>Movies + series watched</dt><dd>{totals ? number.format(totals.movies + totals.series) : '—'}</dd>
+	<footer use:revealSummary={titleComplete} class="summary-bar" class:pending={!titleComplete} aria-hidden={!titleComplete}>
+	<dl class="summary" aria-label={`Watching totals: ${summaryPeriod === 'all' ? 'all time' : '2026'}`} aria-live="polite" aria-busy={hoursLoading}>
+		<div><dd>{totals ? number.format(totals.movies + totals.series) : '—'}</dd>
 			{#if totals}<span class="summary-breakdown">{number.format(totals.movies)} movies · {number.format(totals.series)} series</span>{/if}
 		</div>
-		<div><dt>Total watch hours</dt><dd>{hoursLoading ? 'Calculating…' : !totals || (summaryPeriod === 'all' && totalsError) || (totals.movies + totals.series > 0 && totals.missing === totals.movies + totals.series) ? 'Unavailable' : `${number.format(totals.minutes / 60)}h`}</dd></div>
+		<div><dd>{hoursLoading ? 'Calculating…' : !totals || (summaryPeriod === 'all' && totalsError) || (totals.movies + totals.series > 0 && totals.missing === totals.movies + totals.series) ? 'Unavailable' : `${number.format(totals.minutes / 60)}h`}</dd></div>
 	</dl>
+	<label class="summary-period">Period <MinimalSelect label="Watching totals period" bind:value={summaryPeriod} onchange={loadTotals}><option value="2026">2026</option><option value="all">All time</option></MinimalSelect></label>
+	</footer>
 	</div>
 	{#if titleComplete}
 	<div class="movie-panel workspace-panel" aria-label="Disc and abacus">
@@ -98,7 +102,6 @@
 	{:else if totals?.missing}
 		<p class="summary-note">Watch time excludes {number.format(totals.missing)} {totals.missing === 1 ? 'title' : 'titles'} with no recorded runtime.</p>
 	{/if}
-	{#if totals?.series}<p class="summary-note">Series hours are estimated using all aired episodes, assuming each series was watched in full.</p>{/if}
 	{#if summaryPeriod === 'all' && allTimeTotals?.stale}<p class="summary-note">Showing the last available watched archive.</p>{/if}
 
 	<div use:workspaceScroll class="film-workspace">
@@ -113,7 +116,6 @@
 	<section use:abacusEntrance class="chart-section abacus-panel" aria-labelledby="orbit-heading">
 		<div use:drawRules class="section-heading">
 			<h2 use:reveal id="orbit-heading">Films</h2>
-			<label class="summary-period">Period <select aria-label="Watching totals period" bind:value={summaryPeriod} onchange={loadTotals}><option value="2026">2026</option><option value="all">All time</option></select></label>
 		</div>
 		<OrbitChart movies={data.movies} {selectedMovie} onselect={selectMovie} />
 	</section>
@@ -140,26 +142,28 @@
 	/* Page layout and responsive presentation. */
 
 	.movies-page { width:min(1400px, calc(100% - 40px)); margin:auto; padding:0 0 60px; color:var(--fill); font-family:var(--bfont); }
-	.film-intro { display:grid; grid-template-rows:minmax(0, 1fr) auto; height:100svh; }
+	.film-intro { position:relative; display:grid; grid-template-rows:minmax(0, 1fr) auto; height:100svh; }
+	.summary-bar { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; column-gap:clamp(16px,3vw,40px); padding-right:clamp(12px,2vw,24px); border-block:1px solid currentColor; }
+	.summary-bar.pending { visibility:hidden; }
 
-	.summary { text-align:center; display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:16px; margin:0; border-block:1px solid currentColor; }
-	.summary.pending { visibility:hidden; }
+	.summary { text-align:center; display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:16px; margin:0; }
 	.summary div { padding-block:20px; }
 	.summary dt { font-size:.86rem; letter-spacing:.09em; text-transform:uppercase; }
 	.summary dd { margin:0; font-family:var(--mfont); font-size:clamp(2.25rem, 6vw, 5.5rem); font-weight:400; line-height:1.05; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
 	.summary-note { margin-top:12px; font-size:.85rem; opacity:.7; text-align:center; }
 	.summary-breakdown { display:block; margin-top:8px; font-size:.85rem; opacity:.7; }
 	.summary-period { display:flex; align-items:center; flex-shrink:0; gap:8px; margin:0; font-size:.8rem; }
-	.summary-period select { min-height:36px; padding:5px 28px 5px 10px; border:0px solid color-mix(in srgb,currentColor 30%,transparent); border-radius:8px; background:transparent; color:inherit; font:inherit; cursor:pointer; }
-	.summary-period option { background:var(--bg); color:var(--fill); }
-	.summary-period select:focus-visible, .totals-retry:focus-visible { outline:0px solid var(--heart); outline-offset:4px; }
+	.totals-retry:focus-visible { outline:2px solid var(--heart); outline-offset:4px; }
 	.totals-retry { border:0; background:transparent; color:inherit; font:inherit; text-decoration:underline; cursor:pointer; }
 	.chart-section { margin-top:clamp(80px, 12vw, 150px); }
 	.section-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; padding-bottom:15px; border-bottom:1px solid currentColor; }
 
 	h2 { text-align: center;font-family:var(--mfont); font-size:clamp(2.5rem, 6vw, 6rem); font-weight:400; line-height:.9; text-transform:uppercase; }
 
-	@media (max-width:700px) { .summary { grid-template-columns:1fr; } }
+	@media (max-width:700px) and (orientation:portrait) {
+		.summary-bar { grid-template-columns:1fr; padding-right:0; }
+		.summary-period { justify-self:center; padding-bottom:12px; }
+	}
 	@media (orientation:landscape) {
 		.movies-page { width:100%; padding:0; }
 		.film-intro { height:100%; }

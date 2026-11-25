@@ -6,7 +6,6 @@
 
   // Total time includes the opening and its mirrored closing transition.
   let { duration = 6200, motion = 'stack', oncomplete = () => {} } = $props();
-  const uid = $props.id();
   let aperture;
   let strip;
   let backdrop;
@@ -131,65 +130,32 @@
 
 <div class="s-loader" bind:this={backdrop} role="status" aria-label="Loading Ozprey">
   <LoaderRipples />
-  <svg class="filter-definitions" aria-hidden="true">
-    <defs>
-      <filter id="{uid}-inset" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
-        <feComponentTransfer in="SourceAlpha" result="inverse">
-          <feFuncA type="table" tableValues="1 0" />
-        </feComponentTransfer>
-        <feGaussianBlur in="inverse" stdDeviation="2.8" />
-        <feOffset dx="2" dy="4" />
-        <feComposite in2="SourceAlpha" operator="in" result="inner" />
-        <feFlood flood-color="#291521" flood-opacity="0.8" />
-        <feComposite in2="inner" operator="in" result="shadow" />
-        <feMerge><feMergeNode in="SourceGraphic" /><feMergeNode in="shadow" /></feMerge>
-      </filter>
-      <filter id="bristle"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" seed="2" result="w"/><feDisplacementMap in="SourceGraphic" in2="w" scale="6" result="d"/><feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="2" seed="4" result="g"/><feColorMatrix in="g" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2.4 0 0 0 -0.5" result="m"/><feComposite in="d" in2="m" operator="in"/></filter>
-<filter id="chalk"><feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="3" seed="2" result="w"/><feDisplacementMap in="SourceGraphic" in2="w" scale="4" result="d"/><feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="4" result="g"/><feColorMatrix in="g" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3 0 0 0 -0.9" result="m"/><feComposite in="d" in2="m" operator="in"/></filter>
-<filter id="wash"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" seed="7" result="w"/><feDisplacementMap in="SourceGraphic" in2="w" scale="14" result="d"/><feGaussianBlur in="d" stdDeviation="1.5"/></filter>
-    </defs>
-  </svg>
   <div class="window" bind:this={aperture} aria-hidden="true">
     <div class="strip" class:stack={motion !== 'train'} bind:this={strip}>
       {#each frames as frame}
         <svg class="frame" viewBox={frame.viewBox ?? '0 0 320 320'}>
-          <path d={frame.d} fill="black"  />
+          <path d={frame.d} fill="var(--bg)" />
         </svg>
       {/each}
     </div>
-    <div class="window-edge"></div>
   </div>
     <svg bind:this={signatureLayer} class="signature" viewBox="-15 -15 530 363" aria-hidden="true">
-      <defs>
-        <filter id="{uid}-signature-inner" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
-          <feComponentTransfer in="SourceAlpha" result="outside">
-            <feFuncA type="table" tableValues="1 0" />
-          </feComponentTransfer>
-          <feGaussianBlur in="outside" stdDeviation="0.7" />
-          <feOffset dx="0.6" dy="1" />
-          <feComposite in2="SourceAlpha" operator="in" result="inner" />
-          <feFlood flood-color="#000000" flood-opacity="0.6" />
-          <feComposite in2="inner" operator="in" result="shadow" />
-          <feMerge><feMergeNode in="SourceGraphic" /><feMergeNode in="shadow" /></feMerge>
-        </filter>
-      </defs>
       <path bind:this={signaturePath} d={signature.d} pathLength="1" fill="none"
         stroke="var(--fill)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"
-        stroke-dasharray="1 2" stroke-dashoffset="1.03" filter="url(#{uid}-signature-inner)" />
+        stroke-dasharray="1 2" stroke-dashoffset="1.03" />
     </svg>
   <!-- <span class="caption" aria-hidden="true">OZPREY <span>STUDIES IN MOTION</span></span> -->
 </div>
 
 <style>
   /* Full-screen aperture and overlapping letter frames. */
-  .s-loader { --cell: min(86vw, clamp(190px, 28vw, 390px)); position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center; background: #181818; overflow: hidden; }
-  /* Keep the signature compact and anchored to the page, below the card. */
+  .s-loader { --cell: min(86vw, clamp(190px, 28vw, 390px)); position: fixed; inset: 0; z-index: 10000; background: var(--bg); overflow: hidden; }
+  /* Center the compact signature in the viewport without changing its size. */
   .signature {
     position: absolute;
-    left: 50%;
-    top: auto;
-    bottom: max(20px, env(safe-area-inset-bottom));
-    transform: translateX(-50%);
+    left: calc(50% - 25px);
+    top: calc(50% + 40px);
+    transform: translate(-50%, -50%);
     width: clamp(90px, 12vw, 120px);
     max-width: 30vw;
     max-height: 14dvh;
@@ -197,15 +163,13 @@
     overflow: visible;
     pointer-events: none;
   }
-  .filter-definitions { position: absolute; width: 0; height: 0; }
   /* Each 320-unit frame includes at least 68 units of space on either side of S. */
-  .window { position: relative; width: var(--cell); height: var(--cell); background: var(--fill); overflow: hidden; clip-path: inset(50% 8% round 2px); }
+  .window { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: var(--cell); height: var(--cell); background: var(--fill); overflow: hidden; clip-path: inset(50% 8% round 2px); }
   .strip { display: flex; width: max-content; height: 100%; margin-left: calc(50% - var(--cell) / 2); will-change: transform; }
   .frame { width: var(--cell); height: var(--cell); flex: none; }
   .strip.stack { display: grid; width: var(--cell); margin-left: 0; will-change: auto; }
   .stack .frame { grid-area: 1 / 1; opacity: 0; }
   .stack .frame:first-child { opacity: 1; }
-  .window-edge { position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 10px 22px -15px #27121e, inset 0 -1px 0 #fbe0ef; background: linear-gradient(90deg, #36252e30, transparent 22%, transparent 78%, #36252e30); }
 
   @media (prefers-reduced-motion: reduce) {.strip { will-change: auto; }
    }

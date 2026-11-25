@@ -1,4 +1,5 @@
 <script>
+	import MinimalSelect from './MinimalSelect.svelte';
 	let { movies, selectedMovie = null, onselect = () => {} } = $props();
 
 	// ── Calendar & layout constants (SVG user units) ──────────────────────────
@@ -10,9 +11,9 @@
 
 	// Wide screens: 12 vertical rods, day runs top → bottom.
 	// Phones: the same abacus turned on its side, 12 horizontal rods, day runs left → right.
-	const WIDE = { w: 1000, h: 700, vertical: true, crossStart: 70, crossEnd: 930, alongStart: 48, alongEnd: 652, cap: 9 };
+	const WIDE = { w: 1000, h: 728, vertical: true, crossStart: 70, crossEnd: 930, alongStart: 48, alongEnd: 652, cap: 9 };
 	// Half the mobile row pitch, retaining the original bead sizes and end padding.
-	const NARROW = { w: 400, h: 416, vertical: false, crossStart: 36, crossEnd: 380, alongStart: 22, alongEnd: 378, cap: 7 };
+	const NARROW = { w: 400, h: 416, vertical: false, crossStart: 36, crossEnd: 380, alongStart: 40, alongEnd: 378, cap: 7 };
 	const NARROW_BELOW = 600; // px width of the chart container
 	const BEAD_GAP = 2;
 
@@ -172,9 +173,9 @@
 	{#if years.length > 1}
 		<label>
 			Viewing year
-			<select bind:value={selectedYear}>
+			<MinimalSelect label="Viewing year" bind:value={selectedYear}>
 				{#each years as year}<option value={year}>{year}</option>{/each}
-			</select>
+			</MinimalSelect>
 		</label>
 	{/if}
 </div>
@@ -185,11 +186,16 @@
 		<desc id="abacus-description">Twelve rods, one per month, January first. Each bead is a film, placed along its rod by the day of the month it was watched. Larger beads are longer films, and fainter beads are rated lower. A heart marks a favourite. Select a bead to read its details.</desc>
 
 		<g aria-hidden="true">
-			{#each rods as rod}
+			{#each rods as rod, index}
 				<line class="rod" x1={rod.line[0]} y1={rod.line[1]} x2={rod.line[2]} y2={rod.line[3]} />
 				{#each rod.caps as cap}
 					<line class="rod-cap" x1={cap[0]} y1={cap[1]} x2={cap[2]} y2={cap[3]} />
 				{/each}
+				{#if layout.vertical}
+					<text class="month-label" transform={`translate(${crossPos(index)} ${layout.alongEnd + 22}) rotate(-90)`} text-anchor="end" dominant-baseline="middle">{monthNames[index].slice(0, 3).toLowerCase()}</text>
+				{:else}
+					<text class="month-label" x={layout.alongStart - 12} y={crossPos(index)} text-anchor="end" dominant-baseline="middle">{monthNames[index].slice(0, 3).toLowerCase()}</text>
+				{/if}
 			{/each}
 		</g>
 
@@ -265,13 +271,13 @@
 	.abacus-controls { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:15px 0; font-size:.75rem; text-transform:uppercase; }
 	.abacus-controls p { letter-spacing:.08em; }
 	.abacus-controls label { display:flex; align-items:center; gap:10px; }
-	.abacus-controls select { margin:0; padding:6px 25px 6px 7px; color:var(--bg); background:var(--fill); border-radius: 1rem; }
 	.abacus-stage {  position:relative; width:min(100%, 960px); margin:auto; }
 	svg { display:block; width:100%; height:auto; overflow:visible; }
 
 	/* rods: thin dashed stroke, small bar at each end */
 	.rod { stroke:color-mix(in srgb, var(--fill) 55%, transparent); stroke-width:1.5; stroke-dasharray:2 6; vector-effect:non-scaling-stroke; }
 	.rod-cap { stroke:color-mix(in srgb, var(--fill) 55%, transparent); stroke-width:2; vector-effect:non-scaling-stroke; }
+	.month-label { fill:var(--fill); font-family:var(--bfont); font-size:12px; opacity:.75; pointer-events:none; }
 
 	/* beads: flat circles, no outline; brightness follows your rating */
 	.bead-motion { visibility:hidden; }
@@ -282,7 +288,7 @@
 	.bead-hit { fill:transparent; pointer-events:all; }
 	.bead { fill:var(--fill); opacity:var(--tone, 1); transition:filter 150ms ease, opacity 150ms ease; }
 	.bead.selected, .bead-link:hover .bead, .bead-link:focus .bead { opacity:1; filter:drop-shadow(0 0 8px var(--fill)); }
-	.beadheart { fill:red; pointer-events:none; }
+	.beadheart { fill:var(--heart); pointer-events:none; }
 	.beadheart.selected, .bead-link:hover .beadheart, .bead-link:focus-visible .beadheart { opacity:1; filter:drop-shadow(0 0 8px var(--fill)); }
      
 	.runtime-legend { display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:8px 12px; margin-top:12px; font-size:.66rem; text-transform:uppercase; }
@@ -298,7 +304,6 @@
 
 	@media (max-width:650px) {
 		.abacus-controls { align-items:flex-start; flex-direction:column; font-size:.7rem; }
-		.abacus-controls select { font-size:inherit; }
 		.runtime-legend { justify-content:center; font-size:.62rem; }
 		.empty-state, .undated { font-size:.68rem; }
 	}

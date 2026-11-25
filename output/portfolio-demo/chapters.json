@@ -1,0 +1,47 @@
+{
+  "viewport": {
+    "width": 1920,
+    "height": 1080
+  },
+  "audio": false,
+  "url": "http://127.0.0.1:5173",
+  "chapters": [
+    {
+      "seconds": 0,
+      "title": "Opening / signature animation"
+    },
+    {
+      "seconds": 12.24,
+      "title": "Interactive letter wall"
+    },
+    {
+      "seconds": 20.94,
+      "title": "Handwritten navigation"
+    },
+    {
+      "seconds": 30.54,
+      "title": "Film title / watching totals"
+    },
+    {
+      "seconds": 42.84,
+      "title": "3D disc case / watched-film abacus"
+    },
+    {
+      "seconds": 68.36,
+      "title": "Release decades / director visualization"
+    },
+    {
+      "seconds": 83.93,
+      "title": "World map / country filter"
+    },
+    {
+      "seconds": 98.68,
+      "title": "Searchable film collection"
+    },
+    {
+      "seconds": 111.21,
+      "title": "Closing / letter wall"
+    }
+  ],
+  "browserErrors": []
+}

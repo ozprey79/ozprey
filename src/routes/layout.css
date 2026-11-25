@@ -1,9 +1,9 @@
 /* Shared palette and typography. */
 :root{
-	--fill:rgb(219, 200, 193);
-	--bg:#181818;
-	--heart:rgb(0, 140, 255);
-  --bgdot: rgba(49, 49, 49, 0.788);
+	--fill:rgb(29, 29, 158);
+	--bg:ghostwhite;
+	--heart:tomato;
+  --bgdot: rgba(49, 49, 49, 0.414);
   --mfont: "Melodrama", serif;
   --bfont: "Familjen Grotesk", sans-serif;
 }

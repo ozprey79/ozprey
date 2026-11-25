@@ -132,7 +132,7 @@
     <header use:drawRules>
         <div>
         
-            <h2 use:reveal id="disc-heading">On playing</h2>
+            <h2 use:reveal id="disc-heading">Now playing</h2>
         </div>
      
     </header>

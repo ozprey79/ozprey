@@ -3,10 +3,15 @@
 	import { reveal, drawRules } from './reveal.js';
 	import DirectorChart from './DirectorChart.svelte';
 	import LanguageFilter from './LanguageFilter.svelte';
+	import MinimalSelect from './MinimalSelect.svelte';
+	import MovieHoverCard from './MovieHoverCard.svelte';
 	import CountryMap from './CountryMap.svelte';
 	import { hasCountry } from './movieCountries.js';
 	import { mapScroll } from './workspaceScroll.js';
 	let { movies: yearMovies } = $props();
+	const previewId = $props.id();
+	let preview;
+	let previewMovieId = $state(null);
 	let period = $state('2026');
 	let allMovies = $state(null);
 	let loading = $state(false);
@@ -136,7 +141,7 @@
 
 <div class="movie-panel archive-panels" aria-label="Decades and directors">
 	<section aria-labelledby="decades-title">
-		<div use:drawRules class="heading"><h2 use:reveal id="decades-title">{decade === null ? 'Release decades' : `${decade}s by year`}</h2><label class="period">Collection <select aria-label="Collection period" bind:value={period} onchange={changePeriod}><option value="2026">Year 2026</option><option value="all">All time</option></select></label></div>
+		<div use:drawRules class="heading"><h2 use:reveal id="decades-title">{decade === null ? 'Release decades' : `${decade}s by year`}</h2><label class="period">Collection <MinimalSelect label="Collection period" bind:value={period} onchange={changePeriod}><option value="2026">Year 2026</option><option value="all">All time</option></MinimalSelect></label></div>
 		<div class="chart-navigation">
 			{#if decade !== null}<button onclick={clearDecade}>← All decades</button><span>Select a year to filter the list</span>
 			{:else}<span>Select a decade to explore its years</span>{/if}
@@ -191,7 +196,7 @@
 	{/if}
 	<div use:reveal class="filters">
 		<input type="search" placeholder="Find a title" aria-label="Find a title" bind:value={query} oninput={() => limit = 24} />
-		<select aria-label="Genre" bind:value={genre} onchange={() => limit = 24}><option value="">All genres</option>{#each genres as name}<option value={name}>{name}</option>{/each}</select>
+		<MinimalSelect label="Genre" bind:value={genre} onchange={() => limit = 24}><option value="">All genres</option>{#each genres as name}<option value={name}>{name}</option>{/each}</MinimalSelect>
 		<LanguageFilter {languages} bind:selected={selectedLanguages} bind:mode={languageMode} label="List languages" onchange={changeLanguage} />
 		{#if query || genre || selectedLanguages.length || decade !== null || director || country}<button onclick={reset}>Reset filters</button>{/if}
 	</div>
@@ -206,7 +211,13 @@
 	{#if visible.length}
 		<ul use:drawRules use:fitList class="index" style:--list-rows={listRows} style:--list-columns={listColumns}>
 			{#each displayedMovies as movie (movie.id)}
-				<li><a use:drawRules href={movie.url} title={movie.title} target="_blank" rel="noreferrer"><span class="dot" aria-hidden="true">✳</span><span use:reveal={{ distance: 24, duration: 650 }} class="title">{movie.title}</span><span class="language">{movie.language}</span><span class="year">{yearOf(movie) ?? '—'}</span><span aria-hidden="true">↗</span></a></li>
+				<li><a use:drawRules href={movie.url} target="_blank" rel="noreferrer"
+					aria-describedby={previewMovieId === movie.id ? previewId : undefined}
+					onpointerenter={(event) => { if (event.pointerType !== 'touch') preview?.show(movie, event.currentTarget); }}
+					onpointerleave={() => preview?.scheduleHide()}
+					onfocus={(event) => preview?.show(movie, event.currentTarget, true)}
+					onblur={() => preview?.scheduleHide()}
+					onclick={() => preview?.hide()}><span class="dot" aria-hidden="true">✦</span><span use:reveal={{ distance: 24, duration: 650 }} class="title">{movie.title}</span><span class="language">{movie.language}</span><span class="year">{yearOf(movie) ?? '—'}</span><span aria-hidden="true">↗</span></a></li>
 			{/each}
 		</ul>
 		{#if landscape}
@@ -218,6 +229,8 @@
 		{:else if limit < visible.length}<button class="more" onclick={() => limit += 24}>Show more titles</button>{/if}
 	{:else}<p class="notice">No films match these filters.</p>{/if}
 </section>
+
+<MovieHoverCard bind:this={preview} id={previewId} onchange={(id) => previewMovieId = id} />
 
 <style>
 	.country-scroll { display:flow-root; }
@@ -234,15 +247,14 @@
 	.chart-caption { margin-top:16px; }
 	.stem.empty { min-height:0; border:0; background:transparent; }
 	.period { display:flex; align-items:center; gap:8px; font-size:.85rem; }
-	.period select { min-height:44px; padding:8px; border:1px solid currentColor; }
 	.archive-panels { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); gap:clamp(24px,4vw,64px); margin-top:64px; }
 	section { min-width:0; }
 	.heading { display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:12px; padding-bottom:16px; border-bottom:1px solid currentColor; }
 	h2 { margin:0; font:400 clamp(2rem,3.2vw,3.4rem)/1 var(--mfont); }
 	.heading p { margin:0; font-size:.85rem; opacity:.7; }
-	button, input, select { margin:0; color:inherit; background:transparent; border-radius:0; font:inherit; }
-	button, select { cursor:pointer; }
-	button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible { outline:2px solid var(--heart); outline-offset:4px; }
+	button, input { margin:0; color:inherit; background:transparent; border-radius:0; font:inherit; }
+	button { cursor:pointer; }
+	button:focus-visible, input:focus-visible, a:focus-visible { outline:2px solid var(--heart); outline-offset:4px; }
 	.decades { display:grid; grid-template-columns:repeat(var(--columns),minmax(42px,1fr)); overflow-x:auto; padding:24px 3px 4px; }
 	.column { padding:0; border:0; }
 	.column.muted { opacity:.4; }
@@ -254,12 +266,10 @@
 	.tick { display:block; padding-top:12px; font-size:.8rem; }
 	.collection { margin-top:64px; }
 	.filters { display:flex; flex-wrap:wrap; gap:10px; margin:24px 0 16px; }
-	.filters > *, .more, .active-filters button { min-height:44px; padding:10px 14px; border:1px solid color-mix(in srgb,currentColor 30%,transparent); }
-	.filters > input, .filters > select, .filters > button, .period select { border-radius:12px; }
+	.filters > input, .filters > button, .more, .active-filters button { min-height:44px; padding:10px 14px; border:1px solid color-mix(in srgb,currentColor 30%,transparent); }
+	.filters > input, .filters > button { border-radius:12px; }
 	.active-filters button { border-radius:999px; }
 	.filters input { flex:1 1 220px; min-width:0; }
-	select { max-width:100%; }
-	option { background:var(--bg); color:var(--fill); }
 	.active-filters { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; color:var(--heart); }
 	.index { list-style:none; padding:0; margin:0; border-top:1px solid color-mix(in srgb,currentColor 30%,transparent); }
 	.index a { display:grid; grid-template-columns:auto minmax(0,1fr) auto 3.4em auto; align-items:center; gap:16px; padding:16px 4px; border-bottom:1px solid color-mix(in srgb,currentColor 25%,transparent); color:inherit; text-decoration:none; }

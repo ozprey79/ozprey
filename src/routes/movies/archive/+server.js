@@ -17,7 +17,9 @@ async function metadataFor(id, fetch) {
 			const result = await response.json();
 			const metadata = {
 				directors: [...new Set((result.credits?.crew ?? []).filter(person => person.job === 'Director').map(person => person.name))],
-				productionCountries: productionCountries(result)
+				productionCountries: productionCountries(result),
+				posterPath: result.poster_path ?? null,
+				runtime: Number(result.runtime) || 0
 			};
 			credits.set(id, metadata);
 			return metadata;
@@ -27,6 +29,14 @@ async function metadataFor(id, fetch) {
 	return request;
 }
 export async function GET({ url, fetch }) {
+	if (url.searchParams.has('id')) {
+		const value = url.searchParams.get('id');
+		const id = Number(value);
+		if (!/^\d+$/.test(value) || !Number.isSafeInteger(id) || id <= 0) throw error(400, 'Invalid movie ID');
+		const metadata = await metadataFor(id, fetch);
+		if (!metadata) throw error(502, 'Movie preview could not be loaded');
+		return json(metadata, { headers: { 'cache-control': 'public, max-age=3600' } });
+	}
 	if (!url.searchParams.has('offset')) {
 		const result = await refreshArchive();
 		const names = new Intl.DisplayNames(['en'], { type: 'language' });
@@ -34,6 +44,8 @@ export async function GET({ url, fetch }) {
 			id: Number(item.key.split('/')[1]), title: item.title, releaseDate: item.year ? `${item.year}-01-01` : '',
 			genres: item.genres, language: item.language ? names.of(item.language) : '',
 			url: `https://www.themoviedb.org/${item.key}`,
+			posterPath: credits.get(Number(item.key.split('/')[1]))?.posterPath ?? null,
+			runtime: credits.get(Number(item.key.split('/')[1]))?.runtime ?? 0,
 			directors: credits.get(Number(item.key.split('/')[1]))?.directors ?? [],
 			productionCountries: credits.get(Number(item.key.split('/')[1]))?.productionCountries ?? null
 		})) });

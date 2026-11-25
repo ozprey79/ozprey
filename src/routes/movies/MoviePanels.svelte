@@ -144,9 +144,8 @@
 		<div class="panel-track" bind:this={track}>{@render children()}</div>
 	</div>
 	<nav class="panel-navigation" aria-label="Film panels">
-		<span class="scroll-hint">Scroll to explore</span>
 		{#each labels as label, index}
-			<button aria-current={active === index ? 'step' : undefined} disabled={!ready && index > 0} onclick={() => navigate(index)}>{label}</button>
+			<button aria-label={label} aria-current={active === index ? 'step' : undefined} disabled={!ready && index > 0} onclick={() => navigate(index)}><span class="panel-dot" aria-hidden="true"></span></button>
 		{/each}
 	</nav>
 </div>
@@ -172,18 +171,14 @@
 			box-shadow:-20px 0 40px #0002;
 		}
 		.panel-track > :global(.film-intro) { padding-block:0; overflow:hidden; }
-		.panel-navigation { display:flex; align-items:center; justify-content:center; gap:clamp(4px,1.5vw,24px); padding:0 16px; border-top:1px solid color-mix(in srgb,var(--fill) 15%,transparent); }
-		.scroll-hint { margin-right:auto; font-size:.75rem; opacity:.5; }
-		button { position:relative; min-height:44px; padding:10px 4px; margin:0; background:transparent; color:var(--fill); border:0; font:inherit; font-size:.8rem; cursor:pointer; opacity:.55; }
+		.panel-navigation { display:flex; align-items:center; justify-content:center; justify-self:center; gap:4px; padding:0 6px; }
+		button { display:grid; place-items:center; width:28px; height:28px; min-height:28px; padding:0; margin:0; background:transparent; color:var(--fill); border:0; border-radius:50%; cursor:pointer; opacity:.45; }
+		.panel-dot { display:block; width:6px; height:6px; border-radius:50%; background:currentColor; }
 		button[aria-current="step"] { color:var(--heart); opacity:1; }
-		button[aria-current="step"]::before { content:''; position:absolute; top:-1px; left:4px; right:4px; height:2px; background:currentColor; }
+		button[aria-current="step"] .panel-dot { transform:scale(1.25); }
 		button:hover, button:focus-visible { opacity:1; }
 		button:focus-visible { outline:2px solid var(--heart); outline-offset:-3px; }
 		button:disabled { cursor:default; opacity:.25; }
-	}
-	@media (orientation:landscape) and (max-width:900px) {
-		.scroll-hint { display:none; }
-		.panel-navigation { justify-content:space-around; }
 	}
 	@media (orientation:landscape) and (max-height:500px) {
 		.panel-track > :global(.movie-panel:not(.film-intro)) { padding-block:56px 12px; }

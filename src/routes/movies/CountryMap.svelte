@@ -23,6 +23,7 @@
 
 <script>
 	import { onMount } from 'svelte';
+	import MinimalSelect from './MinimalSelect.svelte';
 	import { reveal, drawRules } from './reveal.js';
 	import { countryCounts } from './movieCountries.js';
 
@@ -76,11 +77,11 @@
 	<div class="map-intro">
 		<p>Films by production country. Select a country to explore the list.</p>
 		<label class="country-select">Country
-			<select aria-label="Filter films by production country" value={selected} onchange={chooseCountry}>
+			<MinimalSelect label="Filter films by production country" value={selected} onchange={chooseCountry} maxWidth="260px">
 				<option value="">All countries</option>
 				{#if selected && !counts.has(selected)}<option value={selected}>{countryName} (0)</option>{/if}
 				{#each alphabetical as country (country.code)}<option value={country.code}>{country.name} ({country.count})</option>{/each}
-			</select>
+			</MinimalSelect>
 		</label>
 	</div>
 	<div class="map-frame">
@@ -148,9 +149,7 @@
 	.map-intro { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin:18px 0; font-size:.85rem; }
 	.map-intro p { margin:0; opacity:.7; }
 	.country-select { display:flex; align-items:center; gap:8px; }
-	select, button { color:inherit; background:transparent; font:inherit; }
-	select { min-height:44px; padding:8px 12px; max-width:260px; border:1px solid color-mix(in srgb,currentColor 30%,transparent); border-radius:12px; cursor:pointer; }
-	option { background:var(--bg); color:var(--fill); }
+	button { color:inherit; background:transparent; font:inherit; }
 	.map-frame { background:transparent; }
 	.world-map { display:block; width:100%; height:auto; overflow:visible; }
 	.ocean { fill:var(--bg); stroke:color-mix(in srgb,var(--fill) 18%,transparent); stroke-width:.8; }
@@ -172,7 +171,7 @@
 	.country-leaders button { display:flex; align-items:center; gap:12px; min-height:44px; padding:8px 14px; border:1px solid color-mix(in srgb,currentColor 25%,transparent); border-radius:999px; cursor:pointer; }
 	.country-leaders button span { opacity:.65; font-variant-numeric:tabular-nums; }
 	.country-leaders button:hover, .country-leaders button[aria-pressed="true"], .clear { color:var(--heart); }
-	select:focus-visible, button:focus-visible, a:focus-visible { outline:2px solid var(--heart); outline-offset:4px; }
+	button:focus-visible, a:focus-visible { outline:2px solid var(--heart); outline-offset:4px; }
 	.map-note, .notice, .source { margin:12px 0 0; font-size:.8rem; line-height:1.5; opacity:.65; }
 	.source { font-size:.7rem; }
 	.source a { color:inherit; text-underline-offset:3px; }
@@ -192,13 +191,13 @@
 		.map-notes > summary { display:list-item; width:fit-content; padding:4px 0; cursor:pointer; opacity:.7; }
 		.notes-content { position:absolute; z-index:5; bottom:100%; left:0; width:min(600px,100%); max-height:50svh; overflow-y:auto; padding:12px 16px; border:1px solid color-mix(in srgb,var(--fill) 30%,transparent); border-radius:12px; background:var(--bg); }
 	}
-	@media(max-width:540px) { .map-intro { align-items:flex-start; } .country-select { width:100%; } select { flex:1; min-width:0; max-width:none; } .map-footer { gap:8px; } .legend { margin-left:auto; } }
+	@media(max-width:540px) { .map-intro { align-items:flex-start; } .country-select { width:100%; } .country-select :global(.minimal-select) { flex:1; min-width:0; max-width:none; } .map-footer { gap:8px; } .legend { margin-left:auto; } }
 	@media(orientation:landscape) and (max-height:500px) {
 		.country-section { display:grid; grid-template-columns:minmax(0,1fr) minmax(220px,.65fr); grid-template-rows:auto minmax(0,1fr) auto auto; gap:8px 20px; }
 		.heading { grid-column:1 / -1; }
 		.map-frame { grid-column:1; grid-row:2 / 4; }
 		.map-intro { grid-column:2; grid-row:2; flex-direction:column; align-items:stretch; justify-content:center; margin:0; }
-		.country-select select { flex:1; min-width:0; max-width:100%; }
+		.country-select :global(.minimal-select) { flex:1; min-width:0; max-width:100%; }
 		.country-leaders { grid-column:2; grid-row:3; margin:0; }
 		.map-notes { grid-column:1 / -1; grid-row:4; margin:0; }
 		.map-footer { font-size:.75rem; gap:4px; }
