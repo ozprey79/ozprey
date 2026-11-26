@@ -134,7 +134,7 @@ textarea {
     right: clamp(10px, 3vmin, 15px);
     top: clamp(10px, 3vmin, 15px);
     z-index: 11;
-    width: clamp(50px, 10vmin, 120px);
+    width: clamp(44px, 7.5vmin, 88px);
     aspect-ratio: 1/1;
     cursor: pointer;
     border-style: none;
@@ -153,7 +153,7 @@ textarea {
      left: clamp(15px, 4vmin, 15px);
     top: clamp(5px, 4vmin, 15px);
       z-index: 11;
-    width: clamp(50px, 10vmin, 120px);
+    width: clamp(44px, 7.5vmin, 88px);
     aspect-ratio: 1/1;
     cursor: pointer;
     border-style: none;

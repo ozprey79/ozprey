@@ -1,6 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     import fragment from './disco.frag?raw';
+    let { hero = false } = $props();
     let canvas;
     let paused = $state(false);
     let unavailable = $state(false);
@@ -79,17 +80,23 @@
     });
 </script>
 
-<aside class="disco-panel" aria-label="Disco light study">
-    <div class="panel-heading"><p>After hours</p><span>Light study</span></div>
+<aside class="disco-panel" class:hero aria-label={hero ? 'Music' : 'Disco light study'}>
+    {#if !hero}<div class="panel-heading"><p>After hours</p><span>Light study</span></div>{/if}
     <div class="screen" role="img" aria-label="Rotating copper mirror ball with warm golden reflections">
         <canvas bind:this={canvas} aria-hidden="true"></canvas>
         {#if unavailable}<p class="fallback">The dance floor is quiet.<br /><small>This browser cannot display the light study.</small></p>{/if}
     </div>
-    <div class="panel-footer"><p>A little disco, on the side.</p><button type="button" disabled={unavailable} aria-pressed={paused} onclick={() => paused = !paused}>{paused ? 'Resume' : 'Pause'}</button></div>
+    {#if hero}<h1>Music</h1>{/if}
+    <div class="panel-footer"><p>{hero ? 'A listening journal in plays and hours.' : 'A little disco, on the side.'}</p><button type="button" disabled={unavailable} aria-pressed={paused} onclick={() => paused = !paused}>{paused ? 'Resume' : 'Pause'}</button></div>
 </aside>
 
 <style>
     .disco-panel { width: min(100%, 380px); margin: 40px 0 0 auto; border: 1px solid color-mix(in srgb, var(--fill) 24%, transparent); background: transparent; }
+    .disco-panel.hero { position:relative; display:grid; grid-template-rows:minmax(0,1fr) auto; width:100%; height:100%; min-height:0; margin:0; border:0; padding-top:64px; }
+    .hero .screen { align-self:center; justify-self:center; width:auto; height:min(85vw,68svh,100%); aspect-ratio:1; }
+    .hero h1 { position:absolute; left:0; right:0; bottom:clamp(62px,12svh,120px); margin:0; text-align:center; font:400 clamp(6rem,24vw,22rem)/.8 var(--mfont); text-transform:uppercase; letter-spacing:-.055em; pointer-events:none; }
+    .hero .panel-footer { position:relative; padding:20px 0; }
+    .hero .panel-footer p { font-size:1rem; }
     .panel-heading, .panel-footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; }
     .panel-heading p { font-family: var(--mfont), serif; font-size: 1.8rem; }
     .panel-heading span { font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; color: var(--heart); }

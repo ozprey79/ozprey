@@ -1,5 +1,5 @@
 <script>
-	let { rankings, metric, format, totalTime, formatDuration, plays, formatCount } = $props();
+	let { rankings, metric, format, totalTime, formatDuration, plays, formatCount, compact = false } = $props();
 	let active = $state(null);
 	const tooltipId = $props.id();
 	let tooltipName = $state(null);
@@ -72,7 +72,7 @@
 	</div>
 {/if}
 
-<figure class:visible use:reveal aria-label="Top ten listening breakdown">
+<figure class:visible class:compact use:reveal aria-label="Top ten listening breakdown">
 	<div class="dial">
 		<svg viewBox="0 0 560 560" role="group" aria-label={`Top ${rankings.length} by ${metric === 'plays' ? 'plays' : 'estimated listening time'}. Ten orbiting balls represent the rankings. Larger totals have larger balls; color blends from cyan at rank one to cream at rank ten.`}>
 			<circle class="guide" cx="280" cy="280" r="218" />
@@ -159,5 +159,13 @@
 	.empty { padding: 20px 0; }
 	@keyframes revolve { to { transform: rotate(360deg); } }
 	@media (max-width: 760px) { figure { grid-template-columns: 1fr; gap: 8px; } .dial { width: min(100%, 520px); margin: auto; } .duration { font-size: clamp(2rem, 8vw, 4.4rem); } }
+	@media (orientation: landscape) {
+		figure.compact { height:100%; min-height:0; margin:0; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:24px; }
+		.compact figcaption { display:flex; flex-direction:column; height:100%; min-height:0; }
+		.compact ol { flex:1; min-height:0; overflow-y:auto; }
+		.compact figcaption button { margin:0; padding-block:8px; line-height:1.2; }
+		.compact .name { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+		.compact .explanation { display:none; }
+	}
 	@media (prefers-reduced-motion: reduce) { .orbit { animation: none; } .ball { transition: none; } .orbit-toggle { display: none; } }
 </style>

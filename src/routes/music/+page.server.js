@@ -1,5 +1,6 @@
 import { error } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
+import { loadMusicolet } from '$lib/music_data/musicolet.server.js';
 
 const API = 'https://ws.audioscrobbler.com/2.0/';
 const DAY_SECONDS = 24 * 60 * 60;
@@ -162,7 +163,7 @@ function aggregateArtists(scrobbles) {
 	return [...groups.values()].sort((a, b) => b.plays - a.plays);
 }
 
-export async function load({ fetch, setHeaders }) {
+async function loadLastfm({ fetch, setHeaders }) {
 	if (!env.LASTFM_API_KEY || !env.LASTFM_USERNAME) {
 		throw error(500, 'LASTFM_API_KEY and LASTFM_USERNAME must be set');
 	}
@@ -228,4 +229,25 @@ export async function load({ fetch, setHeaders }) {
 		singles,
 		artists: aggregateArtists(scrobbles)
 	};
+}
+
+export async function load(event) {
+	const musicolet = loadMusicolet();
+	try {
+		return { ...await loadLastfm(event), musicolet, lastfmUnavailable: false };
+	} catch {
+		// The offline archive and page remain usable when Last.fm is unavailable.
+		const now = Date.now();
+		const today = Math.floor(now / (DAY_SECONDS * 1000)) * DAY_SECONDS * 1000;
+		const username = String(env.LASTFM_USERNAME ?? '').trim();
+		event.setHeaders({ 'cache-control': 'public, max-age=30' });
+		return {
+			musicolet,
+			lastfmUnavailable: true,
+			profile: { username, url: username ? `https://www.last.fm/user/${encodeURIComponent(username)}` : 'https://www.last.fm/' },
+			range: { from: today - (DAYS_SHOWN - 1) * DAY_SECONDS * 1000, to: now, days: DAYS_SHOWN },
+			summary: { scrobbles: 0, albumCount: 0, singleCount: 0, nowPlaying: false, truncated: false },
+			albums: [], singles: [], artists: []
+		};
+	}
 }

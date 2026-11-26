@@ -5,8 +5,11 @@
 	import 'lenis/dist/lenis.css';
 	import { panelDrift, elasticSnap } from './panelMotion.js';
 
-	let { children, ready = false } = $props();
-	const labels = ['Title', 'Disc & abacus', 'Decades & directors', 'World map', 'The list'];
+	let {
+		children, ready = false,
+		labels = ['Title', 'Disc & abacus', 'Decades & directors', 'World map', 'The list'],
+		panelLabel = 'Film panels'
+	} = $props();
 	let viewport;
 	let track;
 	let active = $state(0);
@@ -41,7 +44,7 @@
 				if (element === viewport) break;
 				if (!(element instanceof Element)) continue;
 				if (element.matches('select, textarea, [contenteditable="true"]')) return false;
-				if (event.type.startsWith('touch') && element.matches('[role="slider"], .fish-button')) return false;
+				if (event.type.startsWith('touch') && element.matches('[role="slider"], .fish-button, [data-model-stage]')) return false;
 				const axis = vertical ? 'Y' : 'X';
 				const style = getComputedStyle(element);
 				const position = vertical ? element.scrollTop : element.scrollLeft;
@@ -140,10 +143,10 @@
 </script>
 
 <div class="film-browser">
-	<div class="panel-viewport" bind:this={viewport} data-native-scroll={landscape ? '' : undefined} role="region" aria-label="Scrollable film panels" tabindex={landscape ? 0 : undefined}>
+	<div class="panel-viewport" bind:this={viewport} data-native-scroll={landscape ? '' : undefined} role="region" aria-label={`Scrollable ${panelLabel.toLowerCase()}`} tabindex={landscape ? 0 : undefined}>
 		<div class="panel-track" bind:this={track}>{@render children()}</div>
 	</div>
-	<nav class="panel-navigation" aria-label="Film panels">
+	<nav class="panel-navigation" aria-label={panelLabel}>
 		{#each labels as label, index}
 			<button aria-label={label} aria-current={active === index ? 'step' : undefined} disabled={!ready && index > 0} onclick={() => navigate(index)}><span class="panel-dot" aria-hidden="true"></span></button>
 		{/each}
