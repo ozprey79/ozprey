@@ -1,0 +1,513 @@
+{
+  "username": "ozprey7",
+  "updatedAt": 1795757200738,
+  "books": [
+    {
+      "id": 427599,
+      "title": "To Shake the Sleeping Self: A Journey from Oregon to Patagonia, and a Quest for a Life with No Regret",
+      "authors": [
+        "Jedidiah Jenkins"
+      ],
+      "status": 3,
+      "rating": null,
+      "pages": 338,
+      "year": 2018,
+      "cover": "https://assets.hardcover.app/external_data/59993752/f1ddda9fe64b1697af5503bcb5b01de1a22b1160.jpeg",
+      "genres": [
+        "Travel",
+        "Adventure",
+        "LGBTQ"
+      ],
+      "description": "\"From travel writer and Instagram phenomenon Jedidiah Jenkins, a long-awaited memoir of adventure, failure, and lessons learned while bicycling the 10,000 miles from Oregon to Patagonia. On the eve of turning thirty, terrified of being sucked into a life he didn't choose, Jedidiah Jenkins quit his dream job and spent the next sixteen months cycling from Oregon to Patagonia. He chronicled the trip on Instagram, where his photos and profound reflections on life soon attracted hundreds of thousands of followers and got him featured by National Geographic and The Paris Review. In this unflinchingly honest memoir, Jed narrates the adventure that started it all: the people and places he encountered on his way to the bottom of the world, and the internal journey that prompted it--the question of what it means to be an adult; his struggle to reconcile his sexual identity with his conservative Christian upbringing; and his belief in travel as a way to \"wake us up\" to our lives back home. As he writes in his inspiring search for wonder and a life he could believe in, 'It's not about the bike. It's about getting out of your routine--and that could look like anything'\"--",
+      "finishedDate": null,
+      "url": "https://hardcover.app/books/to-shake-the-sleeping-self"
+    },
+    {
+      "id": 1122176,
+      "title": "മഞ്ഞവെയില്‍ മരണങ്ങള്‍ | Manjaveyil Maranangal",
+      "authors": [
+        "Benyamin"
+      ],
+      "status": 3,
+      "rating": null,
+      "pages": 351,
+      "year": 2011,
+      "cover": "https://assets.hardcover.app/external_data/60292273/10c7ca70fb6e09e12a28e92a01dfbd65312c00d7.jpeg",
+      "genres": [],
+      "description": "",
+      "finishedDate": null,
+      "url": "https://hardcover.app/books/manjaveyil-maranangal"
+    },
+    {
+      "id": 1122204,
+      "title": "Mullapooniramulla Pakalukal",
+      "authors": [
+        "Benyamin"
+      ],
+      "status": 3,
+      "rating": null,
+      "pages": null,
+      "year": 2014,
+      "cover": "https://assets.hardcover.app/external_data/60292302/f736959a6af7711c279aa9ad4c0657192251399d.jpeg",
+      "genres": [],
+      "description": "",
+      "finishedDate": null,
+      "url": "https://hardcover.app/books/mullapooniramulla-pakalukal"
+    },
+    {
+      "id": 1515993,
+      "title": "ഭൂമിയുടെ അവകാശികള്‍ | Bhoomiyude Avakaashikal",
+      "authors": [
+        "Vaikom Muhammad Basheer"
+      ],
+      "status": 3,
+      "rating": null,
+      "pages": 66,
+      "year": 1977,
+      "cover": "https://assets.hardcover.app/edition/31570568/d6f0f868e56d654bca894a9ef535d1a26c26545b.jpeg",
+      "genres": [
+        "Classics",
+        "Short stories"
+      ],
+      "description": "",
+      "finishedDate": null,
+      "url": "https://hardcover.app/books/bhoomiyude-avakaashikal"
+    },
+    {
+      "id": 302201,
+      "title": "Eleven Minutes",
+      "authors": [
+        "Paulo Coelho"
+      ],
+      "status": 3,
+      "rating": null,
+      "pages": 320,
+      "year": 2003,
+      "cover": "https://assets.hardcover.app/external_data/44169924/93340368f087f52ba77817d80c8d22b7ac799363.jpeg",
+      "genres": [
+        "Classics",
+        "Fiction:Religous",
+        "General",
+        "Romance",
+        "Love stories",
+        "Brazilians",
+        "Prostitutes",
+        "Literary Fiction"
+      ],
+      "description": "Eleven Minutes is the story of Maria, a young girl from a Brazilian village, whose first innocent brushes with love leave her heartbroken. At a tender age, she becomes convinced that she will never find true love, instead believing that \"love is a terrible thing that will make you suffer. . . .\" A chance meeting in Rio takes her to Geneva, where she dreams of finding fame and fortune. Maria's despairing view of love is put to the test when she meets a handsome young painter. In this odyssey of self-discovery, Maria has to choose between pursuing a path of darkness — sexual pleasure for its own sake — or risking everything to find her own \"inner light\" and the possibility of sacred sex, sex in the context of love.This P.S. edition features an extra 16 pages of insights into the book, including author interviews, recommended reading, and more.",
+      "finishedDate": null,
+      "url": "https://hardcover.app/books/eleven-minutes"
+    },
+    {
+      "id": 337236,
+      "title": "The Alchemist",
+      "authors": [
+        "Paulo Coelho"
+      ],
+      "status": 3,
+      "rating": null,
+      "pages": 192,
+      "year": 1988,
+      "cover": "https://assets.hardcover.app/editions/30399646/6724991536065856.jpg",
+      "genres": [
+        "Fantasy",
+        "Philosophy",
+        "Classics",
+        "Literary Fiction",
+        "Adventure",
+        "Self help",
+        "Religion & Spirituality",
+        "Historical Fiction",
+        "Personal Growth",
+        "Spirituality"
+      ],
+      "description": "Combining magic, mysticism, wisdom and wonder into an inspiring tale of self-discovery, The Alchemist has become a modern classic, selling millions of copies around the world and transforming the lives of countless readers across generations.\n\nPaulo Coelho's masterpiece tells the mystical story of Santiago, an Andalusian shepherd boy who yearns to travel in search of a worldly treasure. His quest will lead him to riches far different—and far more satisfying—than he ever imagined. Santiago's journey teaches us about the essential wisdom of listening to our hearts, of recognizing opportunity and learning to read the omens strewn along life's path, and, most importantly, to follow our dreams.",
+      "finishedDate": null,
+      "url": "https://hardcover.app/books/the-alchemist"
+    },
+    {
+      "id": 2008536,
+      "title": "And Then There Were None",
+      "authors": [
+        "Agatha Christie"
+      ],
+      "status": 3,
+      "rating": null,
+      "pages": 50,
+      "year": 1939,
+      "cover": "https://assets.hardcover.app/editions/26939988/4489646938598107-16299.jpg",
+      "genres": [
+        "Mystery"
+      ],
+      "description": "Ten people, each with something to hide and something to fear, are invited to an isolated mansion on Indian Island by a host who, surprisingly, fails to appear. On the island they are cut off from everything but each other and the inescapable shadows of their own past lives. One by one, the guests share the darkest secrets of their wicked pasts. And one by one, they die... Which among them is the killer and will any of them survive?",
+      "finishedDate": null,
+      "url": "https://hardcover.app/books/and-then-there-were-none"
+    },
+    {
+      "id": 32407,
+      "title": "We Were Liars",
+      "authors": [
+        "E. Lockhart"
+      ],
+      "status": 3,
+      "rating": null,
+      "pages": 256,
+      "year": 2000,
+      "cover": "https://assets.hardcover.app/editions/30406727/1876943914399454-9160KvYYLIL._SL1500_.jpg",
+      "genres": [
+        "Young Adult",
+        "Mystery",
+        "Romance",
+        "Friendship",
+        "Juvenile Fiction"
+      ],
+      "description": "\"A private island.\nA brilliant, damaged girl; a passionate, political boy.\nA group of four friends—the Liars—whose friendship turns destructive.\nA revolution. An accident. A secret.\nLies upon lies.\nTrue love.\nThe truth.\n\nRead it.\nAnd if anyone asks you how it ends, just LIE.\"-- Provided by Amazon",
+      "finishedDate": null,
+      "url": "https://hardcover.app/books/we-were-liars"
+    },
+    {
+      "id": 187993,
+      "title": "The Silent Patient",
+      "authors": [
+        "Alex Michaelides"
+      ],
+      "status": 3,
+      "rating": null,
+      "pages": 290,
+      "year": 2019,
+      "cover": "https://assets.hardcover.app/edition/30408097/283e4f71-ecbc-4e2c-8876-6fdfad786456.jpg",
+      "genres": [
+        "Thriller",
+        "Mystery",
+        "Crime",
+        "Suspense",
+        "Thriller & Suspense",
+        "Mystery Thriller",
+        "Thrillers",
+        "Mystery/Thriller",
+        "General",
+        "Physiological thriller"
+      ],
+      "description": "Alicia Berenson’s life is seemingly perfect. A famous painter married to an in-demand fashion photographer, she lives in a grand house with big windows overlooking a park in one of London’s most desirable areas. One evening her husband Gabriel returns home late from a fashion shoot, and Alicia shoots him five times in the face, and then never speaks another word.\n\nAlicia’s refusal to talk, or give any kind of explanation, turns a domestic tragedy into something far grander, a mystery that captures the public imagination and casts Alicia into notoriety. The price of her art skyrockets, and she, the silent patient, is hidden away from the tabloids and spotlight at the Grove, a secure forensic unit in North London.\n\nTheo Faber is a criminal psychotherapist who has waited a long time for the opportunity to work with Alicia. His determination to get her to talk and unravel the mystery of why she shot her husband takes him down a twisting path into his own motivations—a search for the truth that threatens to consume him....",
+      "finishedDate": null,
+      "url": "https://hardcover.app/books/the-silent-patient"
+    },
+    {
+      "id": 207877,
+      "title": "Kafka on the Shore",
+      "authors": [
+        "Haruki Murakami"
+      ],
+      "status": 3,
+      "rating": null,
+      "pages": 528,
+      "year": 2002,
+      "cover": "https://assets.hardcover.app/editions/31645214/7751038927873328.jpg",
+      "genres": [
+        "Literary Fiction",
+        "Fantasy",
+        "Magical Realism",
+        "Contemporary",
+        "Genre Fiction",
+        "Paranormal & Urban",
+        "Literature & Fiction",
+        "Detective and mystery stories",
+        "Classics",
+        "Destiny"
+      ],
+      "description": "Kafka on the Shore is powered by two remarkable characters: a teenage boy, Kafka Tamura, who runs away from home either to escape a gruesome oedipal prophecy or to search for his long missing mother and sister; and an aging simpleton called Nakata, who never recovered from a wartime affliction and now is drawn toward Kafka for reasons that, like the most basic activities of daily life, he cannot fathom.",
+      "finishedDate": null,
+      "url": "https://hardcover.app/books/kafka-on-the-shore"
+    },
+    {
+      "id": 776952,
+      "title": "Norwegian Wood",
+      "authors": [
+        "Haruki Murakami"
+      ],
+      "status": 3,
+      "rating": null,
+      "pages": 298,
+      "year": 1987,
+      "cover": "https://assets.hardcover.app/edition/11016885/93eb5a84-c963-4cd6-8599-593c6c792f5c.jpg",
+      "genres": [
+        "Romance",
+        "Literary Fiction",
+        "Contemporary",
+        "Magical Realism",
+        "Man-woman relationships",
+        "College students",
+        "Young Adult",
+        "Classics",
+        "japanese (language) contemporary fiction",
+        "General"
+      ],
+      "description": "Toru, a quiet and preternaturally serious young college student in Tokyo, is devoted to Naoko, a beautiful and introspective young woman, but their mutual passion is marked by the tragic death of their best friend years before. Toru begins to adapt to campus life and the loneliness and isolation he faces there, but Naoko finds the pressures and responsibilities of life unbearable. As she retreats further into her own world, Toru finds himself reaching out to others and drawn to a fiercely independent and sexually liberated young woman.\n\nA magnificent blending of the music, the mood, and the ethos that was the sixties with the story of one college student's romantic coming of age, Norwegian Wood brilliantly recaptures a young man's first, hopeless, and heroic love.",
+      "finishedDate": null,
+      "url": "https://hardcover.app/books/norwegian-wood"
+    },
+    {
+      "id": 75637,
+      "title": "Siddhartha",
+      "authors": [
+        "Hermann Hesse"
+      ],
+      "status": 3,
+      "rating": null,
+      "pages": 176,
+      "year": 1922,
+      "cover": "https://assets.hardcover.app/editions/1645915/2549686296244180-52036.jpg",
+      "genres": [
+        "Classics",
+        "Philosophy",
+        "Literature",
+        "Spirituality",
+        "Literary Fiction",
+        "Religion",
+        "German literature",
+        "Allegory",
+        "Buddhism",
+        "History"
+      ],
+      "description": "Herman Hesse's classic novel has delighted, inspired, and influenced generations of readers, writers, and thinkers. In this story of a wealthy Indian Brahmin who casts off a life of privilege to seek spiritual fulfillment. Hesse synthesizes disparate philosophies--Eastern religions, Jungian archetypes, Western individualism--into a unique vision of life as expressed through one man's search for true meaning.",
+      "finishedDate": null,
+      "url": "https://hardcover.app/books/siddhartha"
+    },
+    {
+      "id": 261931,
+      "title": "A Man Called Ove",
+      "authors": [
+        "Fredrik Backman"
+      ],
+      "status": 3,
+      "rating": null,
+      "pages": 337,
+      "year": 2012,
+      "cover": "https://assets.hardcover.app/edition/2555790/1b6964d60d0875611a8b0f3d0da728b1729d0516.jpeg",
+      "genres": [
+        "Literary Fiction",
+        "Romance",
+        "Friendship",
+        "Literary",
+        "General",
+        "Philosophy",
+        "Novel",
+        "Humour",
+        "Sad",
+        "History"
+      ],
+      "description": "Meet Ove. He's a curmudgeon, the kind of man who points at people he dislikes as if they were burglars caught outside his bedroom window. He has staunch principles, strict routines, and a short fuse. People call him the bitter neighbor from hell, but must Ove be bitter just because he doesn't walk around with a smile plastered to his face all the time?\n\nBehind the cranky exterior there is a story and a sadness. So when one November morning a chatty young couple with two chatty young daughters move in next door and accidentally flatten Ove's mailbox, it is the lead-in to a comical and heartwarming tale of unkempt cats, unexpected friendship, and the ancient art of backing up a U-Haul. All of which will change one cranky old man and a local residents' association to their very foundations.\n\n(Previous notes):\nLoved this book (translation from Swedish). Quirky story of a curmudgeon which is also a film (with English subtitles) on Netflix. Backman is a successful journalist, author, and blogger. Also enjoyed ‘Britt-Marie Was Here’ and I look forward to checking out his latest new release.",
+      "finishedDate": null,
+      "url": "https://hardcover.app/books/a-man-called-ove"
+    },
+    {
+      "id": 593217,
+      "title": "Time Within Time",
+      "authors": [
+        "Andrei Tarkovsky"
+      ],
+      "status": 3,
+      "rating": null,
+      "pages": 416,
+      "year": 2017,
+      "cover": "https://assets.hardcover.app/edition/30561359/content.jpeg",
+      "genres": [],
+      "description": "\"Tarkovsky for me is the greatest,\" wrote Ingmar Bergman. Andrey Tarkovsky only made seven films, but all are celebrated for its striking visual images, quietly patient dramatic structures, and visionary symbolism. Time within Time is both a diary and a notebook, maintained by Tarkovsky from 1970 until his death. Intense and intimate, it offers reflections on Dostoyevsky, Tolstoy, Hermann Hesse, Thomas Mann, and others. He writes movingly of his family, especially his father, Arseniy Tarkovsky, whose poems appear in his films. He records haunting dreams in detail and speaks of the state of society and the future of art, noting significant world events and purely personal dramas along with fascinating accounts of his own filmmaking. Rounding out this volume are Tarkovsky's plans and notes for his stage version of Hamlet; a detailed proposal for a film adaptation of Dostoyevsky's The Idiot; and a glimpse of the more public Tarkovsky answering questions put to him by interviewers.",
+      "finishedDate": null,
+      "url": "https://hardcover.app/books/time-within-time"
+    },
+    {
+      "id": 1651635,
+      "title": "Our Films, Their Films",
+      "authors": [
+        "Satyajit Ray"
+      ],
+      "status": 3,
+      "rating": null,
+      "pages": 212,
+      "year": 1983,
+      "cover": "https://assets.hardcover.app/edition/32358763/469d34694c7a9e1b7a31e7d8f878e854eba34d95.jpeg",
+      "genres": [
+        "Classics",
+        "Business & Economics"
+      ],
+      "description": "An Indian moviemaker's views on cinematic trends and the film industry; articles and lectures.",
+      "finishedDate": null,
+      "url": "https://hardcover.app/books/our-films-their-films"
+    },
+    {
+      "id": 1373262,
+      "title": "My Years With Apu",
+      "authors": [
+        "Satyajit Ray"
+      ],
+      "status": 3,
+      "rating": null,
+      "pages": 148,
+      "year": 1994,
+      "cover": "https://assets.hardcover.app/external_data/60498527/7ae030055c8588f56d7e1cb5e39ab396f2179363.jpeg",
+      "genres": [
+        "Aparājita (Motion picture)",
+        "Biography"
+      ],
+      "description": "This Memoir By Satyajit Ray Relates The Story Behind The Making Of His First 3 Films-`The Apu Triology` Covers The Key Aspects Of His Career, His Decision To Give Up His Job And Make Films, The Early Setbacks, Shortage Of Funds, The Support Of Master Directors His Innovative Solution And The Triumphant Reception Of His Films In India And Abroad.",
+      "finishedDate": null,
+      "url": "https://hardcover.app/books/my-years-with-apu"
+    },
+    {
+      "id": 659685,
+      "title": "Days At The Morisaki Bookshop",
+      "authors": [
+        "Satoshi Yagisawa"
+      ],
+      "status": 3,
+      "rating": null,
+      "pages": 169,
+      "year": 2010,
+      "cover": "https://assets.hardcover.app/editions/30642401/7290869771504136.jpeg",
+      "genres": [
+        "Books About Books",
+        "Literary Fiction",
+        "Japanese literature",
+        "Novella",
+        "Japanese fiction",
+        "Drama",
+        "Coming of Age",
+        "Fiction; Literary; Literature in Translation",
+        "Large type books",
+        "Contemporary"
+      ],
+      "description": "The wise and charming international bestseller and hit Japanese movie—about a young woman who loses everything but finds herself—a tale of new beginnings, romantic and family relationships, and the comfort that can be found in books.\n\nTwenty-five-year-old Takako has enjoyed a relatively easy existence—until the day her boyfriend Hideaki, the man she expected to wed, casually announces he’s been cheating on her and is marrying the other woman. Suddenly, Takako’s life is in freefall. She loses her job, her friends, and her acquaintances, and spirals into a deep depression. In the depths of her despair, she receives a call from her distant uncle Satoru.\n\nAn unusual man who has always pursued something of an unconventional life, especially after his wife Momoko left him out of the blue five years earlier, Satoru runs a second-hand bookshop in Jimbocho, Tokyo’s famous book district. Takako once looked down upon Satoru’s life. Now, she reluctantly accepts his offer of the tiny room above the bookshop rent-free in exchange for helping out at the store. The move is temporary, until she can get back on her feet. But in the months that follow, Takako surprises herself when she develops a passion for Japanese literature, becomes a regular at a local coffee shop where she makes new friends, and eventually meets a young editor from a nearby publishing house who’s going through his own messy breakup.\n\nBut just as she begins to find joy again, Hideaki reappears, forcing Takako to rely once again on her uncle, whose own life has begun to unravel. Together, these seeming opposites work to understand each other and themselves as they continue to share the wisdom they’ve gained in the bookshop.",
+      "finishedDate": null,
+      "url": "https://hardcover.app/books/days-at-the-morisaki-bookshop"
+    },
+    {
+      "id": 475395,
+      "title": "The Forty Rules of Love",
+      "authors": [
+        "Elif Shafak"
+      ],
+      "status": 3,
+      "rating": null,
+      "pages": 368,
+      "year": 2009,
+      "cover": "https://assets.hardcover.app/edition/30396610/62b042c6efada0d58f4b81a95c50b4f64d3907ed.jpeg",
+      "genres": [
+        "Historical Fiction",
+        "Spirituality",
+        "Philosophy",
+        "Romance",
+        "Classics",
+        "Literature",
+        "Aşk",
+        "Hayat",
+        "Historical",
+        "Religion"
+      ],
+      "description": "\"Every true love and friendship is a story of unexpected transformation. If we are the same person before and after we loved, that means we haven't loved enough...\" Ella Rubinstein has a husband, three teenage children, and a pleasant home. Everything that should make her confident and fulfilled. Yet there is an emptiness at the heart of Ella's life - an emptiness once filled by love. So when Ella reads a manuscript about the thirteenth-century Sufi poet Rumi and Shams of Tabriz, and his forty rules of life and love, her world is turned upside down. She embarks on a journey to meet the mysterious author of this work. It is a quest infused with Sufi mysticism and verse, taking Ella and us into an exotic world where faith and love are heartbreakingly explored. . .",
+      "finishedDate": null,
+      "url": "https://hardcover.app/books/the-forty-rules-of-love"
+    },
+    {
+      "id": 2452620,
+      "title": "Sugandhi enna Āṇṭāḷ Dēvanāyaki",
+      "authors": [
+        "T.D. Ramakrishnan"
+      ],
+      "status": 3,
+      "rating": null,
+      "pages": 295,
+      "year": 2014,
+      "cover": "https://assets.hardcover.app/edition/32733229/ffde87d1b82c6ae1a1efe04e26130a94e18cdb44.jpeg",
+      "genres": [
+        "Family violence",
+        "War"
+      ],
+      "description": "Novel based on the midst of riots and domestic conflicts in Sri Lanka.",
+      "finishedDate": null,
+      "url": "https://hardcover.app/books/sugandhi-enna-a-a-devanayaki"
+    },
+    {
+      "id": 1093170,
+      "title": "ന്റുപ്പുപ്പാക്കൊരാനേണ്ടാർന്ന്! | Ntuppuppaakkoraanendaarnnu!",
+      "authors": [
+        "Vaikom Muhammad Basheer"
+      ],
+      "status": 3,
+      "rating": null,
+      "pages": 130,
+      "year": 1951,
+      "cover": "https://assets.hardcover.app/external_data/60265185/ed7ce17b07ee3cc3d156bcb8cccb5407252b23e3.jpeg",
+      "genres": [],
+      "description": "",
+      "finishedDate": null,
+      "url": "https://hardcover.app/books/ntuppuppaakkoraanendaarnnu"
+    },
+    {
+      "id": 1083024,
+      "title": "വിശ്വവിഖ്യാതമായ മൂക്ക് | Viswavikhyathamaya Mookku",
+      "authors": [
+        "Vaikom Muhammad Basheer"
+      ],
+      "status": 3,
+      "rating": null,
+      "pages": null,
+      "year": 1943,
+      "cover": "https://assets.hardcover.app/external_data/60255475/ed300b4694e97e9dc057e7b4a388af3f7bde4b36.jpeg",
+      "genres": [],
+      "description": "",
+      "finishedDate": null,
+      "url": "https://hardcover.app/books/viswavikhyathamaya-mookku"
+    },
+    {
+      "id": 1515922,
+      "title": "ആനവാരിയും പൊന്‍കുരിശും | Aanavariyum Ponkurisum",
+      "authors": [
+        "Vaikom Muhammad Basheer"
+      ],
+      "status": 3,
+      "rating": null,
+      "pages": 32,
+      "year": 1953,
+      "cover": "https://assets.hardcover.app/external_data/61458336/9b7a2e70acf299300a83d22df66d347143b01718.jpeg",
+      "genres": [
+        "Classics"
+      ],
+      "description": "",
+      "finishedDate": null,
+      "url": "https://hardcover.app/books/aanavariyum-ponkurisum"
+    },
+    {
+      "id": 2113226,
+      "title": "മുച്ചീട്ടുകളിക്കാരന്റെ മകള്‍ | Mucheettukalikkarante Makal",
+      "authors": [
+        "Vaikom Muhammad Basheer"
+      ],
+      "status": 3,
+      "rating": null,
+      "pages": 32,
+      "year": 1951,
+      "cover": "https://assets.hardcover.app/external_data/1414885/202e229eb755d748edda2e782e6508d1fb410f72.jpeg",
+      "genres": [],
+      "description": "",
+      "finishedDate": null,
+      "url": "https://hardcover.app/books/mucheettukalikkarante-makal"
+    },
+    {
+      "id": 2113227,
+      "title": "ശബ്ദങ്ങൾ | Shabdangal",
+      "authors": [
+        "Vaikom Muhammad Basheer"
+      ],
+      "status": 3,
+      "rating": null,
+      "pages": null,
+      "year": 1944,
+      "cover": "https://assets.hardcover.app/external_data/1414823/251d7028bcdb276147daff0706af3ce418baa54b.jpeg",
+      "genres": [],
+      "description": "",
+      "finishedDate": null,
+      "url": "https://hardcover.app/books/shabdangal"
+    }
+  ]
+}

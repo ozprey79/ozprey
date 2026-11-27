@@ -10,6 +10,8 @@
     { label: 'About me', href: '/about' },
     { label: 'Blog', href: '/blog' },
     { label: 'Movies', href: '/movies' },
+    { label: 'Music', href: '/music' },
+    { label: 'Books', href: '/books' },
     { label: 'Close' }
   ];
   let host;

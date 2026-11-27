@@ -14,6 +14,11 @@ Copy `.env.example` to `.env` and supply the private credentials used by the
 film and music routes: `TMDB_ACCESS_TOKEN`, `TMDB_LIST_ID`,
 `LASTFM_API_KEY`, and `LASTFM_USERNAME`. Keep `.env` out of version control.
 
+The books page uses `HARDCOVER_API_TOKEN` and optional `HARDCOVER_USERNAME`
+(defaults to `ozprey7`). It reads only public library entries from Hardcover,
+refreshes at most once every five minutes, and falls back to a saved public
+collection if the API is unavailable. Tokens stay on the server.
+
 ```sh
 npm run build    # Compile client and server for production
 npm run preview  # Preview the production build locally
@@ -36,6 +41,7 @@ See [the library guide](src/lib/README.md) for folder conventions.
 - `src/routes/about/` and `src/lib/about/FisheyeSurface.svelte`: interactive biography.
 - `src/routes/blog/data.js`: blog content used by the list and article routes.
 - `src/routes/movies/` and `src/routes/music/`: server-side API loading and orbit views.
+- `src/routes/books/` and `src/lib/books/`: Hardcover library, interactive page-count shelf, author and publication-decade charts, and searchable index.
 
 ## Animation assets
 
