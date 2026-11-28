@@ -4,7 +4,8 @@
 	--bg:#181818;
 	--heart:rgb(1, 203, 200);
   --bgdot: rgba(49, 49, 49, 0.916);
-  --mfont: "Melodrama", serif;
+  --font-melodrama: "Melodrama", serif;
+  --mfont: var(--font-melodrama);
   --bfont: "Familjen Grotesk", sans-serif;
 }
 

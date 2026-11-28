@@ -1,9 +1,8 @@
 <script>
   import { onMount, tick } from 'svelte';
   import aboutSvg from '$lib/assets/source-art/menu/about.svg?raw';
-  import filmsSvg from '$lib/assets/source-art/menu/ldataviz.svg?raw';
-  import blogSvg from '$lib/assets/source-art/menu/log1.svg?raw';
   import { readMenuSvg } from './readMenuSvg.js';
+  import MorphingMenu from './MorphingMenu.svelte';
 
   let { open = false } = $props();
   let nav;
@@ -13,9 +12,7 @@
 
   let links = $state([]);
   const artwork = [
-    { label: 'About', href: '/about', source: aboutSvg },
-    { label: 'Films', href: '/movies', source: filmsSvg },
-    { label: 'Blog', href: '/blog', source: blogSvg }
+    { label: 'About', href: '/about', source: aboutSvg }
   ];
 
   onMount(() => {
@@ -118,9 +115,7 @@
       </svg>
     </a>
   {/each}
-  <div class="collection-links" role="group" aria-label="Collections">
-    <a href="/movies">Films</a><span aria-hidden="true">/</span><a href="/music">Music</a><span aria-hidden="true">/</span><a href="/books">Books</a>
-  </div>
+  <MorphingMenu {open} />
 </nav>
 
 <style>
@@ -132,7 +127,7 @@
     pointer-events: none;
   }
 
-  a {
+  .about {
     position: absolute;
     display: grid;
     place-items: center;
@@ -148,7 +143,7 @@
     pointer-events: none;
   }
 
-  a:focus-visible {
+  .about:focus-visible {
     outline: 1px solid var(--fill);
     outline-offset: 4px;
     border-radius: 4px;
@@ -172,19 +167,8 @@
   .foreground path { stroke-width: var(--weight); }
 
   .about { --x: 47%; --y: 56%; width: clamp(124px, 24vmin, 232px); }
-  .films { --x: 24%; --y: 69%; }
-  .blog { --x: 72%; --y: 34%; }
-
-  .collection-links { position:absolute; left:50%; bottom:max(24px,env(safe-area-inset-bottom)); transform:translateX(-50%); display:flex; align-items:center; gap:16px; font-size:.8rem; color:var(--fill); }
-  .collection-links a { position:static; transform:none; width:auto; min-height:44px; display:flex; color:inherit; text-decoration:none; }
-  .collection-links a:hover { color:var(--heart); }
-  .collection-links > span { opacity:.35; }
-  .handwritten-menu[inert] .collection-links { visibility:hidden; }
 
   @media (orientation: portrait) {
     .about { --x: 50%; --y: 49%; width: clamp(136px, 44vw, 232px); }
-    .films { --x: 26%; --y: 66%; }
-    .blog { --x: 71%; --y: 33%; }
-    a { width: clamp(84px, 27vw, 148px); }
   }
 </style>
